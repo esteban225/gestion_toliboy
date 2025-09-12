@@ -1,61 +1,239 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Gestión Toliboy - Sistema de Gestión de Producción
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Descripción del Proyecto
 
-## About Laravel
+Gestión Toliboy es un sistema completo de gestión de producción desarrollado en Laravel 12, diseñado para administrar procesos productivos, control de inventarios, gestión de personal y seguimiento de lotes de producción.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Características Principales
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 🔐 Sistema de Autenticación y Autorización
+- Autenticación JWT (JSON Web Tokens)
+- Sistema de roles y permisos granular
+- Middleware de autorización por roles
+- Gestión de sesiones activas de usuarios
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 📦 Gestión de Producción
+- **Productos**: Catálogo completo con especificaciones técnicas
+- **Lotes de Producción**: Control de batches con fechas, cantidades y estados
+- **Materias Primas**: Inventario y control de materiales
+- **Movimientos de Inventario**: Trazabilidad completa de materiales
 
-## Learning Laravel
+### 👥 Gestión de Personal
+- **Usuarios**: Sistema completo de usuarios con roles
+- **Datos Personales**: Información detallada del personal
+- **Registro de Trabajo**: Control de horas trabajadas y tareas
+- **Resumen de Trabajo**: Reportes de productividad
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 📋 Sistema de Formularios
+- **Formularios Dinámicos**: Creación de formularios personalizables
+- **Campos de Formulario**: Diferentes tipos de campos
+- **Respuestas**: Captura y almacenamiento de respuestas
+- **Reportes**: Análisis de datos capturados
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 🔔 Sistema de Notificaciones
+- Notificaciones a usuarios
+- Alertas del sistema
+- Log de auditoría completo
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Estructura del Proyecto
 
-## Laravel Sponsors
+### Arquitectura MVC
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```
+app/
+├── Http/
+│   ├── Controllers/          # Controladores de la aplicación
+│   │   ├── AuthController.php
+│   │   ├── UserDataController.php
+│   │   └── RoleController.php
+│   ├── Middleware/           # Middleware personalizado
+│   │   └── RoleAuthorization.php
+│   └── Kernel.php           # Kernel HTTP
+├── Models/                  # Modelos Eloquent
+│   ├── User.php
+│   ├── Role.php
+│   ├── Product.php
+│   ├── Batch.php
+│   ├── WorkLog.php
+│   ├── Form.php
+│   └── ...
+└── Providers/              # Proveedores de servicios
+```
 
-### Premium Partners
+### Estructura de Base de Datos
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+#### Tablas Principales
+- **users**: Usuarios del sistema
+- **roles**: Roles y permisos
+- **personal_data**: Datos personales de usuarios
+- **products**: Catálogo de productos
+- **raw_materials**: Materias primas
+- **batches**: Lotes de producción
+- **inventory_movements**: Movimientos de inventario
+- **work_logs**: Registro de trabajo
+- **forms**: Formularios dinámicos
+- **form_fields**: Campos de formularios
+- **form_responses**: Respuestas a formularios
+- **notifications**: Sistema de notificaciones
+- **audit_logs**: Log de auditoría
 
-## Contributing
+## Tecnologías Utilizadas
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Backend
+- **Laravel 12**: Framework PHP principal
+- **PHP 8.2+**: Lenguaje de programación
+- **JWT Auth**: Autenticación mediante tokens
+- **Eloquent ORM**: Mapeado objeto-relacional
 
-## Code of Conduct
+### Frontend
+- **Vite**: Bundler de assets
+- **Tailwind CSS 4.0**: Framework CSS
+- **Laravel Vite Plugin**: Integración con Laravel
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Testing
+- **Pest PHP**: Framework de testing
+- **PHPUnit**: Testing unitario
 
-## Security Vulnerabilities
+### Herramientas de Desarrollo
+- **Laravel Pint**: Code styling
+- **Laravel Sail**: Entorno de desarrollo Docker
+- **Composer**: Gestor de dependencias PHP
+- **NPM**: Gestor de paquetes Node.js
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Instalación y Configuración
 
-## License
+### Requisitos
+- PHP 8.2 o superior
+- Composer
+- Node.js y NPM
+- Base de datos MySQL/PostgreSQL/SQLite
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Pasos de Instalación
+
+1. **Clonar el repositorio**
+   ```bash
+   git clone https://github.com/esteban225/gestion_toliboy.git
+   cd gestion_toliboy
+   ```
+
+2. **Instalar dependencias PHP**
+   ```bash
+   composer install
+   ```
+
+3. **Instalar dependencias Node.js**
+   ```bash
+   npm install
+   ```
+
+4. **Configurar variables de entorno**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   php artisan jwt:secret
+   ```
+
+5. **Configurar base de datos**
+   - Editar el archivo `.env` con los datos de conexión
+   - Ejecutar migraciones:
+   ```bash
+   php artisan migrate
+   ```
+
+6. **Semillas de datos (opcional)**
+   ```bash
+   php artisan db:seed
+   ```
+
+7. **Compilar assets**
+   ```bash
+   npm run build
+   ```
+
+### Desarrollo
+
+```bash
+# Iniciar servidor de desarrollo
+composer run dev
+
+# O alternativamente
+php artisan serve &
+npm run dev &
+php artisan queue:listen --tries=1 &
+```
+
+## API Endpoints
+
+### Autenticación
+- `POST /api/register` - Registro de usuarios
+- `POST /api/login` - Inicio de sesión
+- `POST /api/logout` - Cerrar sesión
+- `POST /api/refresh` - Refrescar token
+- `GET /api/me` - Obtener usuario actual
+
+### Datos de Usuario (Requiere rol Developer)
+- `GET /api/userData` - Listar datos personales
+- `POST /api/userData` - Crear datos personales
+- `GET /api/userData/{id}` - Obtener datos específicos
+- `PUT /api/userData/{id}` - Actualizar datos
+- `DELETE /api/userData/{id}` - Eliminar datos
+
+### Roles y Permisos
+El sistema utiliza middleware personalizado para controlar el acceso:
+- **Developer**: Acceso completo al sistema
+- **Admin**: Acceso administrativo (rutas futuras)
+- **User**: Acceso básico (rutas públicas)
+
+## Testing
+
+```bash
+# Ejecutar todos los tests
+composer run test
+
+# O usando Pest directamente
+./vendor/bin/pest
+
+# Tests con coverage
+./vendor/bin/pest --coverage
+```
+
+## Estructura de Modelos y Relaciones
+
+### Modelo User
+- **Relaciones**:
+  - `hasOne(PersonalDatum)`
+  - `belongsTo(Role)`
+  - `hasMany(WorkLog, Batch, Product, etc.)`
+
+### Modelo Product
+- **Campos**: name, code, category, specifications (JSON)
+- **Relaciones**: `hasMany(Batch)`, `belongsTo(User)`
+
+### Modelo Batch
+- **Campos**: name, code, start_date, end_date, status, quantity
+- **Relaciones**: `belongsTo(Product, User)`, `hasMany(WorkLog, FormResponse)`
+
+### Modelo WorkLog
+- **Campos**: date, start_time, end_time, total_hours, task_description
+- **Relaciones**: `belongsTo(User, Batch)`
+
+## Contribución
+
+1. Fork el proyecto
+2. Crear una rama feature (`git checkout -b feature/AmazingFeature`)
+3. Commit los cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abrir un Pull Request
+
+## Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## Contacto
+
+**Desarrollador**: esteban225  
+**GitHub**: [https://github.com/esteban225/gestion_toliboy](https://github.com/esteban225/gestion_toliboy)
+
+---
+
+*Sistema desarrollado para la gestión eficiente de procesos productivos y control de personal.*
