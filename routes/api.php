@@ -13,17 +13,28 @@ use App\Http\Controllers\FormResponseController;
 use App\Http\Controllers\FormResponseValueController;
 use App\Http\Controllers\WorkLogsController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
+
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
+
+
 // Rutas protegidas solo para Developer
-Route::middleware(['api', 'jwt.auth', 'role:Developer'])->group(function () {
+Route::middleware(['api', 'jwt.auth', 'role:Developer', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
+
+    // Rutas de roles
+    Route::resource('roles', RoleController::class);
+
+    // Rutas de datos de usuario
     Route::resource('userData', UserDataController::class);
 
     // Rutas de gestión de usuarios
@@ -60,13 +71,13 @@ Route::middleware(['api', 'jwt.auth', 'role:Developer'])->group(function () {
     Route::resource('notifications', NotificationsController::class);
 });
 
-// Ruta para múltiples roles
-Route::middleware(['api', 'role:Developer,Admin'])->group(function () {
-    // Route::get('/reports', [ReportController::class, 'index']);
-    // Route::get('/analytics', [AnalyticsController::class, 'index']);
-});
+// // Ruta para múltiples roles
+// Route::middleware(['api', 'role:Developer,Admin'])->group(function () {
+//     // Route::get('/reports', [ReportController::class, 'index']);
+//     // Route::get('/analytics', [AnalyticsController::class, 'index']);
+// });
 
-// Ruta pública (sin verificación de rol)
-Route::middleware('api')->group(function () {
-    // Route::get('/profile', [ProfileController::class, 'show']);
-});
+// // Ruta pública (sin verificación de rol)
+// Route::middleware('api')->group(function () {
+//     // Route::get('/profile', [ProfileController::class, 'show']);
+// });

@@ -29,6 +29,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             // API middleware group
+            'dbSessionUser' => \App\Http\Middleware\DbSessionUser::class,
         ],
     ];
 
@@ -52,7 +53,9 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleAuthorization::class,
+        'db.session.user' => \App\Http\Middleware\SetDbSessionUser::class,
     ];
+
 
     /**
      * Register the application's route middleware.

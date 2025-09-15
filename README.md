@@ -1,3 +1,238 @@
+# Gestión Toliboy - Sistema de Gestión Laravel
+
+## Descripción General
+
+Gestión Toliboy es una aplicación web desarrollada con Laravel 12 que proporciona una plataforma completa para la gestión de procesos de producción, inventario, formularios personalizables y registros de trabajo. La aplicación cuenta con una API RESTful protegida mediante autenticación JWT y control de acceso basado en roles.
+
+## Características Principales
+
+- **Autenticación JWT** con roles de usuario (Developer, Admin)
+- **Gestión de productos** y materias primas
+- **Control de lotes de producción**
+- **Gestión de inventario** con registro de movimientos
+- **Formularios personalizables** con campos dinámicos
+- **Registro de horas de trabajo**
+- **Sistema de notificaciones**
+- **API RESTful** para integración con otros sistemas
+
+## Requisitos del Sistema
+
+- PHP 8.3 o superior
+- Composer 2.0+
+- Node.js 18+ y NPM
+- MySQL 8.0+ o PostgreSQL 13+ (recomendado)
+- Servidor web (Apache/Nginx)
+
+## Instalación y Configuración
+
+### Requisitos Previos
+
+Asegúrese de tener instalado:
+
+- PHP 8.3+
+- Composer
+- Node.js y NPM
+- MySQL o PostgreSQL
+
+### Pasos de Instalación
+
+1. **Clonar el repositorio**:
+
+   ```bash
+   git clone https://github.com/yourusername/gestion-toliboy.git
+   cd gestion-toliboy
+   ```
+
+2. **Instalar dependencias PHP** (IMPORTANTE para PHP 8.3):
+
+   ```bash
+   composer update --no-interaction
+   composer install --no-interaction
+   ```
+
+   > ⚠️ **IMPORTANTE**: El comando `composer update` puede tardar 5-6 minutos. NUNCA lo cancele. Configure un timeout de al menos 10 minutos.
+
+3. **Instalar dependencias Node.js**:
+
+   ```bash
+   npm install
+   npm audit fix
+   ```
+
+4. **Configurar el entorno**:
+
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   php artisan jwt:secret
+   ```
+
+5. **Configurar la base de datos SQLite** (para desarrollo rápido):
+
+   ```bash
+   touch database/database.sqlite
+   php artisan session:table
+   php artisan migrate
+   ```
+
+6. **Compilar assets**:
+
+   ```bash
+   npm run build
+   ```
+
+7. **Iniciar servidor de desarrollo**:
+
+   ```bash
+   php artisan serve --host=0.0.0.0 --port=8000
+   ```
+
+   Acceder a: <http://localhost:8000>
+
+## Desarrollo
+
+### Entorno de desarrollo con hot reload
+
+Para desarrollo con recarga automática:
+
+1. Configure en su archivo .env:
+
+   ```
+   LARAVEL_BYPASS_ENV_CHECK=1
+   ```
+
+2. Ejecute:
+
+   ```bash
+   composer run dev
+   ```
+
+Este comando iniciará el servidor, el listener de colas y Vite concurrentemente.
+
+### Formateo de Código
+
+El proyecto utiliza Laravel Pint para mantener un estilo de código consistente:
+
+```bash
+# Verificar formato sin modificar archivos
+vendor/bin/pint --test
+
+# Corregir formato
+vendor/bin/pint
+```
+
+> ⚠️ **CRÍTICO**: Siempre ejecute Pint antes de realizar commits. La base de código actual tiene 37+ violaciones de estilo que causarán fallos en CI si no se corrigen.
+
+### Pruebas
+
+```bash
+# Ejecutar todas las pruebas
+php artisan test
+
+# Ejecutar pruebas específicas
+php artisan test --filter=ProductTest
+```
+
+## Estructura de la API
+
+Todas las rutas de API están disponibles bajo el prefijo `/api` y la mayoría requieren autenticación JWT.
+
+### Endpoints Principales
+
+#### Autenticación
+
+- **POST /api/register**: Registro de usuario
+- **POST /api/login**: Iniciar sesión (obtener token JWT)
+- **POST /api/logout**: Cerrar sesión (requiere autenticación)
+- **POST /api/refresh**: Refrescar token JWT
+
+#### Usuarios y Datos Personales
+
+- **Resource /api/users**: Gestión de usuarios
+- **Resource /api/userData**: Datos personales de los usuarios
+
+#### Gestión de Producción
+
+- **Resource /api/products**: Productos
+- **Resource /api/batches**: Lotes de producción
+- **Resource /api/raw-materials**: Materias primas
+- **Resource /api/inventory-movements**: Movimientos de inventario
+
+#### Formularios y Respuestas
+
+- **Resource /api/forms**: Formularios configurables
+- **Resource /api/form-fields**: Campos de formularios
+- **Resource /api/form-responses**: Respuestas a formularios
+- **Resource /api/form-response-values**: Valores de respuestas
+
+#### Otros Recursos
+
+- **Resource /api/work-logs**: Registro de horas de trabajo
+- **Resource /api/notifications**: Sistema de notificaciones
+
+## Validación y Seguridad
+
+El sistema utiliza Form Requests para validar todas las entradas, con mensajes de error personalizados en español:
+
+- **UserRequest**: Validación de usuarios
+- **ProductRequest**: Validación de productos
+- **BatchRequest**: Validación de lotes
+- **RawMaterialRequest**: Validación de materias primas
+- **InventoryMovementRequest**: Validación de movimientos de inventario
+- **FormRequest**: Validación de formularios
+- **FormFieldRequest**: Validación de campos de formulario
+- **FormResponseRequest**: Validación de respuestas
+- **FormResponseValueRequest**: Validación de valores de respuestas
+- **WorkLogRequest**: Validación de registros de trabajo
+- **NotificationRequest**: Validación de notificaciones
+
+## Solución de Problemas
+
+### Problemas Comunes
+
+1. **Fallo en la instalación de Composer**: Ejecute `composer update` primero debido a la compatibilidad con PHP 8.3
+2. **Fallo en el servidor de desarrollo Vite en CI**: Añada `LARAVEL_BYPASS_ENV_CHECK=1` a .env
+3. **Errores en endpoints de API**: Es posible que la base de datos necesite una configuración adecuada para las tablas User/Role
+4. **Fallos en pruebas**: Asegúrese de que la base de datos esté migrada para el entorno de prueba
+5. **Fallos de formato de código**: Ejecute `vendor/bin/pint` antes de realizar commits
+
+### Notas de Rendimiento
+
+- Las compilaciones del frontend son muy rápidas (~1.5 segundos)
+- Las pruebas se ejecutan rápidamente (~0.5 segundos)
+- La configuración inicial de composer es lenta (5-6 minutos) pero las instalaciones posteriores son rápidas
+- Las operaciones de base de datos son rápidas debido a SQLite
+
+## Advertencias Críticas
+
+- **NUNCA CANCELE** el comando composer update - siempre permita 10+ minutos
+- **SIEMPRE ejecute Pint** antes de realizar commits para evitar fallos en CI
+- **Esquema de base de datos incompleto** - la funcionalidad completa requiere configuración adicional
+- **Se requiere autenticación JWT** para la mayoría de los endpoints de API
+
+## Estructura de Directorios
+
+- **app/**: Contiene el código principal de la aplicación
+  - **Http/Controllers/**: Controladores para cada recurso
+  - **Http/Requests/**: Form Requests para validación
+  - **Http/Middleware/**: Middleware personalizado (roles, sesión)
+  - **Models/**: Modelos de Eloquent
+
+- **config/**: Archivos de configuración
+  - **auth.php**: Configuración de autenticación
+  - **jwt.php**: Configuración de JWT
+
+- **database/**: Migraciones y seeds
+  - **migrations/**: Definición del esquema de base de datos
+
+- **routes/**: Definición de rutas
+  - **api.php**: Rutas de la API
+  - **web.php**: Rutas web (no API)
+
+## Contacto y Soporte
+
+Para soporte técnico, comuníquese con el equipo de desarrollo en <support@toliboy.com> o abra un issue en el repositorio del proyecto.
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
