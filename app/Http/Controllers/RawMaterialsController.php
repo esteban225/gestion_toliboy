@@ -68,6 +68,7 @@ class RawMaterialsController extends Controller
             'code' => 'required|string|max:100|unique:raw_materials,code',
             'description' => 'nullable|string',
             'unit_of_measure' => 'required|string|max:50',
+            'stock' => 'required|numeric|min:0',
             'min_stock' => 'nullable|numeric|min:0',
             'is_active' => 'required|boolean',
             'created_by' => 'nullable|integer|exists:users,id'
@@ -169,6 +170,7 @@ class RawMaterialsController extends Controller
             'code' => 'sometimes|required|string|max:100|unique:raw_materials,code,' . $id,
             'description' => 'nullable|string',
             'unit_of_measure' => 'sometimes|required|string|max:50',
+            'stock' => 'sometimes|required|numeric|min:0',
             'min_stock' => 'nullable|numeric|min:0',
             'is_active' => 'sometimes|required|boolean',
             'created_by' => 'nullable|integer|exists:users,id'

@@ -22,11 +22,18 @@ class BatchesController extends Controller
         try {
             // Obtiene todos los lotes de la base de datos
             $batches = Batch::all();
-            return response()->json([
-                'status' => true,
-                'message' => 'Lotes encontrados',
-                'data' => $batches
-            ], 200);
+
+            if ($batches->isEmpty()) {
+                // Si no hay lotes registrados
+                return response()->json(['message' => 'No se encuentran lotes'], 404);
+            } else {
+                // Si existen lotes, retorna los datos
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Lotes encontrados',
+                    'data' => $batches
+                ], 200);
+            }
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([

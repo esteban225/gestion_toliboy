@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * 
  * @property int $id
  * @property int $connection_id
- * @property int $user_id
+ * @property int|null $user_id
  * @property string $user_name
  * @property string $email
  * @property string|null $ip_address

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $code
  * @property string|null $description
  * @property string $unit_of_measure
+ * @property float $stock
  * @property float|null $min_stock
  * @property bool $is_active
  * @property int|null $created_by
@@ -34,6 +35,7 @@ class RawMaterial extends Model
 	protected $table = 'raw_materials';
 
 	protected $casts = [
+		'stock' => 'float',
 		'min_stock' => 'float',
 		'is_active' => 'bool',
 		'created_by' => 'int'
@@ -44,6 +46,7 @@ class RawMaterial extends Model
 		'code',
 		'description',
 		'unit_of_measure',
+		'stock',
 		'min_stock',
 		'is_active',
 		'created_by'

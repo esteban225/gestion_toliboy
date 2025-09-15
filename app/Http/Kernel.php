@@ -29,7 +29,6 @@ class Kernel extends HttpKernel
 
         'api' => [
             // API middleware group
-            'dbSessionUser' => \App\Http\Middleware\DbSessionUser::class,
         ],
     ];
 

@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS `ftoliboy_toliboy_data`.`raw_materials` (
   `code` VARCHAR(50) NOT NULL,
   `description` TEXT NULL DEFAULT NULL,
   `unit_of_measure` VARCHAR(50) NOT NULL, -- ej: kg, litros, unidades
+  `stock` DECIMAL(10,2) NOT NULL DEFAULT 0, -- stock físico registrado (sincronizar con movimientos)
   `min_stock` DECIMAL(10,2) DEFAULT 0,   -- stock mínimo permitido
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `created_by` BIGINT NULL,
@@ -894,14 +895,23 @@ SELECT
     rm.name,
     rm.code,
     rm.unit_of_measure,
+    rm.stock AS recorded_stock,
     COALESCE(SUM(CASE WHEN im.movement_type = 'in' THEN im.quantity
                       WHEN im.movement_type = 'out' THEN -im.quantity
                       WHEN im.movement_type = 'adjustment' THEN im.quantity
-                 END), 0) AS current_stock,
+                 END), 0) AS movements_stock,
+    -- current_stock: si rm.stock es distinto de NULL/0 se prioriza, sino se usa el calculado por movimientos
+    CASE
+      WHEN rm.stock IS NOT NULL AND rm.stock <> 0 THEN rm.stock
+      ELSE COALESCE(SUM(CASE WHEN im.movement_type = 'in' THEN im.quantity
+                             WHEN im.movement_type = 'out' THEN -im.quantity
+                             WHEN im.movement_type = 'adjustment' THEN im.quantity
+                        END), 0)
+    END AS current_stock,
     rm.min_stock
 FROM raw_materials rm
 LEFT JOIN inventory_movements im ON im.raw_material_id = rm.id
-GROUP BY rm.id, rm.name, rm.code, rm.unit_of_measure, rm.min_stock;
+GROUP BY rm.id, rm.name, rm.code, rm.unit_of_measure, rm.stock, rm.min_stock;
 
 
 -- Ya existe: v_current_stock. Agregamos más vistas complementarias.
@@ -1116,6 +1126,7 @@ BEGIN
             'code', NEW.code,
             'description', NEW.description,
             'unit_of_measure', NEW.unit_of_measure,
+            'stock', NEW.stock,
             'min_stock', NEW.min_stock,
             'is_active', NEW.is_active,
             'created_by', NEW.created_by
@@ -1135,6 +1146,7 @@ BEGIN
             'code', OLD.code,
             'description', OLD.description,
             'unit_of_measure', OLD.unit_of_measure,
+            'stock', OLD.stock,
             'min_stock', OLD.min_stock,
             'is_active', OLD.is_active,
             'created_by', OLD.created_by
@@ -1144,6 +1156,7 @@ BEGIN
             'code', NEW.code,
             'description', NEW.description,
             'unit_of_measure', NEW.unit_of_measure,
+            'stock', NEW.stock,
             'min_stock', NEW.min_stock,
             'is_active', NEW.is_active,
             'created_by', NEW.created_by
@@ -1163,6 +1176,7 @@ BEGIN
             'code', OLD.code,
             'description', OLD.description,
             'unit_of_measure', OLD.unit_of_measure,
+            'stock', OLD.stock,
             'min_stock', OLD.min_stock,
             'is_active', OLD.is_active,
             'created_by', OLD.created_by
