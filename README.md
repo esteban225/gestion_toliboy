@@ -1,172 +1,374 @@
-# Gestion Toliboy
+# Gestión Toliboy - Sistema de Gestión de Panadería y Pastelería
 
-<div align="center">
-  <h1>Gestion Toliboy</h1>
-  <p>Backend Laravel 12 para gestión de producción, lotes, inventario, formularios y control horario.</p>
-  <p>
-    <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=flat-square" alt="Laravel">
-    <img src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=flat-square" alt="PHP">
-    <img src="https://img.shields.io/badge/DB-MySQL%20/SQLite-4479A1?style=flat-square" alt="DB">
-    <img src="https://img.shields.io/badge/JWT-Auth-000000?style=flat-square" alt="JWT">
-    <img src="https://img.shields.io/badge/Soketi-WebSockets-4ea8de?style=flat-square" alt="Soketi">
-  </p>
-</div>
+Sistema de gestión integral para empresas de producción panadera y pastelera construido con Laravel 12.0. Incluye gestión de lotes de producción, inventario, formularios dinámicos, control de calidad, logs de trabajo y reportes con autenticación JWT y control de acceso basado en roles.
 
----
+## 🚀 Características Principales
 
-## Resumen rápido
-API RESTful con:
-- Autenticación JWT y control por roles (DEV, GG, INPL, INPR, TRZ, OP).
-- Gestión de materias primas, productos, lotes, movimientos de inventario.
-- Formularios dinámicos y registro de respuestas.
-- Work logs (registro de jornada) con cálculo de horas extras.
-- Exportes de reportes: CSV, PDF, XLSX (maatwebsite/excel).
-- Integración WebSockets (Soketi) para features en tiempo real.
+- **Autenticación JWT** con control de acceso basado en roles (Developer, Gerente General, Ingenieros, Operarios, Trazabilidad)
+- **API RESTful** completa con documentación
+- **Formularios Dinámicos** para control de calidad y producción
+- **Gestión de Inventario** con seguimiento de materias primas y productos
+- **Generación de Reportes** en PDF/CSV/Excel
+- **Sistema de Roles y Permisos** granular
+- **Logs de Trabajo** y seguimiento de actividades
+- **Dashboard** interactivo con métricas
+- **Arquitectura Modular** limpia y escalable
+- **Frontend** moderno con Vite y TailwindCSS
 
-## Requisitos (entorno de desarrollo)
-- PHP 8.2+ (ver nota en Composer para PHP 8.3)
-- Composer
-- Node.js + npm
-- MySQL o SQLite
-- Opcionales (para exportes): ext-zip, ext-gd, ext-mbstring, ext-intl
-- Paquetes PHP opcionales:
-  - dompdf/dompdf (PDF export)
-  - maatwebsite/excel (XLSX export)
+## 🏗️ Arquitectura del Sistema
 
-## Instalación (rápida, Windows / PowerShell)
-Importante: si tu entorno usa PHP 8.3 sigue la regla de Composer indicada más abajo.
+### Estructura Modular
+El proyecto utiliza una arquitectura modular basada en DDD (Domain Driven Design):
 
-1. Clonar y entrar al proyecto
-```powershell
-git clone <repo-url>
+```
+app/
+├── Http/Controllers/          # Controladores principales
+├── Models/                    # Modelos Eloquent
+├── Modules/                   # Módulos del dominio
+│   ├── Forms/                 # Gestión de formularios dinámicos
+│   ├── Reports/              # Generación de reportes
+│   ├── WorkLogs/             # Logs de trabajo
+│   ├── Inventory/            # Gestión de inventario
+│   ├── Users/                # Gestión de usuarios
+│   ├── Notifications/        # Sistema de notificaciones
+│   └── Roles/                # Control de acceso
+└── Providers/                # Service Providers
+```
+
+### Roles del Sistema
+- **DEV**: Desarrollador con acceso completo
+- **GG**: Gerente General (dashboards, estadísticas)
+- **INPL/INPR**: Ingenieros de Planta/Proceso (formularios, work-logs)
+- **TRZ**: Trazabilidad (informes, lectura de formularios)
+- **OP**: Operarios (diligenciamiento de formularios, registro de horas)
+
+## 📋 Requisitos del Sistema
+
+- **PHP**: >= 8.3
+- **Composer**: >= 2.0
+- **Node.js**: >= 16.x
+- **NPM**: >= 8.x
+- **Base de Datos**: MySQL/SQLite
+- **Extensiones PHP**: OpenSSL, PDO, Mbstring, Tokenizer, XML, Ctype, JSON, BCMath, Fileinfo
+
+## ⚡ Instalación y Configuración
+
+### 1. Clonar el Repositorio
+```bash
+git clone <repository-url>
 cd gestion_toliboy
 ```
 
-2. Dependencias PHP (IMPORTANTE para PHP 8.3)
-```powershell
-# En un entorno nuevo ejecutar:
-composer update --no-interaction    # toma 5-6 minutos, NO CANCELAR (timeout 10+ min)
+### 2. Instalar Dependencias PHP (CRÍTICO)
+```bash
+# REQUERIDO para compatibilidad con PHP 8.3 - NO CANCELAR (5-6 minutos)
+composer update --no-interaction
+
+# Después de la actualización
 composer install --no-interaction
 ```
 
-3. Dependencias Node
-```powershell
+### 3. Instalar Dependencias Node.js
+```bash
 npm install
 npm audit fix
 ```
 
-4. Variables de entorno
-```powershell
+### 4. Configuración del Entorno
+```bash
+# Copiar archivo de configuración
 cp .env.example .env
+
+# Generar claves de aplicación
 php artisan key:generate
 php artisan jwt:secret
 ```
 
-5. Base de datos
-- SQLite (rápido para desarrollo):
-```powershell
-New-Item -Path database -Name database.sqlite -ItemType File
-# y en .env: DB_CONNECTION=sqlite DB_DATABASE=database/database.sqlite
+### 5. Configurar Base de Datos
+```bash
+# Para SQLite (desarrollo)
+touch database/database.sqlite
+
+# Para MySQL, configurar en .env:
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=gestion_toliboy
+# DB_USERNAME=root
+# DB_PASSWORD=
+```
+
+### 6. Ejecutar Migraciones
+```bash
+# Crear tabla de sesiones (requerida para interfaz web)
 php artisan session:table
+
+# Ejecutar migraciones
 php artisan migrate
 ```
-- MySQL: importar el SQL maestro o ejecutar migraciones después de configurar .env:
-```powershell
-# Importar SQL (ejemplo)
-mysql -u root -p ftoliboy_toliboy_data < db.info/ftoliboy_toliboy_data.sql
-```
 
-6. Seeders (roles y usuario dev)
-```powershell
-php artisan db:seed
-```
-Usuario por defecto: dev@example.com / password (cambiar en prod).
-
-7. Build frontend (producción)
-```powershell
+### 7. Construir Assets Frontend
+```bash
 npm run build
 ```
 
-## Ejecución
-- Servidor local:
-```powershell
-php artisan serve --host=0.0.0.0 --port=8000
-```
-Acceso API base: http://localhost:8000/api
+## 🚀 Ejecución del Sistema
 
-- En desarrollo con recarga (Vite):
-establecer `LARAVEL_BYPASS_ENV_CHECK=1` en .env y seguir tu flujo de dev (ver instrucciones de front).
-
-## Endpoints importantes (resumen)
-- POST /api/auth/login — obtener JWT
-- GET /api/me — usuario autenticado
-- GET /api/db/dashboard — vistas principales (roles: DEV, GG, INPL, INPR)
-- GET /api/reports/{reportName} — obtener reporte por nombre (GG, INPL, INPR, DEV)
-- GET /api/reports/{reportName}/export?format=csv|pdf|xlsx — exportar reporte
-- POST /api/form-responses — operarios: guardar respuestas de formularios
-- POST /api/work-logs — operarios: registrar jornada
-- Rutas CRUD para recursos según rol (ver routes/api.php)
-
-## Roles y permisos (comportamiento)
-- DEV: administración total (users, roles, todos los recursos).
-- GG (Gerente General): vistas/estadísticas, notificaciones y widgets del front.
-- INPL / INPR (Ingenieros): acceso a estadísticas, formularios, work-logs.
-- TRZ (Trazabilidad): acceso lectura a informes, formularios y reportes.
-- OP (Operarios): diligenciamiento de formularios y registro de horas.
-
-## Exportes y librerías en producción
-- XLSX requiere maatwebsite/excel:
-  composer require maatwebsite/excel
-- PDF requiere dompdf:
-  composer require dompdf/dompdf
-- Verificar extensiones PHP en servidor (zip, gd, mbstring, intl).
-
-Importante en producción:
-- Usar composer.lock; NO ejecutar `composer update` en prod.
-- En deploy:
+### Servidor de Desarrollo
 ```bash
-composer install --no-dev --optimize-autoloader
+# Servidor web
+php artisan serve --host=0.0.0.0 --port=8000
+
+# Modo desarrollo con hot reload
+LARAVEL_BYPASS_ENV_CHECK=1 composer run dev
+```
+
+### Acceso al Sistema
+- **Aplicación Web**: http://localhost:8000
+- **API Base**: http://localhost:8000/api
+- **Documentación API**: http://localhost:8000/docs/api
+
+## 🗄️ Base de Datos
+
+### Esquema Principal
+```sql
+-- Usuarios y Roles
+users, roles, user_roles
+
+-- Inventario
+raw_materials, products, batches, inventory_movements
+
+-- Formularios Dinámicos
+forms, form_fields, form_responses, form_response_values
+
+-- Trabajo y Trazabilidad
+work_logs, notifications
+
+-- Auditoría
+audit_logs
+```
+
+### Vistas del Sistema
+- `v_users_by_role` - Usuarios por rol
+- `v_products_by_category` - Productos por categoría
+- `v_batches_by_status` - Lotes por estado
+- `v_inventory_monthly_summary` - Resumen mensual de inventario
+- `v_forms_completion_rate` - Tasa de completitud de formularios
+- `v_user_work_hours_by_month` - Horas trabajadas por usuario
+- `v_current_stock` - Stock actual
+- Y más vistas especializadas...
+
+## 🔐 API y Autenticación
+
+### Endpoints Principales
+```bash
+# Autenticación
+POST /api/register
+POST /api/login
+POST /api/logout
+POST /api/refresh
+
+# Recursos (requieren autenticación JWT)
+GET|POST|PUT|DELETE /api/forms
+GET|POST|PUT|DELETE /api/form-responses
+GET|POST|PUT|DELETE /api/work-logs
+GET|POST|PUT|DELETE /api/products
+GET|POST|PUT|DELETE /api/batches
+GET|POST|PUT|DELETE /api/inventory-movements
+
+# Reportes
+GET /api/forms/{formId}/report/pdf
+GET /api/reports/{reportName}
+GET /api/reports/{reportName}/export
+```
+
+### Autenticación JWT
+```bash
+# Login y obtener token
+curl -X POST http://localhost:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password"}'
+
+# Usar token en requests
+curl -H "Authorization: Bearer <TOKEN>" \
+  http://localhost:8000/api/forms
+```
+
+## 📊 Sistema de Formularios Dinámicos
+
+### Creación de Formularios
+Los formularios se crean dinámicamente con campos configurables:
+- Texto, textarea, select, checkbox, number, date, file
+- Validaciones personalizadas
+- Opciones múltiples para campos select/checkbox
+
+### Generación de Reportes
+```php
+// Generar PDF de formulario
+GET /api/forms/{formId}/report/pdf?date_from=2024-01-01&date_to=2024-12-31
+
+// Parámetros disponibles:
+// - format: csv, pdf, xlsx
+// - date_from, date_to: filtros de fecha
+// - limit: límite de registros (máximo 5000)
+```
+
+## 🧪 Testing y Calidad
+
+### Ejecutar Tests
+```bash
+# Tests completos
+php artisan test
+
+# Tests específicos
+php artisan test tests/Feature/FormsTest.php
+php artisan test --filter test_create_form
+```
+
+### Formateo de Código
+```bash
+# Verificar formato
+vendor/bin/pint --test
+
+# Aplicar formato (EJECUTAR ANTES DE COMMIT)
+vendor/bin/pint
+```
+
+## 📁 Estructura de Módulos
+
+### Módulo Forms (Ejemplo)
+```
+app/Modules/Forms/
+├── Domain/
+│   ├── Entities/          # Entidades del dominio
+│   ├── Repositories/      # Interfaces de repositorio
+│   └── Services/          # Servicios del dominio
+├── Infrastructure/
+│   └── Repositories/      # Implementaciones de repositorio
+├── Application/
+│   └── UseCases/          # Casos de uso
+└── Http/
+    ├── Controllers/       # Controladores HTTP
+    ├── Requests/          # Form Requests
+    └── routes.php         # Rutas del módulo
+```
+
+## 🔧 Configuración Avanzada
+
+### Variables de Entorno Importantes
+```bash
+# Aplicación
+APP_NAME="Gestión Toliboy"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+# Base de Datos
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_DATABASE=gestion_toliboy
+
+# JWT
+JWT_SECRET=your-jwt-secret-key
+JWT_TTL=60
+
+# Para desarrollo con Vite en CI
+LARAVEL_BYPASS_ENV_CHECK=1
+```
+
+### Configuración de Roles
+```php
+// Configurar roles por defecto
+php artisan db:seed --class=RolesSeeder
+```
+
+## 🚨 Solución de Problemas
+
+### Problemas Comunes
+
+1. **Error de Composer**
+   ```bash
+   # SOLUCIÓN: Actualizar dependencias primero
+   composer update --no-interaction
+   ```
+
+2. **Error CSRF en API**
+   ```php
+   // Excluir rutas API en app/Http/Middleware/VerifyCsrfToken.php
+   protected $except = ['api/*'];
+   ```
+
+3. **Error de Vite en CI**
+   ```bash
+   # Agregar a .env
+   LARAVEL_BYPASS_ENV_CHECK=1
+   ```
+
+4. **Problemas con Reportes PDF**
+   ```bash
+   # Instalar dependencias de PDF
+   composer require dompdf/dompdf
+   ```
+
+### Comandos de Limpieza
+```bash
+php artisan optimize:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+composer dump-autoload
+```
+
+## 📈 Rendimiento
+
+### Tiempos de Build
+- **Composer update**: 5-6 minutos (inicial)
+- **NPM install**: ~10 segundos
+- **Frontend build**: ~1.5 segundos
+- **Tests**: ~0.5 segundos
+- **Formateo código**: ~5 segundos
+- **Migraciones**: ~0.2 segundos
+
+### Optimizaciones
+```bash
+# Cache de configuración para producción
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
+# Optimización de Composer
+composer install --optimize-autoloader --no-dev
 ```
-- Para exportes grandes: usar jobs en background (queues) en lugar de procesamiento sincrónico.
 
-## Testing & Calidad
-- Tests: `php artisan test` (Pest)
-- Formateo: `vendor/bin/pint --test` y `vendor/bin/pint`
-- CI: Ejecutar Pint antes de commitear para evitar fallos en CI.
+## 📚 Documentación Adicional
 
-## Broadcasting / WebSockets
-- Configurar Soketi (Docker o NPM). Variables en .env:
-```
-BROADCAST_DRIVER=pusher
-PUSHER_APP_ID=local
-PUSHER_APP_KEY=local
-PUSHER_APP_SECRET=local
-PUSHER_HOST=127.0.0.1
-PUSHER_PORT=6001
-PUSHER_SCHEME=http
-```
-- Asegurar /broadcasting/auth protegido por JWT para canales privados/presence.
+### Recursos Útiles
+- [Documentación Laravel](https://laravel.com/docs)
+- [JWT Auth Package](https://github.com/tymondesigns/jwt-auth)
+- [Pest Testing](https://pestphp.com/)
+- [Laravel Pint](https://laravel.com/docs/pint)
 
-## Triggers y sincronización de stock
-- Inventory_movements ↔ raw_materials.stock: preferible mantener triggers o hacer actualizaciones en transacción desde controllers. Ver db.info/ftoliboy_toliboy_data.sql para triggers sugeridos.
+### Contribución
+1. Fork el repositorio
+2. Crear rama feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit cambios (`git commit -am 'Agregar nueva funcionalidad'`)
+4. **Ejecutar Pint**: `vendor/bin/pint`
+5. **Ejecutar tests**: `php artisan test`
+6. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+7. Crear Pull Request
 
-## Troubleshooting rápido
-- Composer en PHP 8.3: ejecutar `composer update` localmente y comprometer `composer.lock`.
-- Faltan tablas → importar SQL maestro o ejecutar migraciones.
-- Exports fallando → instalar las librerías requeridas y comprobar extensiones PHP.
-- WebSockets → verificar Soketi en ejecución y configuración de .env.
+## ⚠️ Advertencias Críticas
 
-## Checklist de despliegue breve
-- [ ] composer install --no-dev --optimize-autoloader
-- [ ] Migraciones ejecutadas (php artisan migrate --force)
-- [ ] Seeders ejecutados (si es necesario)
-- [ ] Workers/queues configurados (supervisor/systemd)
-- [ ] Soketi o servicio WebSocket en producción
-- [ ] Configuración TLS y secretos revisados
+- **NUNCA CANCELAR** `composer update` - permitir 10+ minutos
+- **SIEMPRE ejecutar Pint** antes de commit para evitar fallos de CI
+- **Esquema de BD incompleto** - funcionalidad completa requiere configuración adicional
+- **Autenticación JWT requerida** para la mayoría de endpoints de API
+- **Timeouts altos** para comandos de Composer en CI/CD
+
+## 📄 Licencia
+
+Este proyecto está licenciado bajo [MIT License](LICENSE).
 
 ---
 
-Hecho para facilitar desarrollo y despliegue. Ajusta las vistas por defecto y los report names en `ReportsController` según tu esquema real.
+**Contacto**: Para soporte y consultas, contactar al equipo de desarrollo.

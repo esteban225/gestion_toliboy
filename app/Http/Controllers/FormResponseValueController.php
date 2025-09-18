@@ -66,8 +66,8 @@ class FormResponseValueController extends Controller
             $inserts = [];
             foreach ($data['values'] as $v) {
                 $inserts[] = [
-                    'form_response_id' => $responseId,
-                    'form_field_id' => $v['field_id'],
+                    'response_id' => $responseId,
+                    'field_id' => $v['field_id'],
                     'value' => isset($v['value']) ? $v['value'] : null,
                     'created_at' => now(),
                     'updated_at' => now(),

@@ -63,10 +63,14 @@ class AuthController extends Controller
     }
 
 
+
     /**
      * Login y generación de token
      */
-        public function login(Request $request)
+    /**
+     * @unauthenticated
+     */
+    public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',

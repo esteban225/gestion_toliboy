@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Maatwebsite\Excel\Facades\Excel; // para Excel::download o Excel::store
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportsController extends Controller
 {
@@ -15,20 +15,9 @@ class ReportsController extends Controller
     public function report(Request $request, string $reportName)
     {
         $db = DB::getDatabaseName();
+        $view = $reportName; // ahora asumimos que el nombre del reporte = nombre exacto de la vista
 
-        $allowed = [
-            'production_summary' => 'v_production_summary',
-            'batches_by_status'  => 'v_batches_by_status',
-            'current_stock'      => 'v_stock_below_min',
-            'inventory_monthly'  => 'v_inventory_monthly_summary',
-        ];
-
-        if (! isset($allowed[$reportName])) {
-            return response()->json(['message' => 'Report not found'], 404);
-        }
-
-        $view = $allowed[$reportName];
-
+        // Verificar que la vista exista
         $exists = DB::table('information_schema.views')
             ->where('TABLE_SCHEMA', $db)
             ->where('TABLE_NAME', $view)
@@ -39,18 +28,24 @@ class ReportsController extends Controller
         }
 
         $query = DB::table($view);
+        $columns = DB::getSchemaBuilder()->getColumnListing($view);
 
-        if ($request->has('date_from')) {
+        // Filtros opcionales según columnas existentes
+        if ($request->has('date_from') && in_array('date', $columns)) {
             $query->where('date', '>=', $request->query('date_from'));
         }
-        if ($request->has('date_to')) {
+        if ($request->has('date_to') && in_array('date', $columns)) {
             $query->where('date', '<=', $request->query('date_to'));
         }
         if ($request->has('q')) {
             $q = $request->query('q');
-            $query->where(function ($qbl) use ($q) {
-                $qbl->whereRaw("CAST(id AS CHAR) LIKE ?", ["%{$q}%"])
-                    ->orWhereRaw("CAST(raw_material_id AS CHAR) LIKE ?", ["%{$q}%"]);
+            $query->where(function ($qbl) use ($q, $columns) {
+                if (in_array('id', $columns)) {
+                    $qbl->whereRaw("CAST(id AS CHAR) LIKE ?", ["%{$q}%"]);
+                }
+                if (in_array('raw_material_id', $columns)) {
+                    $qbl->orWhereRaw("CAST(raw_material_id AS CHAR) LIKE ?", ["%{$q}%"]);
+                }
             });
         }
 
@@ -73,20 +68,9 @@ class ReportsController extends Controller
     {
         $format = strtolower($request->query('format', 'csv'));
         $db     = DB::getDatabaseName();
+        $view   = $reportName;
 
-        $allowed = [
-            'production_summary' => 'v_production_summary',
-            'batches_by_status'  => 'v_batches_by_status',
-            'current_stock'      => 'v_current_stock',
-            'inventory_monthly'  => 'v_inventory_monthly_summary',
-        ];
-
-        if (! isset($allowed[$reportName])) {
-            return response()->json(['message' => 'Report not found'], 404);
-        }
-
-        $view = $allowed[$reportName];
-
+        // Verificar que la vista exista
         $exists = DB::table('information_schema.views')
             ->where('TABLE_SCHEMA', $db)
             ->where('TABLE_NAME', $view)
@@ -146,25 +130,25 @@ class ReportsController extends Controller
             }
 
             $styles = '
-        <style>
-            body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #333; }
-            .header { text-align: center; margin-bottom: 20px; }
-            .header h1 { margin: 0; font-size: 22px; color: #004080; } /* Azul */
-            .header small { color: #888; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            thead { background: #004080; color: #fff; } /* Azul oscuro */
-            th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
-            tbody tr:nth-child(even) { background: #f2f6ff; } /* Azul claro */
-            tfoot td { font-size: 11px; text-align: right; color: #c0392b; /* Rojo */ padding-top: 10px; border: none; }
-        </style>
-        ';
+                <style>
+                    body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #333; }
+                    .header { text-align: center; margin-bottom: 20px; }
+                    .header h1 { margin: 0; font-size: 22px; color: #004080; }
+                    .header small { color: #888; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                    thead { background: #004080; color: #fff; }
+                    th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
+                    tbody tr:nth-child(even) { background: #f2f6ff; }
+                    tfoot td { font-size: 11px; text-align: right; color: #c0392b; padding-top: 10px; border: none; }
+                </style>
+            ';
 
             $html = $styles . '
-        <div class="header">
-            <h1>Reporte: ' . ucfirst(str_replace('_', ' ', $reportName)) . '</h1>
-            <small>Generado el ' . date('d/m/Y H:i') . '</small>
-        </div>
-        ';
+                <div class="header">
+                    <h1>Reporte: ' . ucfirst(str_replace('_', ' ', $reportName)) . '</h1>
+                    <small>Generado el ' . date('d/m/Y H:i') . '</small>
+                </div>
+            ';
 
             $html .= '<table>';
             if ($rows->isNotEmpty()) {
@@ -260,28 +244,7 @@ class ReportsController extends Controller
                         ],
                         'fill' => [
                             'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                            'startColor' => ['argb' => 'FF004080'], // Azul oscuro
-                        ],
-                    ]);
-
-                    // Texto general
-                    $sheet->getStyle('A2:' . $sheet->getHighestColumn() . $sheet->getHighestRow())->applyFromArray([
-                        'font' => [
-                            'size'  => 10,
-                            'color' => ['argb' => 'FF000000'],
-                        ],
-                    ]);
-
-                    // Totales (última fila en rojo)
-                    $lastRow = $sheet->getHighestRow();
-                    $sheet->getStyle('A' . $lastRow . ':' . $sheet->getHighestColumn() . $lastRow)->applyFromArray([
-                        'font' => [
-                            'bold'  => true,
-                            'color' => ['argb' => 'FF000000'],
-                        ],
-                        'fill' => [
-                            'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                            'startColor' => ['argb' => 'FFFFFFFF'], // Blanco
+                            'startColor' => ['argb' => 'FF004080'],
                         ],
                     ]);
                 }

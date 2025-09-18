@@ -53,6 +53,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleAuthorization::class,
         'db.session.user' => \App\Http\Middleware\SetDbSessionUser::class,
+        'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
     ];
 
 
