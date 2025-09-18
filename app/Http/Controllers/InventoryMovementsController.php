@@ -22,11 +22,20 @@ class InventoryMovementsController extends Controller
         try {
             // Obtiene todos los movimientos de inventario de la base de datos
             $data = InventoryMovement::all();
-            return response()->json([
-                'status' => true,
-                'message' => 'Movimientos de inventario obtenidos exitosamente',
-                'data' => $data
-            ], 200);
+            if ($data->isEmpty()) {
+                // Si no hay movimientos, retorna mensaje de error
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No se encontraron movimientos de inventario',
+                ], 404);
+            }else {
+                // Si hay movimientos, retorna los datos
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Movimientos de inventario obtenidos exitosamente',
+                    'data' => $data
+                ], 200);
+            }
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
@@ -60,8 +69,8 @@ class InventoryMovementsController extends Controller
         $validator = Validator::make($request->all(), [
             'raw_material_id' => 'required|integer|exists:raw_materials,id',
             'batch_id' => 'nullable|integer|exists:batches,id',
-            'movement_type' => 'required|string|in:addition,removal,adjustment',
-            'quantity' => 'required|numeric|min:0.01',
+            'movement_type' => 'required|string|in:in,out,adjustment',
+            'quantity' => 'required|numeric',
             'unit_cost' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string|max:500',
             'created_by' => 'nullable|integer|exists:users,id'

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreWorkLogRequest;
 use App\Models\WorkLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -19,15 +22,24 @@ class WorkLogsController extends Controller
      */
     public function index()
     {
-        try{
+        try {
             // Obtiene todos los registros de trabajo de la base de datos
             $data = WorkLog::all();
-            return response()->json([
-                'status' => true,
-                'message' => 'Registros de trabajo obtenidos exitosamente',
-                'data' => $data
-            ], 200);
-        }catch(\Exception $e){
+            if ($data->isEmpty()) {
+                // Si no hay registros de trabajo
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No se encuentran registros de trabajo'
+                ], 404);
+            } else {
+                // Si existen registros, retorna los datos
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Registros de trabajo encontrados',
+                    'data' => $data
+                ], 200);
+            }
+        } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
@@ -54,41 +66,30 @@ class WorkLogsController extends Controller
      * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
-    public function store(Request $request)
+    public function store(StoreWorkLogRequest $request)
     {
-        try{
-            // Validación de los datos recibidos
-            $validator = Validator::make($request->all(), [
-                'user_id' => 'required|exists:users,id',
-                'date' => 'required|date',
-                'start_time' => 'required|date',
-                'end_time' => 'required|date|after:start_time',
-                'description' => 'nullable|string',
-                'notes' => 'nullable|string',
-            ]);
-            // Si la validación falla, retorna los errores
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Error de validación',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
+        $userId = Auth::id();
+        $data = $request->validated();
 
-            // Crea el registro de trabajo con los datos validados
-            $workLog = WorkLog::create($request->all());
-            return response()->json([
-                'status' => true,
-                'message' => 'Registro de trabajo creado exitosamente',
-                'data' => $workLog
-            ], 201);
-        }catch(\Exception $e){
-            // Si ocurre una excepción, retorna el error
-            return response()->json([
-                'status' => false,
-                'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
-            ], 500);
+        DB::beginTransaction();
+        try {
+            $id = DB::table('work_logs')->insertGetId([
+                'user_id' => $userId,
+                'date' => $data['date'],
+                'start_time' => $data['start_time'] ?? null,
+                'end_time' => $data['end_time'] ?? null,
+                'batch_id' => $data['batch_id'] ?? null,
+                'task_description' => $data['task_description'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Work log recorded', 'id' => $id], 201);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Could not save work log', 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -100,10 +101,10 @@ class WorkLogsController extends Controller
      */
     public function show(string $id)
     {
-        try{
+        try {
             // Busca el registro de trabajo por su ID
             $workLog = WorkLog::find($id);
-            if(!$workLog){
+            if (!$workLog) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
@@ -116,7 +117,7 @@ class WorkLogsController extends Controller
                 'message' => 'Registro de trabajo obtenido exitosamente',
                 'data' => $workLog
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
@@ -147,10 +148,10 @@ class WorkLogsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        try{
+        try {
             // Busca el registro de trabajo por su ID
             $workLog = WorkLog::find($id);
-            if(!$workLog){
+            if (!$workLog) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
@@ -183,7 +184,7 @@ class WorkLogsController extends Controller
                 'message' => 'Registro de trabajo actualizado exitosamente',
                 'data' => $workLog
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
@@ -201,10 +202,10 @@ class WorkLogsController extends Controller
      */
     public function destroy(string $id)
     {
-        try{
+        try {
             // Busca el registro de trabajo por su ID
             $workLog = WorkLog::find($id);
-            if(!$workLog){
+            if (!$workLog) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
@@ -217,7 +218,7 @@ class WorkLogsController extends Controller
                 'status' => true,
                 'message' => 'Registro de trabajo eliminado exitosamente'
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,

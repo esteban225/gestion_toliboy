@@ -430,8 +430,22 @@ CREATE TABLE IF NOT EXISTS `ftoliboy_toliboy_data`.`work_logs` (
   `date` DATE NOT NULL,
   `start_time` TIME NULL DEFAULT NULL,
   `end_time` TIME NULL DEFAULT NULL,
-  `total_hours` DECIMAL(5,2) GENERATED ALWAYS AS (TIMESTAMPDIFF(HOUR, CONCAT(date, ' ', start_time), CONCAT(date, ' ', end_time))) VIRTUAL,
-  `overtime_hours` DECIMAL(5,2) NULL DEFAULT 0.00,
+  `total_hours` DECIMAL(5,2) GENERATED ALWAYS AS (
+    CASE
+      WHEN start_time IS NOT NULL AND end_time IS NOT NULL THEN
+        ROUND(TIMESTAMPDIFF(MINUTE, CONCAT(date, ' ', start_time), CONCAT(date, ' ', end_time)) / 60, 2)
+      ELSE 0
+    END
+  ) STORED,
+  `overtime_hours` DECIMAL(5,2) GENERATED ALWAYS AS (
+    GREATEST(0,
+      CASE
+        WHEN start_time IS NOT NULL AND end_time IS NOT NULL THEN
+          ROUND(TIMESTAMPDIFF(MINUTE, CONCAT(date, ' ', start_time), CONCAT(date, ' ', end_time)) / 60, 2) - 8
+        ELSE 0
+      END
+    )
+  ) STORED,
   `batch_id` BIGINT NULL DEFAULT NULL,
   `task_description` TEXT NULL DEFAULT NULL,
   `notes` TEXT NULL DEFAULT NULL,
@@ -456,7 +470,6 @@ ENGINE = InnoDB
 AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci;
-
 
 -- -----------------------------------------------------
 -- Table `ftoliboy_toliboy_data`.`notifications`
@@ -1488,6 +1501,80 @@ BEGIN
         get_current_user_id(), get_current_ip_address(), get_current_user_agent()
     );
 END $$
+
+
+DROP TRIGGER IF EXISTS `inventory_movements_sync_after_insert` $$
+CREATE TRIGGER `inventory_movements_sync_after_insert` AFTER INSERT ON `inventory_movements` FOR EACH ROW
+BEGIN
+    DECLARE v_effect DECIMAL(18,6) DEFAULT 0;
+
+    SET v_effect = CASE
+        WHEN NEW.movement_type = 'in' THEN NEW.quantity
+        WHEN NEW.movement_type = 'out' THEN -NEW.quantity
+        WHEN NEW.movement_type = 'adjustment' THEN NEW.quantity
+        ELSE 0
+    END;
+
+    UPDATE raw_materials
+    SET stock = COALESCE(stock,0) + v_effect
+    WHERE id = NEW.raw_material_id;
+END $$
+
+DROP TRIGGER IF EXISTS `inventory_movements_sync_after_update` $$
+CREATE TRIGGER `inventory_movements_sync_after_update` AFTER UPDATE ON `inventory_movements` FOR EACH ROW
+BEGIN
+    DECLARE v_old_effect DECIMAL(18,6) DEFAULT 0;
+    DECLARE v_new_effect DECIMAL(18,6) DEFAULT 0;
+
+    SET v_old_effect = CASE
+        WHEN OLD.movement_type = 'in' THEN OLD.quantity
+        WHEN OLD.movement_type = 'out' THEN -OLD.quantity
+        WHEN OLD.movement_type = 'adjustment' THEN OLD.quantity
+        ELSE 0
+    END;
+
+    SET v_new_effect = CASE
+        WHEN NEW.movement_type = 'in' THEN NEW.quantity
+        WHEN NEW.movement_type = 'out' THEN -NEW.quantity
+        WHEN NEW.movement_type = 'adjustment' THEN NEW.quantity
+        ELSE 0
+    END;
+
+    -- If material changed, revert old effect on OLD.raw_material_id and apply new effect on NEW.raw_material_id
+    IF OLD.raw_material_id <> NEW.raw_material_id THEN
+        UPDATE raw_materials
+        SET stock = COALESCE(stock,0) - v_old_effect
+        WHERE id = OLD.raw_material_id;
+
+        UPDATE raw_materials
+        SET stock = COALESCE(stock,0) + v_new_effect
+        WHERE id = NEW.raw_material_id;
+    ELSE
+        -- Same material: apply delta = new - old
+        UPDATE raw_materials
+        SET stock = COALESCE(stock,0) + (v_new_effect - v_old_effect)
+        WHERE id = NEW.raw_material_id;
+    END IF;
+END $$
+
+DROP TRIGGER IF EXISTS `inventory_movements_sync_after_delete` $$
+CREATE TRIGGER `inventory_movements_sync_after_delete` AFTER DELETE ON `inventory_movements` FOR EACH ROW
+BEGIN
+    DECLARE v_old_effect DECIMAL(18,6) DEFAULT 0;
+
+    SET v_old_effect = CASE
+        WHEN OLD.movement_type = 'in' THEN OLD.quantity
+        WHEN OLD.movement_type = 'out' THEN -OLD.quantity
+        WHEN OLD.movement_type = 'adjustment' THEN OLD.quantity
+        ELSE 0
+    END;
+
+    -- Revert the old effect
+    UPDATE raw_materials
+    SET stock = COALESCE(stock,0) - v_old_effect
+    WHERE id = OLD.raw_material_id;
+END $$
+
 
 
 /* ============================

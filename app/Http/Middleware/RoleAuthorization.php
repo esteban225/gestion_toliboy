@@ -15,20 +15,15 @@ class RoleAuthorization
     public function handle(Request $request, Closure $next, $role): Response
     {
         try {
-            // Obtener el usuario autenticado desde el token
             $user = JWTAuth::parseToken()->authenticate();
 
             if (!$user) {
                 return $this->unauthorized('Usuario no encontrado');
             }
 
-            // Obtener el rol del usuario desde el token o desde la base de datos
-            $userRole = $this->getUserRoleFromToken($user);
+            $userRole = strtoupper($this->getUserRoleFromToken($user));
+            $allowedRoles = array_map('strtoupper', preg_split('/[,\|]/', $role));
 
-            // Convertir string de roles permitidos en array
-            $allowedRoles = explode(',', $role);
-
-            // Verificar si el rol del usuario está permitido
             if (in_array($userRole, $allowedRoles)) {
                 return $next($request);
             }
@@ -40,54 +35,44 @@ class RoleAuthorization
         } catch (TokenInvalidException $e) {
             return $this->unauthorized('Tu token no es válido. Vuelve a iniciar sesión.');
         } catch (JWTException $e) {
-            return $this->unauthorized('Por favor, adjunte un Token de Portador a su solicitud');
+            return $this->unauthorized('Por favor, adjunta un Token de Portador a tu solicitud.');
         }
     }
 
-    /**
-     * Obtener el rol del usuario desde el token o la base de datos
-     */
     private function getUserRoleFromToken($user)
     {
         try {
             $payload = JWTAuth::parseToken()->getPayload();
 
-            // Verificar si el claim "role" existe
-            $role = $payload->get('role');
-            if (!is_null($role)) {
-                return $role;
+            if ($payload->get('role')) {
+                return $payload->get('role');
             }
 
-            // Verificar si el claim "role_name" existe
-            $roleName = $payload->get('role_name');
-            if (!is_null($roleName)) {
-                return $roleName;
+            if ($payload->get('role_name')) {
+                return $payload->get('role_name');
             }
         } catch (\Exception $e) {
-            // Fallback a la base de datos si no está en el token
+            // fallback
         }
 
-        // Si no está en el token, obtener de la base de datos
-        if (!$user->relationLoaded('role')) {
-            $user->load('role');
-        }
-
-        return $user->role->name;
+        return $user->role->name ?? null;
     }
 
     private function unauthorized($message = null)
     {
         return response()->json([
-            'message' => $message ? $message : 'No autenticado',
-            'success' => false
+            'message' => $message ?? 'No autenticado',
+            'success' => false,
+            'code' => 'UNAUTHORIZED'
         ], 401);
     }
 
     private function forbidden($message = null)
     {
         return response()->json([
-            'message' => $message ? $message : 'No tiene permisos para acceder a este recurso',
-            'success' => false
+            'message' => $message ?? 'No tiene permisos para acceder a este recurso',
+            'success' => false,
+            'code' => 'FORBIDDEN'
         ], 403);
     }
 }

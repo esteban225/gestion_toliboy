@@ -22,12 +22,17 @@ class FormsFilesController extends Controller
         try {
             // Obtiene todos los campos de la base de datos
             $data = FormField::all();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Campos obtenidos exitosamente',
-                'data' => $data
-            ], 200);
+            if ($data->isEmpty()) {
+                // Si no hay campos registrados
+                return response()->json(['message' => 'No se encuentran campos de formularios'], 404);
+            } else {
+                // Si existen campos, retorna los datos
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Campos de formularios encontrados',
+                    'data' => $data
+                ], 200);
+            }
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([

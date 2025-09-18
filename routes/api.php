@@ -1,83 +1,126 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserDataController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RawMaterialsController;
-use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\BatchesController;
-use App\Http\Controllers\InventoryMovementsController;
 use App\Http\Controllers\FormsController;
 use App\Http\Controllers\FormsFilesController;
 use App\Http\Controllers\FormResponseController;
-use App\Http\Controllers\FormResponseValueController;
-use App\Http\Controllers\WorkLogsController;
+use App\Http\Controllers\InventoryMovementsController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\RawMaterialsController;
 use App\Http\Controllers\RoleController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserDataController;
+use App\Http\Controllers\ViewsController;
+use App\Http\Controllers\WorkLogsController;
+use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\FormResponseValueController;
 use Illuminate\Support\Facades\Route;
 
-
-
-
+/*
+|--------------------------------------------------------------------------
+| Public auth
+|--------------------------------------------------------------------------
+*/
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login',    [AuthController::class, 'login'])->name('login');
 
-
-
-// Rutas protegidas solo para Developer
-Route::middleware(['api', 'jwt.auth', 'role:Developer', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
-    Route::get('/me', [AuthController::class, 'me']);
+/*
+|--------------------------------------------------------------------------
+| Authenticated common routes (any authenticated user)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+    Route::get('/me',      [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::post('/refresh',[AuthController::class, 'refresh']);
 
-    // Rutas de roles
-    Route::resource('roles', RoleController::class);
-
-    // Rutas de datos de usuario
-    Route::resource('userData', UserDataController::class);
-
-    // Rutas de gestión de usuarios
-    Route::resource('users', UserController::class);
-
-    // Rutas de materias primas
-    Route::resource('raw-materials', RawMaterialsController::class);
-
-    // Rutas de productos
-    Route::resource('products', ProductsController::class);
-
-    // Rutas de lotes
-    Route::resource('batches', BatchesController::class);
-
-    // Rutas de movimientos de inventario
-    Route::resource('inventory-movements', InventoryMovementsController::class);
-
-    // Rutas de formularios
-    Route::resource('forms', FormsController::class);
-
-    // Rutas de campos de formularios
-    Route::resource('form-fields', FormsFilesController::class);
-
-    // Rutas de respuestas de formularios
-    Route::resource('form-responses', FormResponseController::class);
-
-    // Rutas de valores de respuestas de formularios
-    Route::resource('form-response-values', FormResponseValueController::class);
-
-    // Rutas de registros de trabajo
-    Route::resource('work-logs', WorkLogsController::class);
-
-    // Rutas de notificaciones
-    Route::resource('notifications', NotificationsController::class);
+    // Notificaciones (lista básica)
+    Route::get('notifications', [NotificationsController::class, 'index']);
 });
 
-// // Ruta para múltiples roles
-// Route::middleware(['api', 'role:Developer,Admin'])->group(function () {
-//     // Route::get('/reports', [ReportController::class, 'index']);
-//     // Route::get('/analytics', [AnalyticsController::class, 'index']);
-// });
+/*
+|--------------------------------------------------------------------------
+| DEV - Developer (administración total)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['api', 'jwt.auth', 'role:DEV', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+    Route::apiResource('roles', RoleController::class);
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('userData', UserDataController::class);
 
-// // Ruta pública (sin verificación de rol)
-// Route::middleware('api')->group(function () {
-//     // Route::get('/profile', [ProfileController::class, 'show']);
-// });
+    Route::apiResource('raw-materials', RawMaterialsController::class);
+    Route::apiResource('products', ProductsController::class);
+    Route::apiResource('batches', BatchesController::class);
+    Route::apiResource('inventory-movements', InventoryMovementsController::class);
+
+    Route::apiResource('forms', FormsController::class);
+    Route::apiResource('form-fields', FormsFilesController::class);
+    Route::apiResource('form-responses', FormResponseController::class);
+    Route::apiResource('form-response-values', FormResponseValueController::class);
+
+    Route::apiResource('work-logs', WorkLogsController::class);
+    Route::apiResource('notifications', NotificationsController::class);
+
+    // Vistas / dashboard
+    Route::get('views', [ViewsController::class, 'index']);
+    Route::get('dashboard', [ViewsController::class, 'dashboard']);
+    Route::get('views/{view}', [ViewsController::class, 'show']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| GG - Gerente General (estadísticas, dashboards, notificaciones y funciones front)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['api', 'jwt.auth', 'role:GG', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+    Route::get('dashboard', [ViewsController::class, 'dashboard']);
+    Route::get('views/{view}', [ViewsController::class, 'show']);
+    // Notificaciones + endpoints para widgets del front (implementarlos según necesidades)
+    Route::get('notifications/summary', [NotificationsController::class, 'summary']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| INPL / INPR - Ingenieros (estadísticas, formularios, work-logs)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['api', 'jwt.auth', 'role:INPL,INPR', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+    Route::get('dashboard', [ViewsController::class, 'dashboard']);
+    Route::get('views/{view}', [ViewsController::class, 'show']);
+
+    // Formularios: ver/crear/responder según políticas
+    Route::apiResource('forms', FormsController::class)->only(['index','show']);
+    Route::apiResource('form-responses', FormResponseController::class);
+    Route::apiResource('work-logs', WorkLogsController::class)->only(['index','show','store','update']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| TRZ - Trazabilidad (informes, reportes, lectura de formularios)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['api', 'jwt.auth', 'role:TRZ', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+    Route::apiResource('batches', BatchesController::class)->only(['index','show']);
+    Route::apiResource('form-responses', FormResponseController::class)->only(['index','show']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| OP - Operario (diligenciamiento de formularios y registro de horas)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['api', 'jwt.auth', 'role:OP', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+    // Reports
+
+});
+
+    Route::get('reports/{reportName}', [ReportsController::class, 'report']);
+    Route::get('reports/{reportName}/export', [ReportsController::class, 'export']);
+
+    // Form responses (operarios)
+    Route::post('form-responses', [FormResponseValueController::class, 'store']); // crear respuesta / valores
+
+    // Work logs (operarios)
+    Route::post('work-logs', [WorkLogsController::class, 'store']); // fichadas operario
