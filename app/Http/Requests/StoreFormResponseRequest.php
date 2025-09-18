@@ -16,7 +16,7 @@ class StoreFormResponseRequest extends FormRequest
         return [
             'form_id' => 'required|integer|exists:forms,id',
             'values' => 'required|array|min:1',
-            'values.*.field_id' => 'required|integer',
+            'values.*.field_id' => 'required|integer|exists:form_fields,id',
             'values.*.value' => 'nullable',
         ];
     }

@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Providers\ModuleServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,17 +13,28 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Middlewares globales
+        $middleware->append([
+            // \App\Http\Middleware\TrustProxies::class,
+        ]);
+
+        // Middlewares de API
         $middleware->api([
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         ]);
-        $middleware->alias([
-            'verified' =>  \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-            'jwt.auth' =>  \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
-            'jwt.refresh' => \Tymon\JWTAuth\Http\Middleware\RefreshToken::class,
-            'role' => \App\Http\Middleware\RoleAuthorization::class,
 
+        // Aliases
+        $middleware->alias([
+            'verified'    => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+            'jwt.auth'    => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
+            'jwt.refresh' => \Tymon\JWTAuth\Http\Middleware\RefreshToken::class,
+            'role'        => \App\Http\Middleware\RoleAuthorization::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->withProviders([
+        ModuleServiceProvider::class, // 👈 aquí va tu provider
+    ])
+    ->create();

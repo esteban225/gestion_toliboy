@@ -8,6 +8,7 @@ class StoreWorkLogRequest extends FormRequest
 {
     public function authorize(): bool
     {
+        // only authenticated users; route middleware restricts by role
         return $this->user() !== null;
     }
 

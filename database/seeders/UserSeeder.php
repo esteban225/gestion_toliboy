@@ -12,15 +12,15 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $email = 'dev@example.com';
-        $password = 'password'; // cambiar en producción
+        $password = 'password'; // ⚠️ Cambiar en producción
 
         // Crear usuario si no existe
         $userId = DB::table('users')->where('email', $email)->value('id');
         if (! $userId) {
             $userId = DB::table('users')->insertGetId([
-                'name' => 'Developer',
-                'email' => $email,
-                'password' => Hash::make($password),
+                'name'       => 'Developer',
+                'email'      => $email,
+                'password'   => Hash::make($password),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -32,21 +32,46 @@ class UserSeeder extends Seeder
         if ($roleId) {
             $schema = DB::getSchemaBuilder();
 
-            // Si existe tabla pivot role_user -> insertar si no existe
+            // Caso 1: existe tabla pivot role_user
             if ($schema->hasTable('role_user')) {
-                $exists = DB::table('role_user')->where('role_id', $roleId)->where('user_id', $userId)->exists();
+                $exists = DB::table('role_user')
+                    ->where('role_id', $roleId)
+                    ->where('user_id', $userId)
+                    ->exists();
+
                 if (! $exists) {
                     DB::table('role_user')->insert([
                         'role_id' => $roleId,
                         'user_id' => $userId,
                     ]);
                 }
+
+            // Caso 2: si la tabla users tiene columna role_id
             } elseif (Schema::hasColumn('users', 'role_id')) {
-                // Si users tiene columna role_id -> actualizar
-                DB::table('users')->where('id', $userId)->update(['role_id' => $roleId, 'updated_at' => now()]);
+                DB::table('users')->where('id', $userId)->update([
+                    'role_id'    => $roleId,
+                    'updated_at' => now(),
+                ]);
+
+            // Caso 3: compatibilidad con Spatie Laravel-Permission (model_has_roles)
+            } elseif ($schema->hasTable('model_has_roles')) {
+                $exists = DB::table('model_has_roles')
+                    ->where('role_id', $roleId)
+                    ->where('model_id', $userId)
+                    ->where('model_type', 'App\\Models\\User')
+                    ->exists();
+
+                if (! $exists) {
+                    DB::table('model_has_roles')->insert([
+                        'role_id'    => $roleId,
+                        'model_type' => 'App\\Models\\User',
+                        'model_id'   => $userId,
+                    ]);
+                }
+
             } else {
-                // fallback: crear registro en role_user (si no existe la tabla, crearla no es automático aquí)
-                // No hacemos más para evitar crear tablas sin tu confirmación.
+                // fallback: informar
+                $this->command->warn("⚠️ No se pudo asignar el rol DEV al usuario. Revisa tu esquema.");
             }
         }
     }
