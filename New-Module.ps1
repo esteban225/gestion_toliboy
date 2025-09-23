@@ -3,7 +3,7 @@ Param(
     [string]$ModuleName
 )
 
-$base = Join-Path $PSScriptRoot "..\app\Modules\$ModuleName"
+$base = Join-Path $PSScriptRoot ".\app\Modules\$ModuleName"
 $dirs = @("Http\Controllers","Http","UseCases","Infrastructure\Repositories","Http")
 foreach ($d in $dirs) {
     $path = Join-Path $base $d

@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
+use App\Modules\Auth\Infrastructure\Repositories\EloquentUserRepository;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -18,7 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // 👇 Aquí registras tu binding
+        $this->app->bind(
+            UserRepositoryInterface::class,
+            EloquentUserRepository::class
+        );
     }
 
     /**
