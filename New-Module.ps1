@@ -4,22 +4,31 @@ Param(
 )
 
 $base = Join-Path $PSScriptRoot ".\app\Modules\$ModuleName"
-$dirs = @("Http\Controllers","Http","UseCases","Infrastructure\Repositories","Http")
+
+# Estructura de carpetas
+$dirs = @(
+    "Application\UseCases",
+    "Domain\Entities",
+    "Domain\Repositories",
+    "Domain\Services",
+    "Http\Controllers",
+    "Http\Requests",
+    "Infrastructure\Repositories"
+)
+
 foreach ($d in $dirs) {
     $path = Join-Path $base $d
     New-Item -ItemType Directory -Force -Path $path | Out-Null
 }
 
-# create routes file
-$routesFile = Join-Path $base "Http\routes.php"
-@"
-<?php
+# Crear archivos
+foreach ($file in $files.Keys) {
+    $filePath = Join-Path $base $file
+    $folder = Split-Path $filePath -Parent
+    if (!(Test-Path $folder)) {
+        New-Item -ItemType Directory -Force -Path $folder | Out-Null
+    }
+    $files[$file] | Set-Content -Path $filePath -Encoding UTF8
+}
 
-use Illuminate\Support\Facades\Route;
-
-Route::middleware(['api','jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
-    // add module routes here
-});
-"@ | Set-Content -Path $routesFile -Encoding UTF8
-
-Write-Host "Module $ModuleName scaffolded at $base"
+Write-Host "✅ Módulo $ModuleName creado en $base"

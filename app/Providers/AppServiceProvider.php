@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Models\User;
 use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\Auth\Infrastructure\Repositories\EloquentUserRepository;
+use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
+use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
 use App\Modules\Users\Infrastructure\Repositories\EloquentUsersRepository;
 use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
@@ -37,6 +39,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UsersRepositoryInterface::class,
             EloquentUsersRepository::class
+        );
+
+        $this->app->bind(
+            DataUserRepositoryInterface::class,
+            EloquentDataUserRepository::class
         );
     }
 

@@ -7,9 +7,10 @@ use App\Modules\Reports\Infrastructure\Repositories\ReportsRepository;
 use App\Modules\Forms\Infrastructure\Repositories\FormsRepository;
 use App\Modules\WorkLogs\Infrastructure\Repositories\WorkLogsRepository;
 use App\Modules\Inventory\Infrastructure\Repositories\InventoryRepository;
-use App\Modules\Users\Infrastructure\Repositories\UsersRepository;
+use App\Modules\Users\Infrastructure\Repositories\EloquentUsersRepository as UsersRepository;
 use App\Modules\Notifications\Infrastructure\Repositories\NotificationsRepository;
-use App\Modules\Roles\Infrastructure\Repositories\RolesRepository;
+use App\Modules\Roles\Infrastructure\Repositories\EloquentRolesRepository as RolesRepository;
+use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository as DataUserRepository;
 
 class ModuleServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,7 @@ class ModuleServiceProvider extends ServiceProvider
         $this->app->bind(UsersRepository::class, fn($app) => new UsersRepository());
         $this->app->bind(NotificationsRepository::class, fn($app) => new NotificationsRepository());
         $this->app->bind(RolesRepository::class, fn($app) => new RolesRepository());
+        $this->app->bind(DataUserRepository::class, fn($app) => new DataUserRepository());
     }
 
     public function boot()
