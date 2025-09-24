@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class VFormFieldUsage
- * 
+ *
  * @property int $form_id
  * @property string $form_name
  * @property int $field_id
@@ -19,30 +19,30 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $field_type
  * @property int $responses_count
  * @property float|null $files_count
- *
- * @package App\Models
  */
 class VFormFieldUsage extends Model
 {
-	protected $table = 'v_form_field_usage';
-	public $incrementing = false;
-	public $timestamps = false;
+    protected $table = 'v_form_field_usage';
 
-	protected $casts = [
-		'form_id' => 'int',
-		'field_id' => 'int',
-		'responses_count' => 'int',
-		'files_count' => 'float'
-	];
+    public $incrementing = false;
 
-	protected $fillable = [
-		'form_id',
-		'form_name',
-		'field_id',
-		'field_label',
-		'field_code',
-		'field_type',
-		'responses_count',
-		'files_count'
-	];
+    public $timestamps = false;
+
+    protected $casts = [
+        'form_id' => 'int',
+        'field_id' => 'int',
+        'responses_count' => 'int',
+        'files_count' => 'float',
+    ];
+
+    protected $fillable = [
+        'form_id',
+        'form_name',
+        'field_id',
+        'field_label',
+        'field_code',
+        'field_type',
+        'responses_count',
+        'files_count',
+    ];
 }

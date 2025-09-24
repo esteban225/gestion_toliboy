@@ -18,9 +18,9 @@ class UserSeeder extends Seeder
         $userId = DB::table('users')->where('email', $email)->value('id');
         if (! $userId) {
             $userId = DB::table('users')->insertGetId([
-                'name'       => 'Developer',
-                'email'      => $email,
-                'password'   => Hash::make($password),
+                'name' => 'Developer',
+                'email' => $email,
+                'password' => Hash::make($password),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -46,14 +46,14 @@ class UserSeeder extends Seeder
                     ]);
                 }
 
-            // Caso 2: si la tabla users tiene columna role_id
+                // Caso 2: si la tabla users tiene columna role_id
             } elseif (Schema::hasColumn('users', 'role_id')) {
                 DB::table('users')->where('id', $userId)->update([
-                    'role_id'    => $roleId,
+                    'role_id' => $roleId,
                     'updated_at' => now(),
                 ]);
 
-            // Caso 3: compatibilidad con Spatie Laravel-Permission (model_has_roles)
+                // Caso 3: compatibilidad con Spatie Laravel-Permission (model_has_roles)
             } elseif ($schema->hasTable('model_has_roles')) {
                 $exists = DB::table('model_has_roles')
                     ->where('role_id', $roleId)
@@ -63,15 +63,15 @@ class UserSeeder extends Seeder
 
                 if (! $exists) {
                     DB::table('model_has_roles')->insert([
-                        'role_id'    => $roleId,
+                        'role_id' => $roleId,
                         'model_type' => 'App\\Models\\User',
-                        'model_id'   => $userId,
+                        'model_id' => $userId,
                     ]);
                 }
 
             } else {
                 // fallback: informar
-                $this->command->warn("⚠️ No se pudo asignar el rol DEV al usuario. Revisa tu esquema.");
+                $this->command->warn('⚠️ No se pudo asignar el rol DEV al usuario. Revisa tu esquema.');
             }
         }
     }

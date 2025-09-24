@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class FormResponseDetail
- * 
+ *
  * @property int $response_id
  * @property string $form_name
  * @property string $form_version
@@ -26,36 +26,36 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $value
  * @property string|null $file_path
  * @property Carbon|null $value_created_at
- *
- * @package App\Models
  */
 class FormResponseDetail extends Model
 {
-	protected $table = 'form_response_details';
-	public $incrementing = false;
-	public $timestamps = false;
+    protected $table = 'form_response_details';
 
-	protected $casts = [
-		'response_id' => 'int',
-		'submitted_at' => 'datetime',
-		'field_id' => 'int',
-		'value_created_at' => 'datetime'
-	];
+    public $incrementing = false;
 
-	protected $fillable = [
-		'response_id',
-		'form_name',
-		'form_version',
-		'user_name',
-		'batch_name',
-		'status',
-		'submitted_at',
-		'field_id',
-		'field_label',
-		'field_code',
-		'field_type',
-		'value',
-		'file_path',
-		'value_created_at'
-	];
+    public $timestamps = false;
+
+    protected $casts = [
+        'response_id' => 'int',
+        'submitted_at' => 'datetime',
+        'field_id' => 'int',
+        'value_created_at' => 'datetime',
+    ];
+
+    protected $fillable = [
+        'response_id',
+        'form_name',
+        'form_version',
+        'user_name',
+        'batch_name',
+        'status',
+        'submitted_at',
+        'field_id',
+        'field_label',
+        'field_code',
+        'field_type',
+        'value',
+        'file_path',
+        'value_created_at',
+    ];
 }

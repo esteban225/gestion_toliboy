@@ -14,34 +14,32 @@ namespace App\Modules\RawMaterials\Domain\Entities;
  * - LSP: Subclases pueden sustituir esta clase sin romper el sistema.
  * - ISP: Si implementa interfaces, deben ser específicas.
  * - DIP: Puede depender de abstracciones para mayor flexibilidad.
- *
- * @package App\Modules\RawMaterials\Domain\Entities
  */
 class RawMaterialEntity
 {
     /**
      * Crea una nueva instancia de materia prima.
      *
-     * @param int|null $id Identificador único de la materia prima
-     * @param string $name Nombre de la materia prima
-     * @param string $code Código único de identificación
-     * @param string|null $description Descripción detallada (opcional)
-     * @param string $unit_of_measure Unidad de medida (kg, gr, litros, etc.)
-     * @param float $stock Cantidad actual en inventario
-     * @param float $min_stock Cantidad mínima requerida en stock
-     * @param float $is_active Estado activo/inactivo (1.0 = activo, 0.0 = inactivo)
-     * @param int|null $created_by ID del usuario que creó el registro
+     * @param  int|null  $id  Identificador único de la materia prima
+     * @param  string  $name  Nombre de la materia prima
+     * @param  string  $code  Código único de identificación
+     * @param  string|null  $description  Descripción detallada (opcional)
+     * @param  string  $unit_of_measure  Unidad de medida (kg, gr, litros, etc.)
+     * @param  float  $stock  Cantidad actual en inventario
+     * @param  float  $min_stock  Cantidad mínima requerida en stock
+     * @param  float  $is_active  Estado activo/inactivo (1.0 = activo, 0.0 = inactivo)
+     * @param  int|null  $created_by  ID del usuario que creó el registro
      */
     public function __construct(
-        public int|null $id,
+        public ?int $id,
         public string $name,
         public string $code,
-        public string|null $description,
+        public ?string $description,
         public string $unit_of_measure,
         public float $stock,
         public float $min_stock,
         public float $is_active,
-        public int|null $created_by,
+        public ?int $created_by,
     ) {}
 
     /**
@@ -74,4 +72,3 @@ class RawMaterialEntity
         return $this->requiresRestock() ? ($this->min_stock - $this->stock) : 0.0;
     }
 }
-

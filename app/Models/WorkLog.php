@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class WorkLog
- * 
+ *
  * @property int $id
  * @property int $user_id
  * @property Carbon $date
@@ -24,45 +24,42 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
  * @property Batch|null $batch
  * @property User $user
- *
- * @package App\Models
  */
 class WorkLog extends Model
 {
-	protected $table = 'work_logs';
+    protected $table = 'work_logs';
 
-	protected $casts = [
-		'user_id' => 'int',
-		'date' => 'datetime',
-		'start_time' => 'datetime',
-		'end_time' => 'datetime',
-		'total_hours' => 'float',
-		'overtime_hours' => 'float',
-		'batch_id' => 'int'
-	];
+    protected $casts = [
+        'user_id' => 'int',
+        'date' => 'datetime',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+        'total_hours' => 'float',
+        'overtime_hours' => 'float',
+        'batch_id' => 'int',
+    ];
 
-	protected $fillable = [
-		'user_id',
-		'date',
-		'start_time',
-		'end_time',
-		'total_hours',
-		'overtime_hours',
-		'batch_id',
-		'task_description',
-		'notes'
-	];
+    protected $fillable = [
+        'user_id',
+        'date',
+        'start_time',
+        'end_time',
+        'total_hours',
+        'overtime_hours',
+        'batch_id',
+        'task_description',
+        'notes',
+    ];
 
-	public function batch()
-	{
-		return $this->belongsTo(Batch::class);
-	}
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class);
+    }
 
-	public function user()
-	{
-		return $this->belongsTo(User::class);
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

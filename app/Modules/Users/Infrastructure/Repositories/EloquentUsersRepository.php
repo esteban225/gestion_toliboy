@@ -2,9 +2,9 @@
 
 namespace App\Modules\Users\Infrastructure\Repositories;
 
+use App\Models\User;
 use App\Modules\Users\Domain\Entities\UserEntity;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
-use App\Models\User;
 
 /**
  * Repositorio de usuarios basado en Eloquent ORM.
@@ -24,7 +24,7 @@ class EloquentUsersRepository implements UsersRepositoryInterface
     /**
      * Obtiene todos los usuarios, opcionalmente filtrados.
      *
-     * @param array $filters Filtros de búsqueda (ej: ['role_id' => 2])
+     * @param  array  $filters  Filtros de búsqueda (ej: ['role_id' => 2])
      * @return UserEntity[]|array Lista de entidades de usuario
      */
     public function all(array $filters = []): array
@@ -54,12 +54,13 @@ class EloquentUsersRepository implements UsersRepositoryInterface
     /**
      * Busca un usuario por su identificador.
      *
-     * @param string $id Identificador único del usuario
+     * @param  string  $id  Identificador único del usuario
      * @return UserEntity|null Entidad de usuario o null si no existe
      */
     public function find(string $id): ?UserEntity
     {
         $user = User::find($id);
+
         return $user
             ? new UserEntity(
                 $user->id,
@@ -78,12 +79,13 @@ class EloquentUsersRepository implements UsersRepositoryInterface
     /**
      * Crea un nuevo usuario.
      *
-     * @param array $data Datos del usuario (name, email, password, role_id, etc.)
+     * @param  array  $data  Datos del usuario (name, email, password, role_id, etc.)
      * @return UserEntity|null Entidad creada o null si falla
      */
     public function create(array $data): ?UserEntity
     {
         $user = User::create($data);
+
         return new UserEntity(
             $user->id,
             $user->name,
@@ -100,7 +102,7 @@ class EloquentUsersRepository implements UsersRepositoryInterface
     /**
      * Actualiza un usuario existente.
      *
-     * @param array $data Datos actualizados del usuario (debe incluir el id)
+     * @param  array  $data  Datos actualizados del usuario (debe incluir el id)
      * @return bool True si la actualización fue exitosa, false en caso contrario
      */
     public function update(array $data): bool
@@ -109,20 +111,21 @@ class EloquentUsersRepository implements UsersRepositoryInterface
         if ($user) {
             return $user->update($data);
         }
+
         return false;
     }
 
     /**
      * Elimina un usuario por su identificador.
      *
-     * @param string $id Identificador único del usuario
+     * @param  string  $id  Identificador único del usuario
      * @return bool True si la eliminación fue exitosa, false en caso contrario
      */
     public function delete(string $id): bool
     {
         $user = User::find($id);
         if ($user) {
-            return (bool)$user->delete() > 0;
+            return (bool) $user->delete() > 0;
         }
 
         return false;

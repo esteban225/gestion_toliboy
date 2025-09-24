@@ -8,6 +8,13 @@ class NotificationsUseCase
 {
     public function __construct(private NotificationsRepository $repo) {}
 
-    public function list(array $filters) { return response()->json($this->repo->all($filters)); }
-    public function summary() { return response()->json($this->repo->summary()); }
+    public function list(array $filters)
+    {
+        return response()->json($this->repo->all($filters));
+    }
+
+    public function summary()
+    {
+        return response()->json($this->repo->summary());
+    }
 }

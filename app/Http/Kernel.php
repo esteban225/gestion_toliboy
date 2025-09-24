@@ -56,7 +56,6 @@ class Kernel extends HttpKernel
         'csrf' => \App\Http\Middleware\VerifyCsrfToken::class,
     ];
 
-
     /**
      * Register the application's route middleware.
      *
@@ -84,7 +83,6 @@ class Kernel extends HttpKernel
      *
      * @return void
      */
-
 
     /**
      * Configure the rate limiters for the application.

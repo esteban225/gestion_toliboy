@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Product
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string $code
@@ -24,41 +24,38 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $created_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
  * @property User|null $user
  * @property Collection|Batch[] $batches
- *
- * @package App\Models
  */
 class Product extends Model
 {
-	protected $table = 'products';
+    protected $table = 'products';
 
-	protected $casts = [
-		'specifications' => 'json',
-		'unit_price' => 'float',
-		'is_active' => 'bool',
-		'created_by' => 'int'
-	];
+    protected $casts = [
+        'specifications' => 'json',
+        'unit_price' => 'float',
+        'is_active' => 'bool',
+        'created_by' => 'int',
+    ];
 
-	protected $fillable = [
-		'name',
-		'code',
-		'category',
-		'description',
-		'specifications',
-		'unit_price',
-		'is_active',
-		'created_by'
-	];
+    protected $fillable = [
+        'name',
+        'code',
+        'category',
+        'description',
+        'specifications',
+        'unit_price',
+        'is_active',
+        'created_by',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'created_by');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
-	public function batches()
-	{
-		return $this->hasMany(Batch::class);
-	}
+    public function batches()
+    {
+        return $this->hasMany(Batch::class);
+    }
 }

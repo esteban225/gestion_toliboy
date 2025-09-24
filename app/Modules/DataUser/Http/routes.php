@@ -1,7 +1,7 @@
 <?php
 
+use App\Modules\DataUser\Http\Controllers\DataUserController;
 use Illuminate\Support\Facades\Route;
-use App\Modules\DataUser\Http\Controllers\DataUserController   ;
 
 Route::middleware(['api', 'jwt.auth', 'role:DEV', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
 

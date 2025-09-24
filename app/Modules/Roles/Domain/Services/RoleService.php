@@ -5,7 +5,6 @@ namespace App\Modules\Roles\Domain\Services;
 use App\Modules\Roles\Domain\Entities\RoleEntity;
 use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
 
-
 /**
  * Servicio para la gestión de roles.
  *
@@ -27,8 +26,6 @@ use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
  *
  * - deleteRole(string $id): bool
  *   Elimina un rol por su identificador.
- *
- * @package App\Modules\Roles\Domain\Services
  */
 class RoleService
 {

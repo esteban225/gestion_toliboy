@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class CurrentUserSession
- * 
+ *
  * @property int $id
  * @property int|null $user_id
  * @property string|null $ip_address
@@ -21,35 +21,33 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $connection_id
  * @property Carbon|null $created_at
  * @property Carbon|null $expires_at
- * 
  * @property User|null $user
- *
- * @package App\Models
  */
 class CurrentUserSession extends Model
 {
-	protected $table = 'current_user_sessions';
-	public $timestamps = false;
+    protected $table = 'current_user_sessions';
 
-	protected $casts = [
-		'user_id' => 'int',
-		'last_activity' => 'int',
-		'connection_id' => 'int',
-		'expires_at' => 'datetime'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'user_id',
-		'ip_address',
-		'user_agent',
-		'payload',
-		'last_activity',
-		'connection_id',
-		'expires_at'
-	];
+    protected $casts = [
+        'user_id' => 'int',
+        'last_activity' => 'int',
+        'connection_id' => 'int',
+        'expires_at' => 'datetime',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class);
-	}
+    protected $fillable = [
+        'user_id',
+        'ip_address',
+        'user_agent',
+        'payload',
+        'last_activity',
+        'connection_id',
+        'expires_at',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

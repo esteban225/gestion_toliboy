@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\Notifications\Http\Controllers\NotificationsController;
+use Illuminate\Support\Facades\Route;
 
-Route::middleware(['api','jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
-    Route::get('notifications', [NotificationsController::class,'index']);
-    Route::get('notifications/summary', [NotificationsController::class,'summary']);
+Route::middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+    Route::get('notifications', [NotificationsController::class, 'index']);
+    Route::get('notifications/summary', [NotificationsController::class, 'summary']);
 });

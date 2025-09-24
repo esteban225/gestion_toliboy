@@ -2,8 +2,9 @@
 
 namespace App\Modules\Auth\Domain\Repositories;
 
+use App\Models\User as EloquentUser;
 use App\Modules\Auth\Domain\Entities\UserEntity;
-use \App\Models\User as EloquentUser;
+
 /**
  * Principios SOLID implementados:
  *
@@ -25,9 +26,14 @@ use \App\Models\User as EloquentUser;
 interface UserRepositoryInterface
 {
     public function create(array $data): UserEntity;
+
     public function findByEmail(string $email): ?UserEntity;
+
     public function findModelByEmail(string $email): ?EloquentUser;
+
     public function findModelById(int $id): ?EloquentUser;
+
     public function findById(int $id): ?UserEntity;
+
     public function updateLastLogin(int $id, \DateTime $lastLogin): void;
 }

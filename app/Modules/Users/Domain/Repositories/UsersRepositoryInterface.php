@@ -22,7 +22,7 @@ interface UsersRepositoryInterface
     /**
      * Obtiene todos los usuarios, opcionalmente filtrados.
      *
-     * @param array $filters Filtros de búsqueda (ej: ['role_id' => 2])
+     * @param  array  $filters  Filtros de búsqueda (ej: ['role_id' => 2])
      * @return UserEntity[]|array Lista de entidades de usuario
      */
     public function all(array $filters = []): array;
@@ -30,7 +30,7 @@ interface UsersRepositoryInterface
     /**
      * Busca un usuario por su identificador.
      *
-     * @param string $id Identificador único del usuario
+     * @param  string  $id  Identificador único del usuario
      * @return UserEntity|null Entidad de usuario o null si no existe
      */
     public function find(string $id): ?UserEntity;
@@ -38,7 +38,7 @@ interface UsersRepositoryInterface
     /**
      * Crea un nuevo usuario.
      *
-     * @param array $data Datos del usuario (name, email, password, role_id, etc.)
+     * @param  array  $data  Datos del usuario (name, email, password, role_id, etc.)
      * @return UserEntity|null Entidad creada o null si falla
      */
     public function create(array $data): ?UserEntity;
@@ -46,7 +46,7 @@ interface UsersRepositoryInterface
     /**
      * Actualiza un usuario existente.
      *
-     * @param array $data Datos actualizados del usuario (debe incluir el id)
+     * @param  array  $data  Datos actualizados del usuario (debe incluir el id)
      * @return bool True si la actualización fue exitosa, false en caso contrario
      */
     public function update(array $data): bool;
@@ -54,7 +54,7 @@ interface UsersRepositoryInterface
     /**
      * Elimina un usuario por su identificador.
      *
-     * @param string $id Identificador único del usuario
+     * @param  string  $id  Identificador único del usuario
      * @return bool True si la eliminación fue exitosa, false en caso contrario
      */
     public function delete(string $id): bool;

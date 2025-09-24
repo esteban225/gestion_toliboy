@@ -2,10 +2,9 @@
 
 namespace App\Modules\DataUser\Infrastructure\Repositories;
 
+use App\Models\PersonalDatum as DataUserModel;
 use App\Modules\DataUser\Domain\Entities\DataUserEntity;
 use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
-
-use App\Models\PersonalDatum as DataUserModel;
 
 /**
  * Implementación del repositorio de datos de usuario utilizando Eloquent ORM.
@@ -19,15 +18,13 @@ use App\Models\PersonalDatum as DataUserModel;
  * - LSP: Cumple con el contrato definido en DataUserRepositoryInterface.
  * - ISP: Implementa solo los métodos necesarios para la gestión de datos de usuario.
  * - DIP: Depende de abstracciones (DataUserRepositoryInterface) en lugar de concreciones.
- *
- * @package App\Modules\DataUser\Infrastructure\Repositories
  */
 class EloquentDataUserRepository implements DataUserRepositoryInterface
 {
     /**
      * Obtiene todos los datos de usuarios, opcionalmente filtrados.
      *
-     * @param array $filters Filtros de búsqueda (ej: ['status' => 'active'])
+     * @param  array  $filters  Filtros de búsqueda (ej: ['status' => 'active'])
      * @return DataUserEntity[]|array Lista de entidades de datos de usuario
      */
     public function all(array $filters = []): array
@@ -56,18 +53,20 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
             );
         })->all();
     }
+
     /**
      * Busca datos de usuario por su identificador.
      *
-     * @param string $id Identificador único de los datos de usuario
+     * @param  string  $id  Identificador único de los datos de usuario
      * @return DataUserEntity|null Entidad de datos de usuario o null si no existe
      */
     public function find(string $id): ?DataUserEntity
     {
         $dataUser = DataUserModel::find($id);
-        if (!$dataUser) {
+        if (! $dataUser) {
             return null;
         }
+
         return new DataUserEntity(
             // Mapear los campos del modelo a la entidad
             $dataUser->id,
@@ -83,18 +82,20 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
             $dataUser->updated_at
         );
     }
+
     /**
      * Crea nuevos datos de usuario.
      *
-     * @param array $data Datos del usuario (campos específicos del módulo DataUser)
+     * @param  array  $data  Datos del usuario (campos específicos del módulo DataUser)
      * @return DataUserEntity|null Entidad creada o null si falla
      */
     public function create(array $data): ?DataUserEntity
     {
         $dataUser = DataUserModel::create($data);
-        if (!$dataUser) {
+        if (! $dataUser) {
             return null;
         }
+
         return new DataUserEntity(
             // Mapear los campos del modelo a la entidad
             $dataUser->id,
@@ -111,35 +112,37 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
 
         );
     }
+
     /**
      * Actualiza datos de usuario existentes.
      *
-     * @param array $data Datos actualizados (debe incluir el id)
+     * @param  array  $data  Datos actualizados (debe incluir el id)
      * @return bool True si la actualización fue exitosa, false en caso contrario
      */
     public function update(array $data): bool
     {
-        if (!isset($data['id'])) {
+        if (! isset($data['id'])) {
             return false; // No se puede actualizar sin ID
         }
 
         $dataUser = DataUserModel::find($data['id']);
-        if (!$dataUser) {
+        if (! $dataUser) {
             return false; // No se encontró el registro
         }
 
         return $dataUser->update($data);
     }
+
     /**
      * Elimina datos de usuario por su identificador.
      *
-     * @param string $id Identificador único de los datos de usuario
+     * @param  string  $id  Identificador único de los datos de usuario
      * @return bool True si la eliminación fue exitosa, false en caso contrario
      */
     public function delete(string $id): bool
     {
         $dataUser = DataUserModel::find($id);
-        if (!$dataUser) {
+        if (! $dataUser) {
             return false; // No se encontró el registro
         }
 

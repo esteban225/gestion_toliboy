@@ -29,14 +29,14 @@ class WorkLogsController extends Controller
                 // Si no hay registros de trabajo
                 return response()->json([
                     'status' => false,
-                    'message' => 'No se encuentran registros de trabajo'
+                    'message' => 'No se encuentran registros de trabajo',
                 ], 404);
             } else {
                 // Si existen registros, retorna los datos
                 return response()->json([
                     'status' => true,
                     'message' => 'Registros de trabajo encontrados',
-                    'data' => $data
+                    'data' => $data,
                 ], 200);
             }
         } catch (\Exception $e) {
@@ -44,7 +44,7 @@ class WorkLogsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -63,7 +63,7 @@ class WorkLogsController extends Controller
     /**
      * Almacena un nuevo registro de trabajo en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function store(StoreWorkLogRequest $request)
@@ -89,6 +89,7 @@ class WorkLogsController extends Controller
             return response()->json(['message' => 'Work log recorded', 'id' => $id], 201);
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return response()->json(['message' => 'Could not save work log', 'error' => $e->getMessage()], 500);
         }
     }
@@ -96,7 +97,7 @@ class WorkLogsController extends Controller
     /**
      * Muestra la información de un registro de trabajo específico.
      *
-     * @param string $id Identificador del registro de trabajo.
+     * @param  string  $id  Identificador del registro de trabajo.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con los datos o mensaje de error.
      */
     public function show(string $id)
@@ -104,25 +105,26 @@ class WorkLogsController extends Controller
         try {
             // Busca el registro de trabajo por su ID
             $workLog = WorkLog::find($id);
-            if (!$workLog) {
+            if (! $workLog) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
-                    'message' => 'Registro de trabajo no encontrado'
+                    'message' => 'Registro de trabajo no encontrado',
                 ], 404);
             }
+
             // Si existe, retorna los datos
             return response()->json([
                 'status' => true,
                 'message' => 'Registro de trabajo obtenido exitosamente',
-                'data' => $workLog
+                'data' => $workLog,
             ], 200);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -131,7 +133,7 @@ class WorkLogsController extends Controller
      * Muestra el formulario para editar un registro de trabajo específico.
      * (No implementado)
      *
-     * @param string $id Identificador del registro de trabajo.
+     * @param  string  $id  Identificador del registro de trabajo.
      * @return void
      */
     public function edit(string $id)
@@ -142,8 +144,8 @@ class WorkLogsController extends Controller
     /**
      * Actualiza la información de un registro de trabajo específico en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
-     * @param string $id Identificador del registro de trabajo.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @param  string  $id  Identificador del registro de trabajo.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function update(Request $request, string $id)
@@ -151,11 +153,11 @@ class WorkLogsController extends Controller
         try {
             // Busca el registro de trabajo por su ID
             $workLog = WorkLog::find($id);
-            if (!$workLog) {
+            if (! $workLog) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
-                    'message' => 'Registro de trabajo no encontrado'
+                    'message' => 'Registro de trabajo no encontrado',
                 ], 404);
             }
 
@@ -173,23 +175,24 @@ class WorkLogsController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Error de validación',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
             // Actualiza el registro de trabajo con los datos validados
             $workLog->update($request->all());
+
             return response()->json([
                 'status' => true,
                 'message' => 'Registro de trabajo actualizado exitosamente',
-                'data' => $workLog
+                'data' => $workLog,
             ], 200);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -197,7 +200,7 @@ class WorkLogsController extends Controller
     /**
      * Elimina un registro de trabajo específico de la base de datos.
      *
-     * @param string $id Identificador del registro de trabajo.
+     * @param  string  $id  Identificador del registro de trabajo.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function destroy(string $id)
@@ -205,25 +208,26 @@ class WorkLogsController extends Controller
         try {
             // Busca el registro de trabajo por su ID
             $workLog = WorkLog::find($id);
-            if (!$workLog) {
+            if (! $workLog) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
-                    'message' => 'Registro de trabajo no encontrado'
+                    'message' => 'Registro de trabajo no encontrado',
                 ], 404);
             }
             // Elimina el registro de trabajo
             $workLog->delete();
+
             return response()->json([
                 'status' => true,
-                'message' => 'Registro de trabajo eliminado exitosamente'
+                'message' => 'Registro de trabajo eliminado exitosamente',
             ], 200);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

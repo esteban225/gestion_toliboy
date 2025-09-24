@@ -22,6 +22,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     public function findByEmail(string $email): ?UserEntity
     {
         $user = EloquentUser::where('email', $email)->first();
+
         return $user ? $this->toEntity($user) : null;
     }
 
@@ -38,19 +39,21 @@ class EloquentUserRepository implements UserRepositoryInterface
     public function create(array $data): UserEntity
     {
         $user = EloquentUser::create($data);
+
         return $this->toEntity($user);
     }
 
     public function findById(int $id): ?UserEntity
     {
         $user = EloquentUser::find($id);
+
         return $user ? $this->toEntity($user) : null;
     }
 
     public function updateLastLogin(int $id, \DateTime $lastLogin): void
     {
         $user = EloquentUser::find($id);
-        if (!$user) {
+        if (! $user) {
             return;
         }
         $user->last_login = $lastLogin->format('Y-m-d H:i:s');

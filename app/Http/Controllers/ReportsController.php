@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ReportsController extends Controller
 {
@@ -41,22 +40,22 @@ class ReportsController extends Controller
             $q = $request->query('q');
             $query->where(function ($qbl) use ($q, $columns) {
                 if (in_array('id', $columns)) {
-                    $qbl->whereRaw("CAST(id AS CHAR) LIKE ?", ["%{$q}%"]);
+                    $qbl->whereRaw('CAST(id AS CHAR) LIKE ?', ["%{$q}%"]);
                 }
                 if (in_array('raw_material_id', $columns)) {
-                    $qbl->orWhereRaw("CAST(raw_material_id AS CHAR) LIKE ?", ["%{$q}%"]);
+                    $qbl->orWhereRaw('CAST(raw_material_id AS CHAR) LIKE ?', ["%{$q}%"]);
                 }
             });
         }
 
         $limit = min(2000, (int) $request->query('limit', 500));
-        $data  = $query->limit($limit)->get();
+        $data = $query->limit($limit)->get();
 
         return response()->json([
             'report' => $reportName,
-            'view'   => $view,
-            'rows'   => $data,
-            'count'  => $data->count(),
+            'view' => $view,
+            'rows' => $data,
+            'count' => $data->count(),
         ]);
     }
 
@@ -67,8 +66,8 @@ class ReportsController extends Controller
     public function export(Request $request, string $reportName)
     {
         $format = strtolower($request->query('format', 'csv'));
-        $db     = DB::getDatabaseName();
-        $view   = $reportName;
+        $db = DB::getDatabaseName();
+        $view = $reportName;
 
         // Verificar que la vista exista
         $exists = DB::table('information_schema.views')
@@ -84,31 +83,32 @@ class ReportsController extends Controller
 
         // --- EXPORT CSV ---
         if ($format === 'csv') {
-            $filename = "{$reportName}-" . date('Ymd_His') . ".csv";
+            $filename = "{$reportName}-".date('Ymd_His').'.csv';
 
             $headers = [
-                'Content-Type'        => 'text/csv; charset=UTF-8',
+                'Content-Type' => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => "attachment; filename={$filename}",
             ];
 
             $callback = function () use ($rows, $reportName) {
                 $out = fopen('php://output', 'w');
-                fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
+                fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
 
                 if ($rows->isEmpty()) {
-                    fputcsv($out, ['Reporte: ' . ucfirst(str_replace('_', ' ', $reportName))]);
+                    fputcsv($out, ['Reporte: '.ucfirst(str_replace('_', ' ', $reportName))]);
                     fputcsv($out, ['Generado el', date('d/m/Y H:i')]);
                     fputcsv($out, ['No data']);
                     fclose($out);
+
                     return;
                 }
 
-                fputcsv($out, ['Reporte: ' . ucfirst(str_replace('_', ' ', $reportName))]);
+                fputcsv($out, ['Reporte: '.ucfirst(str_replace('_', ' ', $reportName))]);
                 fputcsv($out, ['Generado el', date('d/m/Y H:i')]);
                 fputcsv($out, []);
 
-                $first      = (array) $rows->first();
-                $headersRow = array_map(fn($col) => ucwords(str_replace('_', ' ', $col)), array_keys($first));
+                $first = (array) $rows->first();
+                $headersRow = array_map(fn ($col) => ucwords(str_replace('_', ' ', $col)), array_keys($first));
                 fputcsv($out, $headersRow);
 
                 foreach ($rows as $row) {
@@ -125,7 +125,7 @@ class ReportsController extends Controller
         if ($format === 'pdf') {
             if (! class_exists(\Dompdf\Dompdf::class)) {
                 return response()->json([
-                    'message' => 'PDF export requires dompdf/dompdf. Run: composer require dompdf/dompdf'
+                    'message' => 'PDF export requires dompdf/dompdf. Run: composer require dompdf/dompdf',
                 ], 501);
             }
 
@@ -143,10 +143,10 @@ class ReportsController extends Controller
                 </style>
             ';
 
-            $html = $styles . '
+            $html = $styles.'
                 <div class="header">
-                    <h1>Reporte: ' . ucfirst(str_replace('_', ' ', $reportName)) . '</h1>
-                    <small>Generado el ' . date('d/m/Y H:i') . '</small>
+                    <h1>Reporte: '.ucfirst(str_replace('_', ' ', $reportName)).'</h1>
+                    <small>Generado el '.date('d/m/Y H:i').'</small>
                 </div>
             ';
 
@@ -155,14 +155,14 @@ class ReportsController extends Controller
                 $first = (array) $rows->first();
                 $html .= '<thead><tr>';
                 foreach (array_keys($first) as $col) {
-                    $html .= '<th>' . e(ucwords(str_replace('_', ' ', $col))) . '</th>';
+                    $html .= '<th>'.e(ucwords(str_replace('_', ' ', $col))).'</th>';
                 }
                 $html .= '</tr></thead><tbody>';
                 foreach ($rows as $row) {
                     $arr = (array) $row;
                     $html .= '<tr>';
                     foreach ($arr as $cell) {
-                        $html .= '<td>' . e((string) $cell) . '</td>';
+                        $html .= '<td>'.e((string) $cell).'</td>';
                     }
                     $html .= '</tr>';
                 }
@@ -172,17 +172,17 @@ class ReportsController extends Controller
             }
 
             $html .= '<tfoot><tr><td colspan="100%">Reporte generado automáticamente — '
-                . config('app.name') . '</td></tr></tfoot>';
+                .config('app.name').'</td></tr></tfoot>';
             $html .= '</table>';
 
-            $dompdf = new \Dompdf\Dompdf();
+            $dompdf = new \Dompdf\Dompdf;
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A4', 'landscape');
             $dompdf->render();
 
             return response($dompdf->output(), 200, [
-                'Content-Type'        => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="' . $reportName . '-' . date('Ymd_His') . '.pdf"',
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="'.$reportName.'-'.date('Ymd_His').'.pdf"',
             ]);
         }
 
@@ -190,28 +190,24 @@ class ReportsController extends Controller
         if ($format === 'xlsx') {
             if (! class_exists(\Maatwebsite\Excel\Facades\Excel::class)) {
                 return response()->json([
-                    'message' => 'La exportación a XLSX requiere maatwebsite/excel. Ejecuta: composer require maatwebsite/excel'
+                    'message' => 'La exportación a XLSX requiere maatwebsite/excel. Ejecuta: composer require maatwebsite/excel',
                 ], 501);
             }
 
             $headings = [];
             if ($rows->isNotEmpty()) {
-                $headings = array_map(fn($col) => ucwords(str_replace('_', ' ', $col)), array_keys((array) $rows->first()));
+                $headings = array_map(fn ($col) => ucwords(str_replace('_', ' ', $col)), array_keys((array) $rows->first()));
             }
 
-            $export = new class($rows, $headings) implements
-                \Maatwebsite\Excel\Concerns\FromCollection,
-                \Maatwebsite\Excel\Concerns\WithHeadings,
-                \Maatwebsite\Excel\Concerns\WithMapping,
-                \Maatwebsite\Excel\Concerns\ShouldAutoSize,
-                \Maatwebsite\Excel\Concerns\WithStyles
+            $export = new class($rows, $headings) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\ShouldAutoSize, \Maatwebsite\Excel\Concerns\WithHeadings, \Maatwebsite\Excel\Concerns\WithMapping, \Maatwebsite\Excel\Concerns\WithStyles
             {
                 private $rows;
+
                 private $headings;
 
                 public function __construct($rows, $headings)
                 {
-                    $this->rows     = $rows;
+                    $this->rows = $rows;
                     $this->headings = $headings;
                 }
 
@@ -231,26 +227,28 @@ class ReportsController extends Controller
                     if (isset($data['created_at'])) {
                         $data['created_at'] = date('d/m/Y H:i', strtotime($data['created_at']));
                     }
+
                     return $data;
                 }
 
                 public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet)
                 {
                     // Encabezados (azul)
-                    $sheet->getStyle('A1:' . $sheet->getHighestColumn() . '1')->applyFromArray([
+                    $sheet->getStyle('A1:'.$sheet->getHighestColumn().'1')->applyFromArray([
                         'font' => [
-                            'bold'  => true,
+                            'bold' => true,
                             'color' => ['argb' => 'FFFFFFFF'],
                         ],
                         'fill' => [
-                            'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                             'startColor' => ['argb' => 'FF004080'],
                         ],
                     ]);
                 }
             };
 
-            $filename = "{$reportName}-" . date('Ymd_His') . ".xlsx";
+            $filename = "{$reportName}-".date('Ymd_His').'.xlsx';
+
             return \Maatwebsite\Excel\Facades\Excel::download($export, $filename);
         }
 

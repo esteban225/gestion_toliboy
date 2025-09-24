@@ -29,7 +29,7 @@ class FormResponseController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Respuestas de formularios encontradas',
-                    'data' => $formResponses
+                    'data' => $formResponses,
                 ], 200);
             }
         } catch (\Exception $e) {
@@ -37,7 +37,7 @@ class FormResponseController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -53,7 +53,7 @@ class FormResponseController extends Controller
     /**
      * Almacena una nueva respuesta de formulario en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function store(Request $request)
@@ -76,7 +76,7 @@ class FormResponseController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Error de validación',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -86,14 +86,14 @@ class FormResponseController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Respuesta de formulario creada exitosamente',
-                'data' => $formResponse
+                'data' => $formResponse,
             ], 201);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -101,14 +101,14 @@ class FormResponseController extends Controller
     /**
      * Muestra la información de una respuesta de formulario específica.
      *
-     * @param string $id Identificador de la respuesta.
+     * @param  string  $id  Identificador de la respuesta.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con los datos o mensaje de error.
      */
     public function show(string $id)
     {
         try {
             $formResponse = FormResponse::find($id);
-            if (!$formResponse) {
+            if (! $formResponse) {
                 // Si no existe, retorna mensaje de error
                 return response()->json(['message' => 'Respuesta de formulario no encontrada'], 404);
             } else {
@@ -116,7 +116,7 @@ class FormResponseController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Respuesta de formulario encontrada',
-                    'data' => $formResponse
+                    'data' => $formResponse,
                 ], 200);
             }
         } catch (\Exception $e) {
@@ -124,7 +124,7 @@ class FormResponseController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -133,7 +133,7 @@ class FormResponseController extends Controller
      * Muestra el formulario para editar una respuesta específica.
      * (No implementado)
      *
-     * @param string $id Identificador de la respuesta.
+     * @param  string  $id  Identificador de la respuesta.
      * @return void
      */
     public function edit(string $id)
@@ -144,15 +144,15 @@ class FormResponseController extends Controller
     /**
      * Actualiza la información de una respuesta de formulario específica en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
-     * @param string $id Identificador de la respuesta.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @param  string  $id  Identificador de la respuesta.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function update(Request $request, string $id)
     {
         try {
             $formResponse = FormResponse::find($id);
-            if (!$formResponse) {
+            if (! $formResponse) {
                 // Si no existe, retorna mensaje de error
                 return response()->json(['message' => 'Respuesta de formulario no encontrada'], 404);
             }
@@ -174,7 +174,7 @@ class FormResponseController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Error de validación',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -184,14 +184,14 @@ class FormResponseController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Respuesta de formulario actualizada exitosamente',
-                'data' => $formResponse
+                'data' => $formResponse,
             ], 200);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -199,14 +199,14 @@ class FormResponseController extends Controller
     /**
      * Elimina una respuesta de formulario específica de la base de datos.
      *
-     * @param string $id Identificador de la respuesta.
+     * @param  string  $id  Identificador de la respuesta.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function destroy(string $id)
     {
         try {
             $formResponse = FormResponse::find($id);
-            if (!$formResponse) {
+            if (! $formResponse) {
                 // Si no existe, retorna mensaje de error
                 return response()->json(['message' => 'Respuesta de formulario no encontrada'], 404);
             }
@@ -216,14 +216,14 @@ class FormResponseController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Respuesta de formulario eliminada exitosamente'
+                'message' => 'Respuesta de formulario eliminada exitosamente',
             ], 200);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

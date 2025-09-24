@@ -22,7 +22,7 @@ class ReportsRepository
             return [];
         }
 
-        $query   = DB::table($reportName);
+        $query = DB::table($reportName);
         $columns = DB::getSchemaBuilder()->getColumnListing($reportName);
 
         // Filtros dinámicos
@@ -36,48 +36,50 @@ class ReportsRepository
             $q = $filters['q'];
             $query->where(function ($qb) use ($q, $columns) {
                 if (in_array('id', $columns)) {
-                    $qb->whereRaw("CAST(id AS CHAR) LIKE ?", ["%{$q}%"]);
+                    $qb->whereRaw('CAST(id AS CHAR) LIKE ?', ["%{$q}%"]);
                 }
                 if (in_array('raw_material_id', $columns)) {
-                    $qb->orWhereRaw("CAST(raw_material_id AS CHAR) LIKE ?", ["%{$q}%"]);
+                    $qb->orWhereRaw('CAST(raw_material_id AS CHAR) LIKE ?', ["%{$q}%"]);
                 }
             });
         }
 
         $limit = min(5000, (int) ($filters['limit'] ?? 500));
+
         return $query->limit($limit)->get()->toArray();
     }
 
     public function export(string $reportName, string $format, array $filters = [])
     {
-        $rows     = $this->fetchReport($reportName, $filters);
-        $filename = "{$reportName}-" . date('Ymd_His');
+        $rows = $this->fetchReport($reportName, $filters);
+        $filename = "{$reportName}-".date('Ymd_His');
 
         // --- CSV ---
         if ($format === 'csv') {
             $headers = [
-                'Content-Type'        => 'text/csv; charset=UTF-8',
+                'Content-Type' => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => "attachment; filename={$filename}.csv",
             ];
 
             $callback = function () use ($rows, $reportName) {
                 $out = fopen('php://output', 'w');
-                fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
+                fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
 
                 if (empty($rows)) {
-                    fputcsv($out, ['Reporte: ' . ucfirst(str_replace('_', ' ', $reportName))]);
+                    fputcsv($out, ['Reporte: '.ucfirst(str_replace('_', ' ', $reportName))]);
                     fputcsv($out, ['Generado el', date('d/m/Y H:i')]);
                     fputcsv($out, ['No data']);
                     fclose($out);
+
                     return;
                 }
 
-                fputcsv($out, ['Reporte: ' . ucfirst(str_replace('_', ' ', $reportName))]);
+                fputcsv($out, ['Reporte: '.ucfirst(str_replace('_', ' ', $reportName))]);
                 fputcsv($out, ['Generado el', date('d/m/Y H:i')]);
                 fputcsv($out, []);
 
                 $first = (array) $rows[0];
-                $headersRow = array_map(fn($col) => ucwords(str_replace('_', ' ', $col)), array_keys($first));
+                $headersRow = array_map(fn ($col) => ucwords(str_replace('_', ' ', $col)), array_keys($first));
                 fputcsv($out, $headersRow);
 
                 foreach ($rows as $row) {
@@ -96,23 +98,20 @@ class ReportsRepository
                 return response()->json(['message' => 'XLSX requires maatwebsite/excel'], 501);
             }
 
-            $arrayData = array_map(fn($r) => (array) $r, $rows);
-            $headings  = ! empty($arrayData)
-                ? array_map(fn($col) => ucwords(str_replace('_', ' ', $col)), array_keys($arrayData[0]))
+            $arrayData = array_map(fn ($r) => (array) $r, $rows);
+            $headings = ! empty($arrayData)
+                ? array_map(fn ($col) => ucwords(str_replace('_', ' ', $col)), array_keys($arrayData[0]))
                 : [];
 
-            $export = new class($arrayData, $headings) implements
-                \Maatwebsite\Excel\Concerns\FromArray,
-                \Maatwebsite\Excel\Concerns\WithHeadings,
-                \Maatwebsite\Excel\Concerns\ShouldAutoSize,
-                \Maatwebsite\Excel\Concerns\WithStyles
+            $export = new class($arrayData, $headings) implements \Maatwebsite\Excel\Concerns\FromArray, \Maatwebsite\Excel\Concerns\ShouldAutoSize, \Maatwebsite\Excel\Concerns\WithHeadings, \Maatwebsite\Excel\Concerns\WithStyles
             {
                 private array $data;
+
                 private array $headings;
 
                 public function __construct(array $data, array $headings)
                 {
-                    $this->data     = $data;
+                    $this->data = $data;
                     $this->headings = $headings;
                 }
 
@@ -128,15 +127,15 @@ class ReportsRepository
 
                 public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet)
                 {
-                    $sheet->getStyle('A1:' . $sheet->getHighestColumn() . '1')->applyFromArray([
+                    $sheet->getStyle('A1:'.$sheet->getHighestColumn().'1')->applyFromArray([
                         'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
                         'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                                   'startColor' => ['argb' => 'FF004080']],
+                            'startColor' => ['argb' => 'FF004080']],
                     ]);
 
                     for ($i = 2; $i <= $sheet->getHighestRow(); $i++) {
                         if ($i % 2 === 0) {
-                            $sheet->getStyle("A{$i}:" . $sheet->getHighestColumn() . "{$i}")
+                            $sheet->getStyle("A{$i}:".$sheet->getHighestColumn()."{$i}")
                                 ->applyFromArray(['fill' => [
                                     'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                                     'startColor' => ['argb' => 'FFF2F2F2'],
@@ -145,13 +144,13 @@ class ReportsRepository
                     }
 
                     $lastRow = $sheet->getHighestRow();
-                    $sheet->getStyle("A{$lastRow}:" . $sheet->getHighestColumn() . $lastRow)->applyFromArray([
+                    $sheet->getStyle("A{$lastRow}:".$sheet->getHighestColumn().$lastRow)->applyFromArray([
                         'font' => ['bold' => true, 'color' => ['argb' => 'FFC0392B']],
                     ]);
                 }
             };
 
-            return Excel::download($export, $filename . '.xlsx');
+            return Excel::download($export, $filename.'.xlsx');
         }
 
         // --- PDF ---
@@ -174,10 +173,10 @@ class ReportsRepository
             </style>
             ';
 
-            $html = $styles . '
+            $html = $styles.'
             <div class="header">
-                <h1>Reporte: ' . ucfirst(str_replace('_', ' ', $reportName)) . '</h1>
-                <small>Generado el ' . date('d/m/Y H:i') . '</small>
+                <h1>Reporte: '.ucfirst(str_replace('_', ' ', $reportName)).'</h1>
+                <small>Generado el '.date('d/m/Y H:i').'</small>
             </div>';
 
             $html .= '<table>';
@@ -185,7 +184,7 @@ class ReportsRepository
                 $first = (array) $rows[0];
                 $html .= '<thead><tr>';
                 foreach (array_keys($first) as $col) {
-                    $html .= '<th>' . e(ucwords(str_replace('_', ' ', $col))) . '</th>';
+                    $html .= '<th>'.e(ucwords(str_replace('_', ' ', $col))).'</th>';
                 }
                 $html .= '</tr></thead><tbody>';
 
@@ -193,7 +192,7 @@ class ReportsRepository
                     $arr = (array) $row;
                     $html .= '<tr>';
                     foreach ($arr as $cell) {
-                        $html .= '<td>' . e((string) $cell) . '</td>';
+                        $html .= '<td>'.e((string) $cell).'</td>';
                     }
                     $html .= '</tr>';
                 }
@@ -203,16 +202,16 @@ class ReportsRepository
                 $html .= '<thead><tr><th>No hay datos</th></tr></thead>';
             }
 
-            $html .= '<tfoot><tr><td colspan="100%">Reporte generado automáticamente — ' . config('app.name') . '</td></tr></tfoot>';
+            $html .= '<tfoot><tr><td colspan="100%">Reporte generado automáticamente — '.config('app.name').'</td></tr></tfoot>';
             $html .= '</table>';
 
-            $dompdf = new \Dompdf\Dompdf();
+            $dompdf = new \Dompdf\Dompdf;
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A4', 'landscape');
             $dompdf->render();
 
             return response($dompdf->output(), 200, [
-                'Content-Type'        => 'application/pdf',
+                'Content-Type' => 'application/pdf',
                 'Content-Disposition' => "attachment; filename=\"{$filename}.pdf\"",
             ]);
         }

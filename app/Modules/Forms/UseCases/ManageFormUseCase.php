@@ -12,6 +12,7 @@ class ManageFormUseCase
     public function list(array $filters): JsonResponse
     {
         $rows = $this->repo->all($filters);
+
         return response()->json(['count' => count($rows), 'rows' => $rows]);
     }
 
@@ -23,18 +24,21 @@ class ManageFormUseCase
     public function create(array $data): JsonResponse
     {
         $id = $this->repo->create($data);
+
         return response()->json(['id' => $id], 201);
     }
 
     public function update(string $id, array $data): JsonResponse
     {
         $this->repo->update($id, $data);
+
         return response()->json(['message' => 'updated']);
     }
 
     public function delete(string $id): JsonResponse
     {
         $this->repo->delete($id);
+
         return response()->json(['message' => 'deleted']);
     }
 }

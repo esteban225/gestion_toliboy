@@ -22,8 +22,8 @@ class RegisterUser
         $this->authService = $authService;
     }
 
-    public function handle(array $data){
+    public function handle(array $data)
+    {
         return $this->authService->register($data);
     }
-
 }

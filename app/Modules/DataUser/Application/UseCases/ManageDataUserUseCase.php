@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Modules\DataUser\Application\UseCases;
+
 use App\Modules\DataUser\Domain\Services\DataUserService;
 
 /**
@@ -26,8 +27,7 @@ class ManageDataUserUseCase
     /**
      * Listar datos de usuario con filtros.
      *
-     * @param array $filters Filtros de búsqueda (ej: ['status' => 'active'])
-     * @return array
+     * @param  array  $filters  Filtros de búsqueda (ej: ['status' => 'active'])
      */
     public function list(array $filters): array
     {
@@ -37,7 +37,7 @@ class ManageDataUserUseCase
     /**
      * Obtener datos de usuario por ID.
      *
-     * @param string $id Identificador único de los datos de usuario
+     * @param  string  $id  Identificador único de los datos de usuario
      * @return mixed
      */
     public function get(string $id)
@@ -48,7 +48,7 @@ class ManageDataUserUseCase
     /**
      * Crear datos de usuario.
      *
-     * @param array $data Datos del usuario (campos específicos del módulo DataUser)
+     * @param  array  $data  Datos del usuario (campos específicos del módulo DataUser)
      * @return mixed
      */
     public function create(array $data)
@@ -59,8 +59,7 @@ class ManageDataUserUseCase
     /**
      * Actualizar datos de usuario.
      *
-     * @param array $data Datos actualizados (debe incluir el id)
-     * @return bool
+     * @param  array  $data  Datos actualizados (debe incluir el id)
      */
     public function update(array $data): bool
     {
@@ -70,8 +69,7 @@ class ManageDataUserUseCase
     /**
      * Eliminar datos de usuario por ID.
      *
-     * @param string $id Identificador único de los datos de usuario
-     * @return bool
+     * @param  string  $id  Identificador único de los datos de usuario
      */
     public function delete(string $id): bool
     {

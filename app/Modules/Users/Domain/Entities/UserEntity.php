@@ -17,15 +17,15 @@ namespace App\Modules\Users\Domain\Entities;
 class UserEntity
 {
     /**
-     * @param int|null $id Identificador único del usuario
-     * @param string $name Nombre del usuario
-     * @param string $email Correo electrónico del usuario
-     * @param string $password Contraseña del usuario (hash)
-     * @param string|null $role_id Identificador del rol
-     * @param string|null $is_active Estado activo/inactivo (1/0)
-     * @param string|null $last_login Fecha/hora del último acceso
-     * @param string|null $createdAt Fecha/hora de creación
-     * @param string|null $updatedAt Fecha/hora de última actualización
+     * @param  int|null  $id  Identificador único del usuario
+     * @param  string  $name  Nombre del usuario
+     * @param  string  $email  Correo electrónico del usuario
+     * @param  string  $password  Contraseña del usuario (hash)
+     * @param  string|null  $role_id  Identificador del rol
+     * @param  string|null  $is_active  Estado activo/inactivo (1/0)
+     * @param  string|null  $last_login  Fecha/hora del último acceso
+     * @param  string|null  $createdAt  Fecha/hora de creación
+     * @param  string|null  $updatedAt  Fecha/hora de última actualización
      */
     public function __construct(
         public ?int $id,
@@ -41,8 +41,6 @@ class UserEntity
 
     /**
      * Indica si el usuario está activo.
-     *
-     * @return bool
      */
     public function isActive(): bool
     {

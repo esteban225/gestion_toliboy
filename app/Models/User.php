@@ -7,7 +7,6 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -27,7 +26,6 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property Carbon|null $last_login
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
  * @property Role|null $role
  * @property Collection|AuditLog[] $audit_logs
  * @property Collection|Batch[] $batches
@@ -40,12 +38,10 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property Collection|Product[] $products
  * @property Collection|RawMaterial[] $raw_materials
  * @property Collection|WorkLog[] $work_logs
- *
- * @package App\Models
  */
 class User extends Authenticatable implements JWTSubject
 {
-     use HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     protected $table = 'users';
 
@@ -159,7 +155,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getPermissions(): array
     {
-        if (!$this->role) {
+        if (! $this->role) {
             return [];
         }
 

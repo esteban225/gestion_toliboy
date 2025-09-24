@@ -12,7 +12,8 @@ class ManageWorkLogUseCase
     public function list(array $filters): JsonResponse
     {
         $rows = $this->repo->all($filters);
-        return response()->json(['count'=>count($rows),'rows'=>$rows]);
+
+        return response()->json(['count' => count($rows), 'rows' => $rows]);
     }
 
     public function get(string $id): JsonResponse
@@ -23,6 +24,7 @@ class ManageWorkLogUseCase
     public function create(array $data): JsonResponse
     {
         $id = $this->repo->create($data);
-        return response()->json(['id'=>$id], 201);
+
+        return response()->json(['id' => $id], 201);
     }
 }

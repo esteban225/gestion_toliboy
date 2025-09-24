@@ -9,14 +9,14 @@ test('puede registrar un usuario', function () {
         'name' => 'Test User',
         'email' => 'test2@example.com',
         'password' => 'password123',
-        'password_confirmation' => 'password123'
+        'password_confirmation' => 'password123',
     ]);
 
     $response->assertStatus(201)
         ->assertJsonStructure([
             'success',
             'token',
-            'user' => ['id', 'name', 'email']
+            'user' => ['id', 'name', 'email'],
         ])
         ->assertJson(['success' => true]);
 
@@ -29,7 +29,7 @@ test('falla el registro con email duplicado', function () {
     $response = $this->postJson('/api/register', [
         'name' => 'Test User',
         'email' => 'test2@example.com',
-        'password' => 'password123'
+        'password' => 'password123',
     ]);
 
     $response->assertStatus(422)
@@ -39,19 +39,19 @@ test('falla el registro con email duplicado', function () {
 test('puede hacer login con credenciales válidas', function () {
     $user = User::factory()->create([
         'email' => 'test2@example.com',
-        'password' => Hash::make('password123')
+        'password' => Hash::make('password123'),
     ]);
 
     $response = $this->postJson('/api/login', [
         'email' => 'test2@example.com',
-        'password' => 'password123'
+        'password' => 'password123',
     ]);
 
     $response->assertStatus(200)
         ->assertJsonStructure([
             'success',
             'token',
-            'user' => ['id', 'name', 'email']
+            'user' => ['id', 'name', 'email'],
         ])
         ->assertJson(['success' => true]);
 });
@@ -59,7 +59,7 @@ test('puede hacer login con credenciales válidas', function () {
 test('falla el login con credenciales inválidas', function () {
     $response = $this->postJson('/api/login', [
         'email' => 'fake@example.com',
-        'password' => 'wrongpassword'
+        'password' => 'wrongpassword',
     ]);
 
     $response->assertStatus(401)
@@ -71,7 +71,7 @@ test('puede cerrar sesión con token válido', function () {
     $token = JWTAuth::fromUser($user);
 
     $response = $this->withHeaders([
-        'Authorization' => 'Bearer ' . $token
+        'Authorization' => 'Bearer '.$token,
     ])->postJson('/api/logout');
 
     $response->assertStatus(200)
@@ -83,7 +83,7 @@ test('puede refrescar el token', function () {
     $token = JWTAuth::fromUser($user);
 
     $response = $this->withHeaders([
-        'Authorization' => 'Bearer ' . $token
+        'Authorization' => 'Bearer '.$token,
     ])->postJson('/api/refresh');
 
     $response->assertStatus(200)
@@ -95,7 +95,7 @@ test('puede obtener el usuario actual', function () {
     $token = JWTAuth::fromUser($user);
 
     $response = $this->withHeaders([
-        'Authorization' => 'Bearer ' . $token
+        'Authorization' => 'Bearer '.$token,
     ])->getJson('/api/me');
 
     $response->assertStatus(200)

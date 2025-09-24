@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class RawMaterial
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string $code
@@ -24,41 +24,38 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $created_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
  * @property User|null $user
  * @property Collection|InventoryMovement[] $inventory_movements
- *
- * @package App\Models
  */
 class RawMaterial extends Model
 {
-	protected $table = 'raw_materials';
+    protected $table = 'raw_materials';
 
-	protected $casts = [
-		'stock' => 'float',
-		'min_stock' => 'float',
-		'is_active' => 'bool',
-		'created_by' => 'int'
-	];
+    protected $casts = [
+        'stock' => 'float',
+        'min_stock' => 'float',
+        'is_active' => 'bool',
+        'created_by' => 'int',
+    ];
 
-	protected $fillable = [
-		'name',
-		'code',
-		'description',
-		'unit_of_measure',
-		'stock',
-		'min_stock',
-		'is_active',
-		'created_by'
-	];
+    protected $fillable = [
+        'name',
+        'code',
+        'description',
+        'unit_of_measure',
+        'stock',
+        'min_stock',
+        'is_active',
+        'created_by',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'created_by');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
-	public function inventory_movements()
-	{
-		return $this->hasMany(InventoryMovement::class);
-	}
+    public function inventory_movements()
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
 }

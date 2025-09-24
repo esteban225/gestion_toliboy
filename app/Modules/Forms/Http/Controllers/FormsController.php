@@ -3,8 +3,8 @@
 namespace App\Modules\Forms\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Modules\Forms\UseCases\ManageFormUseCase;
+use Illuminate\Http\Request;
 
 class FormsController extends Controller
 {

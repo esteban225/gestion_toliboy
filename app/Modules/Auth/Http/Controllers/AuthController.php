@@ -2,20 +2,17 @@
 
 namespace App\Modules\Auth\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+use App\Modules\Auth\Application\UseCases\GetAuthenticatedUser;
 use App\Modules\Auth\Application\UseCases\LoginUser;
-use App\Modules\Auth\Application\UseCases\RegisterUser;
 use App\Modules\Auth\Application\UseCases\LogoutUser;
 use App\Modules\Auth\Application\UseCases\RefreshToken;
-use App\Modules\Auth\Application\UseCases\GetAuthenticatedUser;
+use App\Modules\Auth\Application\UseCases\RegisterUser;
 use App\Modules\Auth\Http\Requests\LoginRequest;
 use App\Modules\Auth\Http\Requests\RegisterRequest;
-use App\Http\Controllers\Controller;
 use Exception;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Log;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * Este código implementa varios principios SOLID:
@@ -31,11 +28,14 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
 {
     protected RegisterUser $registerUser;
-    protected LoginUser $loginUser;
-    protected LogoutUser $logoutUser;
-    protected RefreshToken $refreshToken;
-    protected GetAuthenticatedUser $getAuthenticatedUser;
 
+    protected LoginUser $loginUser;
+
+    protected LogoutUser $logoutUser;
+
+    protected RefreshToken $refreshToken;
+
+    protected GetAuthenticatedUser $getAuthenticatedUser;
 
     public function __construct(
         RegisterUser $registerUser,
@@ -53,30 +53,31 @@ class AuthController extends Controller
 
     /**
      * Handle user login.
+     *
      * @unauthenticated
-     * @param LoginRequest $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function login(LoginRequest $request)
     {
         $data = $request->validated();
         $token = $this->loginUser->handle($data['email'], $data['password']);
-        if (!$token) {
+        if (! $token) {
             return response()->json(['error' => 'Invalid credentials or inactive user'], 401);
         }
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
             'token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => config('jwt.ttl') * 60
+            'expires_in' => config('jwt.ttl') * 60,
         ], 200);
     }
 
     /**
      * Handle user registration.
      *
-     * @param RegisterRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function register(RegisterRequest $request)
@@ -84,6 +85,7 @@ class AuthController extends Controller
         try {
             $data = $request->validated();
             $this->registerUser->handle($data);
+
             return response()->json([
                 'success' => true,
                 'message' => 'User registered successfully',
@@ -91,41 +93,40 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Registration failed: ' . $e->getMessage()
+                'message' => 'Registration failed: '.$e->getMessage(),
             ], 400);
         }
     }
 
     /**
      * Handle user autenticado.
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-
     public function me()
     {
         try {
             $user = $this->getAuthenticatedUser->handle();
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No autenticado.'
+                    'message' => 'No autenticado.',
                 ], 401);
             }
 
             return response()->json([
                 'success' => true,
-                'user' => $user
+                'user' => $user,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve user: ' . $e->getMessage()
+                'message' => 'Failed to retrieve user: '.$e->getMessage(),
             ], 400);
         }
     }
-
 
     /**
      * Refresh a token.
@@ -134,19 +135,20 @@ class AuthController extends Controller
     {
         try {
             $newToken = $this->refreshToken->handle();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Token refreshed successfully',
                 'token' => $newToken,
                 'token_type' => 'bearer',
-                'expires_in' => config('jwt.ttl') * 60
+                'expires_in' => config('jwt.ttl') * 60,
             ]);
         } catch (Exception $e) {
             Log::error('"AuthController": Error during token refresh', ['error' => $e->getMessage()]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Token could not be refreshed'
+                'message' => 'Token could not be refreshed',
             ], 401);
         }
     }
@@ -159,16 +161,16 @@ class AuthController extends Controller
         try {
             $this->logoutUser->handle();
 
-
             return response()->json([
                 'success' => true,
-                'message' => 'Successfully logged out'
+                'message' => 'Successfully logged out',
             ]);
         } catch (Exception $e) {
             Log::error('"AuthController": Error during logout', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to logout, please try again'
+                'message' => 'Failed to logout, please try again',
             ], 500);
         }
     }

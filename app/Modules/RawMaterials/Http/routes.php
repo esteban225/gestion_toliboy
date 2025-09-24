@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['api', 'jwt.auth', 'role:DEV', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
 
-
     Route::get('/raw-materials', [RawMaterialsController::class, 'index']);
     Route::get('/raw-materials/{id}', [RawMaterialsController::class, 'show']);
     Route::post('/raw-materials', [RawMaterialsController::class, 'store']);

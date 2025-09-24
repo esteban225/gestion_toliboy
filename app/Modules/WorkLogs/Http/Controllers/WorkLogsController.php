@@ -3,8 +3,8 @@
 namespace App\Modules\WorkLogs\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Modules\WorkLogs\UseCases\ManageWorkLogUseCase;
+use Illuminate\Http\Request;
 
 class WorkLogsController extends Controller
 {

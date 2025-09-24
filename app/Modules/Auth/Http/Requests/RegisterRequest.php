@@ -2,8 +2,8 @@
 
 namespace App\Modules\Auth\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
@@ -25,8 +25,8 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users,email',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8',
         ];
     }
@@ -34,14 +34,13 @@ class RegisterRequest extends FormRequest
     /**
      * Handle a failed validation attempt.
      *
-     * @param  \Illuminate\Contracts\Validation\Validator  $validator
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
     protected function failedValidation(Validator $validator): void
     {
         throw new HttpResponseException(response()->json([
             'success' => false,
-            'errors'  => $validator->errors(),
+            'errors' => $validator->errors(),
         ], 422));
     }
 
@@ -49,7 +48,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'email.unique' => 'Este correo ya está registrado.',
-            'email.email'  => 'Debes ingresar un correo válido.',
+            'email.email' => 'Debes ingresar un correo válido.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
         ];
     }

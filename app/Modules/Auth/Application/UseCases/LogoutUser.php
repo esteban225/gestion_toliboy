@@ -2,11 +2,10 @@
 
 namespace App\Modules\Auth\Application\UseCases;
 
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Modules\Auth\Domain\Services\AuthService;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * Este código implementa varios principios SOLID:
@@ -17,7 +16,6 @@ use Illuminate\Support\Facades\Auth;
  * 4. Interface Segregation Principle (ISP): Las interfaces están divididas según funcionalidades específicas, evitando que las clases dependan de métodos que no utilizan.
  * 5. Dependency Inversion Principle (DIP): Las dependencias se gestionan a través de abstracciones (interfaces), desacoplando el código y facilitando la inyección de dependencias.
  */
-
 class LogoutUser
 {
     protected AuthService $authService;
@@ -31,9 +29,11 @@ class LogoutUser
     {
         try {
             JWTAuth::parseToken()->invalidate();
+
             return true;
         } catch (JWTException $e) {
-            Log::error('"UseCase.LogoutUser": Error al cerrar sesión: ' . $e->getMessage());
+            Log::error('"UseCase.LogoutUser": Error al cerrar sesión: '.$e->getMessage());
+
             return false;
         }
     }

@@ -5,7 +5,6 @@ namespace App\Modules\RawMaterials\Domain\Services;
 use App\Modules\RawMaterials\Domain\Entities\RawMaterialEntity;
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
 
-
 class RawMaterialService
 {
     private RawMaterialRepositoryI $repository;

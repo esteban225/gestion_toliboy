@@ -28,7 +28,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Usuarios encontrados',
-                'data' => $users
+                'data' => $users,
             ], 200);
         }
     }
@@ -44,7 +44,7 @@ class UserController extends Controller
     /**
      * Almacena un nuevo usuario en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function store(Request $request)
@@ -63,7 +63,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error de validación',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -92,7 +92,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -100,7 +100,7 @@ class UserController extends Controller
     /**
      * Muestra la información de un usuario específico.
      *
-     * @param string $id Identificador del usuario.
+     * @param  string  $id  Identificador del usuario.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con los datos del usuario o mensaje de error.
      */
     public function show(string $id)
@@ -112,7 +112,7 @@ class UserController extends Controller
                 // Si el usuario existe, retorna sus datos
                 return response()->json([
                     'status' => true,
-                    'data' => $user
+                    'data' => $user,
                 ], 200);
             } else {
                 // Si el usuario no existe
@@ -126,7 +126,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -135,7 +135,7 @@ class UserController extends Controller
      * Muestra el formulario para editar un usuario específico.
      * (No implementado)
      *
-     * @param string $id Identificador del usuario.
+     * @param  string  $id  Identificador del usuario.
      * @return void
      */
     public function edit(string $id) {}
@@ -143,8 +143,8 @@ class UserController extends Controller
     /**
      * Actualiza la información de un usuario específico en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
-     * @param string $id Identificador del usuario.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @param  string  $id  Identificador del usuario.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function update(Request $request, string $id)
@@ -152,7 +152,7 @@ class UserController extends Controller
         try {
             // Busca el usuario por su ID
             $user = User::findOrFail($id);
-            if (!$user) {
+            if (! $user) {
                 // Si el usuario no existe
                 return response()->json(['message' => 'Usuario no encontrado'], 404);
             }
@@ -160,7 +160,7 @@ class UserController extends Controller
             // Validación de los datos recibidos
             $validator = Validator::make($request->all(), [
                 'name' => 'sometimes|required|string|max:255',
-                'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
+                'email' => 'sometimes|required|string|email|max:255|unique:users,email,'.$id,
                 'password' => 'sometimes|required|string|min:8',
                 'role_id' => 'sometimes|required|nullable|integer|exists:roles,id',
                 'position' => 'sometimes|required|nullable|string|max:255',
@@ -171,7 +171,7 @@ class UserController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Error de validación',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -187,7 +187,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Usuario actualizado exitosamente',
-                'data' => $user
+                'data' => $user,
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Si no se encuentra el usuario
@@ -197,7 +197,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -205,7 +205,7 @@ class UserController extends Controller
     /**
      * Elimina un usuario específico de la base de datos.
      *
-     * @param string $id Identificador del usuario.
+     * @param  string  $id  Identificador del usuario.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function destroy(string $id)
@@ -213,7 +213,7 @@ class UserController extends Controller
         try {
             // Busca el usuario por su ID
             $user = User::findOrFail($id);
-            if (!$user) {
+            if (! $user) {
                 // Si el usuario no existe
                 return response()->json(['message' => 'Usuario no encontrado'], 404);
             }
@@ -224,7 +224,7 @@ class UserController extends Controller
             // Retorna respuesta exitosa
             return response()->json([
                 'status' => true,
-                'message' => 'Usuario eliminado exitosamente'
+                'message' => 'Usuario eliminado exitosamente',
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Si no se encuentra el usuario
@@ -234,7 +234,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Modules\Auth\Application\UseCases;
+
 use App\Modules\Auth\Domain\Services\AuthService;
 
 /**
@@ -21,7 +22,8 @@ class LoginUser
         $this->authService = $authService;
     }
 
-    public function handle(string $email, string $password){
+    public function handle(string $email, string $password)
+    {
         return $this->authService->login($email, $password);
     }
 }

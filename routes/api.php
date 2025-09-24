@@ -29,7 +29,6 @@
 //     Route::post('/login',    [AuthController::class, 'login'])->name('login');
 // });
 
-
 // /*
 // |--------------------------------------------------------------------------
 // | Authenticated common routes (any authenticated user)
@@ -120,7 +119,6 @@
 // */
 // Route::middleware(['api', 'jwt.auth', 'role:OP', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
 //     // Reports accesibles a operarios si corresponde (ajusta roles si no)
-
 
 //     // Form responses (operarios)
 //     Route::post('form-responses', [FormResponseValueController::class, 'store']); // crear respuesta / valores

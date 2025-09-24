@@ -22,10 +22,11 @@ class UserDataController extends Controller
             $data = [
                 'status' => true,
                 'message' => 'Usuarios encontrados',
-                'data' => $dataUser
+                'data' => $dataUser,
             ];
+
             return response()->json($data, 201);
-        };
+        }
     }
 
     /**
@@ -56,7 +57,7 @@ class UserDataController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error de validación',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -79,7 +80,7 @@ class UserDataController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -90,17 +91,18 @@ class UserDataController extends Controller
     public function show(string $id)
     {
         $dataUser = PersonalDatum::where('user_id', $id)->first();
-        if (!$dataUser) {
+        if (! $dataUser) {
             return response()->json(['message' => 'No se encuentran datos del usuario'], 404);
         }
         if ($dataUser) {
             $data = [
                 'status' => true,
                 'message' => 'Datos de usuario encontrados',
-                'data' => $dataUser
+                'data' => $dataUser,
             ];
+
             return response()->json($data, 201);
-        };
+        }
     }
 
     /**
@@ -114,14 +116,14 @@ class UserDataController extends Controller
     public function update(Request $request, string $id)
     {
         $dataUser = PersonalDatum::where('user_id', $id)->first();
-        if (!$dataUser) {
+        if (! $dataUser) {
             return response()->json(['message' => 'No se encuentran datos del usuario'], 404);
         }
 
         $validator = Validator::make($request->all(), [
             'num_phone' => 'nullable|string|max:20',
             'num_phone_alt' => 'nullable|string|max:20',
-            'num_identification' => 'nullable|string|max:50|unique:personal_data,num_identification,' . $dataUser->id,
+            'num_identification' => 'nullable|string|max:50|unique:personal_data,num_identification,'.$dataUser->id,
             'identification_type' => 'nullable|string|max:45',
             'address' => 'nullable|string|max:45',
             'emergency_contact' => 'nullable|string|max:100',
@@ -133,7 +135,7 @@ class UserDataController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error de validación',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -142,9 +144,10 @@ class UserDataController extends Controller
             $data = [
                 'status' => true,
                 'message' => 'Datos de usuario actualizados exitosamente',
-                'data' => $dataUser
+                'data' => $dataUser,
             ];
         }
+
         return response()->json($data, 201);
     }
 
@@ -154,7 +157,7 @@ class UserDataController extends Controller
     public function destroy(string $id)
     {
         $dataUser = PersonalDatum::where('user_id', $id)->first();
-        if (!$dataUser) {
+        if (! $dataUser) {
             return response()->json(['message' => 'No se encuentran datos del usuario'], 404);
         }
         $dataUser->delete();
@@ -164,6 +167,7 @@ class UserDataController extends Controller
                 'message' => 'Datos de usuario eliminados exitosamente',
             ];
         }
+
         return response()->json($data, 201);
     }
 }

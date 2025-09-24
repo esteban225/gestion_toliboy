@@ -9,7 +9,10 @@ class FormsRepository
     public function all(array $filters): array
     {
         $q = DB::table('forms');
-        if (!empty($filters['q'])) $q->where('title', 'like', "%{$filters['q']}%");
+        if (! empty($filters['q'])) {
+            $q->where('title', 'like', "%{$filters['q']}%");
+        }
+
         return $q->get()->toArray();
     }
 
@@ -20,12 +23,12 @@ class FormsRepository
 
     public function create(array $data): int
     {
-        return DB::table('forms')->insertGetId(array_merge($data, ['created_at'=>now(),'updated_at'=>now()]));
+        return DB::table('forms')->insertGetId(array_merge($data, ['created_at' => now(), 'updated_at' => now()]));
     }
 
     public function update(string $id, array $data): int
     {
-        return DB::table('forms')->where('id', $id)->update(array_merge($data, ['updated_at'=>now()]));
+        return DB::table('forms')->where('id', $id)->update(array_merge($data, ['updated_at' => now()]));
     }
 
     public function delete(string $id): int

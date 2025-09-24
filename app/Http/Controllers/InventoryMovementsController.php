@@ -28,12 +28,12 @@ class InventoryMovementsController extends Controller
                     'status' => false,
                     'message' => 'No se encontraron movimientos de inventario',
                 ], 404);
-            }else {
+            } else {
                 // Si hay movimientos, retorna los datos
                 return response()->json([
                     'status' => true,
                     'message' => 'Movimientos de inventario obtenidos exitosamente',
-                    'data' => $data
+                    'data' => $data,
                 ], 200);
             }
         } catch (\Exception $e) {
@@ -41,7 +41,7 @@ class InventoryMovementsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -60,7 +60,7 @@ class InventoryMovementsController extends Controller
     /**
      * Almacena un nuevo movimiento de inventario en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function store(Request $request)
@@ -73,31 +73,32 @@ class InventoryMovementsController extends Controller
             'quantity' => 'required|numeric',
             'unit_cost' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string|max:500',
-            'created_by' => 'nullable|integer|exists:users,id'
+            'created_by' => 'nullable|integer|exists:users,id',
         ]);
         // Si la validación falla, retorna los errores
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Error de validación',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         try {
             // Crea el movimiento de inventario con los datos validados
             $movement = InventoryMovement::create($request->all());
+
             return response()->json([
                 'status' => true,
                 'message' => 'Movimiento de inventario creado exitosamente',
-                'data' => $movement
+                'data' => $movement,
             ], 201);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -105,7 +106,7 @@ class InventoryMovementsController extends Controller
     /**
      * Muestra la información de un movimiento de inventario específico.
      *
-     * @param string $id Identificador del movimiento.
+     * @param  string  $id  Identificador del movimiento.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con los datos o mensaje de error.
      */
     public function show(string $id)
@@ -118,7 +119,7 @@ class InventoryMovementsController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Movimiento de inventario obtenido exitosamente',
-                    'data' => $movement
+                    'data' => $movement,
                 ], 200);
             } else {
                 // Si no existe, retorna mensaje de error
@@ -132,7 +133,7 @@ class InventoryMovementsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -141,7 +142,7 @@ class InventoryMovementsController extends Controller
      * Muestra el formulario para editar un movimiento de inventario específico.
      * (No implementado)
      *
-     * @param string $id Identificador del movimiento.
+     * @param  string  $id  Identificador del movimiento.
      * @return void
      */
     public function edit(string $id)
@@ -152,8 +153,8 @@ class InventoryMovementsController extends Controller
     /**
      * Actualiza la información de un movimiento de inventario específico en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
-     * @param string $id Identificador del movimiento.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @param  string  $id  Identificador del movimiento.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function update(Request $request, string $id)
@@ -161,7 +162,7 @@ class InventoryMovementsController extends Controller
         try {
             // Busca el movimiento por su ID
             $movement = InventoryMovement::find($id);
-            if (!$movement) {
+            if (! $movement) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
@@ -177,30 +178,31 @@ class InventoryMovementsController extends Controller
                 'quantity' => 'sometimes|required|numeric|min:0.01',
                 'unit_cost' => 'sometimes|nullable|numeric|min:0',
                 'notes' => 'sometimes|nullable|string|max:500',
-                'created_by' => 'sometimes|nullable|integer|exists:users,id'
+                'created_by' => 'sometimes|nullable|integer|exists:users,id',
             ]);
             // Si la validación falla, retorna los errores
             if ($validator->fails()) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Error de validación',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
             // Actualiza el movimiento con los datos validados
             $movement->update($request->all());
+
             return response()->json([
                 'status' => true,
                 'message' => 'Movimiento de inventario actualizado exitosamente',
-                'data' => $movement
+                'data' => $movement,
             ], 200);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -208,7 +210,7 @@ class InventoryMovementsController extends Controller
     /**
      * Elimina un movimiento de inventario específico de la base de datos.
      *
-     * @param string $id Identificador del movimiento.
+     * @param  string  $id  Identificador del movimiento.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function destroy(string $id)
@@ -216,7 +218,7 @@ class InventoryMovementsController extends Controller
         try {
             // Busca el movimiento por su ID
             $movement = InventoryMovement::find($id);
-            if (!$movement) {
+            if (! $movement) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
@@ -226,6 +228,7 @@ class InventoryMovementsController extends Controller
 
             // Elimina el movimiento
             $movement->delete();
+
             return response()->json([
                 'status' => true,
                 'message' => 'Movimiento de inventario eliminado exitosamente',
@@ -235,7 +238,7 @@ class InventoryMovementsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

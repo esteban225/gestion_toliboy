@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -38,7 +38,7 @@ class AuthController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation errors',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -59,7 +59,7 @@ class AuthController extends Controller
                 'user' => $user->load('role'),
                 'token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => config('jwt.ttl') * 60
+                'expires_in' => config('jwt.ttl') * 60,
             ], 201);
 
         } catch (\Exception $e) {
@@ -68,7 +68,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -88,16 +88,16 @@ class AuthController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation errors',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
             $credentials = $request->only('email', 'password');
 
-            if (!$token = JWTAuth::attempt($credentials)) {
+            if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid credentials'
+                    'message' => 'Invalid credentials',
                 ], 401);
             }
 
@@ -111,7 +111,7 @@ class AuthController extends Controller
                 'user' => $user->load('role'),
                 'token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => config('jwt.ttl') * 60
+                'expires_in' => config('jwt.ttl') * 60,
             ]);
 
         } catch (JWTException $e) {
@@ -119,7 +119,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Could not create token'
+                'message' => 'Could not create token',
             ], 500);
         }
     }
@@ -132,16 +132,16 @@ class AuthController extends Controller
         try {
             $user = JWTAuth::parseToken()->authenticate();
 
-            if (!$user) {
+            if (! $user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'User not found'
+                    'message' => 'User not found',
                 ], 404);
             }
 
             return response()->json([
                 'success' => true,
-                'user' => $user->load('role')
+                'user' => $user->load('role'),
             ]);
 
         } catch (\Exception $e) {
@@ -149,7 +149,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error retrieving user information'
+                'message' => 'Error retrieving user information',
             ], 500);
         }
     }
@@ -168,7 +168,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Successfully logged out'
+                'message' => 'Successfully logged out',
             ]);
 
         } catch (JWTException $e) {
@@ -176,7 +176,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to logout, please try again'
+                'message' => 'Failed to logout, please try again',
             ], 500);
         }
     }
@@ -194,7 +194,7 @@ class AuthController extends Controller
                 'message' => 'Token refreshed successfully',
                 'token' => $newToken,
                 'token_type' => 'bearer',
-                'expires_in' => config('jwt.ttl') * 60
+                'expires_in' => config('jwt.ttl') * 60,
             ]);
 
         } catch (JWTException $e) {
@@ -202,7 +202,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Token could not be refreshed'
+                'message' => 'Token could not be refreshed',
             ], 401);
         }
     }
@@ -215,10 +215,10 @@ class AuthController extends Controller
         try {
             $authUser = \Illuminate\Support\Facades\Auth::user();
 
-            if (!$authUser || !$authUser->role_id) {
+            if (! $authUser || ! $authUser->role_id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'User or role not found'
+                    'message' => 'User or role not found',
                 ], 404);
             }
 
@@ -231,7 +231,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => true,
                 'user' => $user,
-                'permissions' => $permissions
+                'permissions' => $permissions,
             ]);
 
         } catch (\Exception $e) {
@@ -239,7 +239,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error retrieving permissions'
+                'message' => 'Error retrieving permissions',
             ], 500);
         }
     }

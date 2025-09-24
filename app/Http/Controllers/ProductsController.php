@@ -31,7 +31,7 @@ class ProductsController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Productos encontrados',
-                    'data' => $products
+                    'data' => $products,
                 ], 200);
             }
         } catch (\Exception $e) {
@@ -39,7 +39,7 @@ class ProductsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -55,7 +55,7 @@ class ProductsController extends Controller
     /**
      * Almacena un nuevo producto en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function store(Request $request)
@@ -75,7 +75,7 @@ class ProductsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error de validación',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
         try {
@@ -100,7 +100,7 @@ class ProductsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -108,7 +108,7 @@ class ProductsController extends Controller
     /**
      * Muestra la información de un producto específico.
      *
-     * @param string $id Identificador del producto.
+     * @param  string  $id  Identificador del producto.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con los datos o mensaje de error.
      */
     public function show(string $id)
@@ -122,13 +122,13 @@ class ProductsController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Producto encontrado',
-                    'data' => $product
+                    'data' => $product,
                 ], 200);
             } else {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
-                    'message' => 'Producto no encontrado'
+                    'message' => 'Producto no encontrado',
                 ], 404);
             }
         } catch (\Exception $e) {
@@ -136,7 +136,7 @@ class ProductsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -145,7 +145,7 @@ class ProductsController extends Controller
      * Muestra el formulario para editar un producto específico.
      * (No implementado)
      *
-     * @param string $id Identificador del producto.
+     * @param  string  $id  Identificador del producto.
      * @return void
      */
     public function edit(string $id) {}
@@ -153,8 +153,8 @@ class ProductsController extends Controller
     /**
      * Actualiza la información de un producto específico en la base de datos.
      *
-     * @param \Illuminate\Http\Request $request Datos de la solicitud HTTP.
-     * @param string $id Identificador del producto.
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @param  string  $id  Identificador del producto.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function update(Request $request, string $id)
@@ -162,7 +162,7 @@ class ProductsController extends Controller
         // Validación de los datos recibidos
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
-            'code' => 'sometimes|required|string|max:100|unique:products,code,' . $id,
+            'code' => 'sometimes|required|string|max:100|unique:products,code,'.$id,
             'category' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'specifications' => 'nullable|array',
@@ -176,7 +176,7 @@ class ProductsController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Error de validación',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -184,11 +184,11 @@ class ProductsController extends Controller
             // Busca el producto por su ID
             $product = Product::find($id);
 
-            if (!$product) {
+            if (! $product) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
-                    'message' => 'Producto no encontrado'
+                    'message' => 'Producto no encontrado',
                 ], 404);
             }
 
@@ -199,14 +199,14 @@ class ProductsController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Producto actualizado exitosamente',
-                'data' => $product
+                'data' => $product,
             ], 200);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -214,7 +214,7 @@ class ProductsController extends Controller
     /**
      * Elimina un producto específico de la base de datos.
      *
-     * @param string $id Identificador del producto.
+     * @param  string  $id  Identificador del producto.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
     public function destroy(string $id)
@@ -223,11 +223,11 @@ class ProductsController extends Controller
             // Busca el producto por su ID
             $product = Product::find($id);
 
-            if (!$product) {
+            if (! $product) {
                 // Si no existe, retorna mensaje de error
                 return response()->json([
                     'status' => false,
-                    'message' => 'Producto no encontrado'
+                    'message' => 'Producto no encontrado',
                 ], 404);
             }
 
@@ -237,14 +237,14 @@ class ProductsController extends Controller
             // Retorna respuesta exitosa
             return response()->json([
                 'status' => true,
-                'message' => 'Producto eliminado exitosamente'
+                'message' => 'Producto eliminado exitosamente',
             ], 200);
         } catch (\Exception $e) {
             // Si ocurre una excepción, retorna el error
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

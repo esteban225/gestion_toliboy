@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class AuditLog
- * 
+ *
  * @property int $id
  * @property string $table_name
  * @property int $record_id
@@ -22,36 +22,34 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $ip_address
  * @property string|null $user_agent
  * @property Carbon|null $created_at
- * 
  * @property User|null $user
- *
- * @package App\Models
  */
 class AuditLog extends Model
 {
-	protected $table = 'audit_logs';
-	public $timestamps = false;
+    protected $table = 'audit_logs';
 
-	protected $casts = [
-		'record_id' => 'int',
-		'old_values' => 'json',
-		'new_values' => 'json',
-		'user_id' => 'int'
-	];
+    public $timestamps = false;
 
-	protected $fillable = [
-		'table_name',
-		'record_id',
-		'action',
-		'old_values',
-		'new_values',
-		'user_id',
-		'ip_address',
-		'user_agent'
-	];
+    protected $casts = [
+        'record_id' => 'int',
+        'old_values' => 'json',
+        'new_values' => 'json',
+        'user_id' => 'int',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class);
-	}
+    protected $fillable = [
+        'table_name',
+        'record_id',
+        'action',
+        'old_values',
+        'new_values',
+        'user_id',
+        'ip_address',
+        'user_agent',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

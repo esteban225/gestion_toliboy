@@ -4,7 +4,6 @@ namespace App\Modules\Roles\Domain\Repositories;
 
 use App\Modules\Roles\Domain\Entities\RoleEntity;
 
-
 /**
  * Interface RoleRepositoryInterface
  *
@@ -32,8 +31,12 @@ use App\Modules\Roles\Domain\Entities\RoleEntity;
 interface RoleRepositoryInterface
 {
     public function findById(string $id): ?RoleEntity;
+
     public function findAll(): array;
+
     public function create(array $role): RoleEntity;
+
     public function update(array $role): bool;
+
     public function delete(string $id): bool;
 }

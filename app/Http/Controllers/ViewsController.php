@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\JsonResponse;
 
 class ViewsController extends Controller
 {
@@ -36,31 +36,31 @@ class ViewsController extends Controller
             $names = array_filter(array_map('trim', explode(',', $requested)));
         } else {
             $names = [
-                //Usuarios/Roles
+                // Usuarios/Roles
                 'v_users_by_role',
-                //Productos
+                // Productos
                 'v_products_by_category',
-                //LOTES (Batches)
+                // LOTES (Batches)
                 'v_batches_by_status',
                 'v_batches_by_product',
                 'v_batches_lead_times',
                 'v_batches_defect_rate',
                 'v_inventory_monthly_summary',
-                //FORMULARIOS Y RESPUESTAS
+                // FORMULARIOS Y RESPUESTAS
                 'v_forms_status_summary',
                 'v_forms_completion_rate',
                 'v_form_field_usage',
                 'v_form_review_time_hours',
-                //JORNADAS DE TRABAJO
+                // JORNADAS DE TRABAJO
                 'v_user_work_hours_by_month',
                 'user_work_summary',
-                //AUDITORÍA
+                // AUDITORÍA
                 'v_audit_activity_by_table',
                 'v_audit_activity_by_user_day',
                 'active_sessions',
-                //FORMS
+                // FORMS
                 'form_response_details',
-                //INVENTARIO
+                // INVENTARIO
                 'v_current_stock',
             ];
         }
@@ -93,7 +93,7 @@ class ViewsController extends Controller
         }
 
         $missing = array_values(array_diff($names, $existing));
-        if (!empty($missing)) {
+        if (! empty($missing)) {
             $result['_missing_views'] = $missing;
         }
 

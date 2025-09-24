@@ -19,9 +19,10 @@ class FormsReportRepository
         // Si no se encuentran campos, el reporte estará vacío. Registramos esto.
         if ($fields->isEmpty()) {
             Log::warning("No se encontraron campos (form_fields) para el form_id: {$formId}. El reporte de valores estará vacío.");
+
             return [
                 'headings' => [],
-                'rows' => []
+                'rows' => [],
             ];
         }
         // --- FIN DE LA DEPURACIÓN ---
@@ -34,8 +35,12 @@ class FormsReportRepository
             ->select('fr.id', 'fr.user_id', 'fr.created_at', 'fr.status')
             ->where('fr.form_id', $formId);
 
-        if (!empty($filters['date_from'])) $queryResponses->where('fr.created_at', '>=', $filters['date_from']);
-        if (!empty($filters['date_to'])) $queryResponses->where('fr.created_at', '<=', $filters['date_to']);
+        if (! empty($filters['date_from'])) {
+            $queryResponses->where('fr.created_at', '>=', $filters['date_from']);
+        }
+        if (! empty($filters['date_to'])) {
+            $queryResponses->where('fr.created_at', '<=', $filters['date_to']);
+        }
 
         $responses = $queryResponses->limit($limit)->get();
         Log::info("Respuestas encontradas para form_id {$formId}", ['responses' => $responses->pluck('id')->all()]);
@@ -43,7 +48,7 @@ class FormsReportRepository
         if ($responses->isEmpty()) {
             return [
                 'headings' => $fields->pluck('label')->all(),
-                'rows' => []
+                'rows' => [],
             ];
         }
 
@@ -55,7 +60,7 @@ class FormsReportRepository
             ->whereIn('response_id', $responseIds)
             ->whereIn('field_id', $fieldIds)
             ->get();
-        Log::info("Valores crudos encontrados", ['values_count' => $values->count()]);
+        Log::info('Valores crudos encontrados', ['values_count' => $values->count()]);
 
         // 4. Organizar valores en un mapa para fácil acceso
         $map = [];
@@ -63,7 +68,7 @@ class FormsReportRepository
             $val = $v->value ?? $v->file_path ?? '';
             $map[$v->response_id][$v->field_id] = $val;
         }
-        Log::info("Mapa de valores procesado", ['map_keys' => array_keys($map)]);
+        Log::info('Mapa de valores procesado', ['map_keys' => array_keys($map)]);
 
         // 5. Construir las filas del reporte
         $headings = $fields->pluck('label')->all();
@@ -79,7 +84,7 @@ class FormsReportRepository
 
         return [
             'headings' => $headings,
-            'rows' => $rows
+            'rows' => $rows,
         ];
     }
 }

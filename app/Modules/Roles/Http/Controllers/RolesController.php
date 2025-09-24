@@ -5,8 +5,8 @@ namespace App\Modules\Roles\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Roles\Application\UseCases\ManageRoleUseCase;
 use App\Modules\Roles\Http\Requests\RegisterRequest;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * @group Roles
@@ -39,16 +39,15 @@ class RolesController extends Controller
     public function getById(string $id): JsonResponse
     {
         $role = $this->useCase->getById($id);
-        if (!$role) {
+        if (! $role) {
             return response()->json(['message' => 'Rol no encontrado'], 404);
         }
-
 
         return response()->json(
             [
                 'status' => true,
                 'message' => 'Rol encontrado',
-                'data' => $role
+                'data' => $role,
             ],
             200
         );
@@ -75,11 +74,12 @@ class RolesController extends Controller
     {
         $filters = $request->only(['name', 'description']);
         $roles = $this->useCase->list($filters);
+
         return response()->json(
             [
                 'status' => true,
                 'message' => 'Roles encontrados',
-                'data' => $roles
+                'data' => $roles,
             ],
             200
         );
@@ -101,11 +101,12 @@ class RolesController extends Controller
     {
         $data = $request->only(['name', 'description']);
         $role = $this->useCase->create($data);
+
         return response()->json(
             [
                 'status' => true,
                 'message' => 'Rol creado exitosamente',
-                'data' => ['id' => $role->id]
+                'data' => ['id' => $role->id],
             ],
             201
         );
@@ -117,6 +118,7 @@ class RolesController extends Controller
      * Permite modificar los datos de un rol.
      *
      * @urlParam id string required El identificador único del rol. Ejemplo: 2
+     *
      * @bodyParam name string Nombre del rol. Ejemplo: Editor
      * @bodyParam description string Descripción del rol. Ejemplo: "Puede editar artículos"
      *
@@ -131,9 +133,10 @@ class RolesController extends Controller
     {
         $data = $request->only(['name', 'description']);
         $updated = $this->useCase->update($id, $data);
-        if (!$updated) {
+        if (! $updated) {
             return response()->json(['message' => 'Rol no encontrado o no actualizado'], 404);
         }
+
         return response()->json(
             ['message' => 'ok'],
             200
@@ -157,9 +160,10 @@ class RolesController extends Controller
     public function delete(string $id): JsonResponse
     {
         $deleted = $this->useCase->delete($id);
-        if (!$deleted) {
+        if (! $deleted) {
             return response()->json(['message' => 'Rol no encontrado o no eliminado'], 404);
         }
+
         return response()->json(['message' => 'ok'], 200);
     }
 }

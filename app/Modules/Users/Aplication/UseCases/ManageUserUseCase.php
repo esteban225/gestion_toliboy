@@ -27,8 +27,7 @@ class ManageUserUseCase
     /**
      * Listar usuarios con filtros.
      *
-     * @param array $filters Filtros de búsqueda (ej: ['role_id' => 2])
-     * @return array
+     * @param  array  $filters  Filtros de búsqueda (ej: ['role_id' => 2])
      */
     public function list(array $filters): array
     {
@@ -38,7 +37,7 @@ class ManageUserUseCase
     /**
      * Obtener usuario por ID.
      *
-     * @param string $id Identificador único del usuario
+     * @param  string  $id  Identificador único del usuario
      * @return mixed
      */
     public function get(string $id)
@@ -49,7 +48,7 @@ class ManageUserUseCase
     /**
      * Crear usuario.
      *
-     * @param array $data Datos del usuario (name, email, password, role_id, etc.)
+     * @param  array  $data  Datos del usuario (name, email, password, role_id, etc.)
      * @return mixed
      */
     public function create(array $data)
@@ -60,9 +59,8 @@ class ManageUserUseCase
     /**
      * Actualizar usuario.
      *
-     * @param string $id Identificador único del usuario
-     * @param array $data Datos actualizados del usuario
-     * @return bool
+     * @param  string  $id  Identificador único del usuario
+     * @param  array  $data  Datos actualizados del usuario
      */
     public function update(string $id, array $data): bool
     {
@@ -72,8 +70,7 @@ class ManageUserUseCase
     /**
      * Eliminar usuario.
      *
-     * @param string $id Identificador único del usuario
-     * @return bool
+     * @param  string  $id  Identificador único del usuario
      */
     public function delete(string $id): bool
     {

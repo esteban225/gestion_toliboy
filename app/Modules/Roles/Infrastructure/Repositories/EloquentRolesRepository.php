@@ -34,9 +34,10 @@ class EloquentRolesRepository implements RoleRepositoryInterface
     public function findById(string $id): ?RoleEntity
     {
         $role = DB::table('roles')->where('id', $id)->first();
-        if (!$role) {
+        if (! $role) {
             return null;
         }
+
         return new RoleEntity(
             id: $role->id,
             name: $role->name,
@@ -49,7 +50,8 @@ class EloquentRolesRepository implements RoleRepositoryInterface
     public function findAll(): array
     {
         $roles = DB::table('roles')->get();
-        return array_map(fn($role) => new RoleEntity(
+
+        return array_map(fn ($role) => new RoleEntity(
             id: $role->id,
             name: $role->name,
             description: $role->description,
@@ -64,8 +66,9 @@ class EloquentRolesRepository implements RoleRepositoryInterface
             'name' => $role['name'],
             'description' => $role['description'] ?? null,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ]);
+
         return $this->findById($id);
     }
 
@@ -74,7 +77,7 @@ class EloquentRolesRepository implements RoleRepositoryInterface
         return DB::table('roles')->where('id', $role['id'])->update([
             'name' => $role['name'],
             'description' => $role['description'] ?? null,
-            'updated_at' => now()
+            'updated_at' => now(),
         ]) > 0;
     }
 

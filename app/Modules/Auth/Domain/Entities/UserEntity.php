@@ -2,7 +2,6 @@
 
 namespace App\Modules\Auth\Domain\Entities;
 
-
 /**
  * Esta clase implementa varios principios SOLID:
  *
@@ -12,7 +11,6 @@ namespace App\Modules\Auth\Domain\Entities;
  * - Interface Segregation Principle (ISP): Si la clase implementa interfaces, estas deben ser específicas y no forzar la implementación de métodos innecesarios.
  * - Dependency Inversion Principle (DIP): Si la clase depende de abstracciones (interfaces) en lugar de implementaciones concretas, facilita la flexibilidad y el desacoplamiento.
  */
-
 class UserEntity
 {
     public function __construct(
@@ -27,10 +25,8 @@ class UserEntity
         public ?string $updatedAt = null
     ) {}
 
-
     public function isActive(): bool
     {
         return $this->status === 1;
     }
-
 }

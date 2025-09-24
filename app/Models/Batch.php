@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Batch
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string $code
@@ -27,65 +27,62 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $created_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
  * @property User|null $user
  * @property Product|null $product
  * @property Collection|FormResponse[] $form_responses
  * @property Collection|InventoryMovement[] $inventory_movements
  * @property Collection|WorkLog[] $work_logs
- *
- * @package App\Models
  */
 class Batch extends Model
 {
-	protected $table = 'batches';
+    protected $table = 'batches';
 
-	protected $casts = [
-		'product_id' => 'int',
-		'start_date' => 'datetime',
-		'expected_end_date' => 'datetime',
-		'actual_end_date' => 'datetime',
-		'quantity' => 'int',
-		'defect_quantity' => 'int',
-		'created_by' => 'int'
-	];
+    protected $casts = [
+        'product_id' => 'int',
+        'start_date' => 'datetime',
+        'expected_end_date' => 'datetime',
+        'actual_end_date' => 'datetime',
+        'quantity' => 'int',
+        'defect_quantity' => 'int',
+        'created_by' => 'int',
+    ];
 
-	protected $fillable = [
-		'name',
-		'code',
-		'product_id',
-		'start_date',
-		'expected_end_date',
-		'actual_end_date',
-		'status',
-		'quantity',
-		'defect_quantity',
-		'notes',
-		'created_by'
-	];
+    protected $fillable = [
+        'name',
+        'code',
+        'product_id',
+        'start_date',
+        'expected_end_date',
+        'actual_end_date',
+        'status',
+        'quantity',
+        'defect_quantity',
+        'notes',
+        'created_by',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class, 'created_by');
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
-	public function product()
-	{
-		return $this->belongsTo(Product::class);
-	}
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 
-	public function form_responses()
-	{
-		return $this->hasMany(FormResponse::class);
-	}
+    public function form_responses()
+    {
+        return $this->hasMany(FormResponse::class);
+    }
 
-	public function inventory_movements()
-	{
-		return $this->hasMany(InventoryMovement::class);
-	}
+    public function inventory_movements()
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
 
-	public function work_logs()
-	{
-		return $this->hasMany(WorkLog::class);
-	}
+    public function work_logs()
+    {
+        return $this->hasMany(WorkLog::class);
+    }
 }

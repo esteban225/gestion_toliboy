@@ -19,8 +19,8 @@ namespace App\Modules\DataUser\Domain\Entities;
  *
  * @author Tu Nombre
  */
-class DataUserEntity {
-    
+class DataUserEntity
+{
     public function __construct(
         public ?int $id,
         public ?int $user_id,

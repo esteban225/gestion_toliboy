@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFormResponseRequest;
 use App\Models\FormResponseValue;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -25,20 +25,20 @@ class FormResponseValueController extends Controller
             if ($data->isEmpty()) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'No se encuentran valores de respuestas de formularios'
+                    'message' => 'No se encuentran valores de respuestas de formularios',
                 ], 404);
             }
 
             return response()->json([
                 'status' => true,
                 'message' => 'Valores de respuestas de formularios encontrados',
-                'data' => $data
+                'data' => $data,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -86,6 +86,7 @@ class FormResponseValueController extends Controller
             ], 201);
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return response()->json(['message' => 'Could not save response', 'error' => $e->getMessage()], 500);
         }
     }
@@ -97,23 +98,23 @@ class FormResponseValueController extends Controller
     {
         try {
             $formResponseValue = FormResponseValue::find($id);
-            if (!$formResponseValue) {
+            if (! $formResponseValue) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Valor de respuesta no encontrado'
+                    'message' => 'Valor de respuesta no encontrado',
                 ], 404);
             }
 
             return response()->json([
                 'status' => true,
                 'message' => 'Valor de respuesta obtenido exitosamente',
-                'data' => $formResponseValue
+                'data' => $formResponseValue,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -127,10 +128,10 @@ class FormResponseValueController extends Controller
     {
         try {
             $formResponseValue = FormResponseValue::find($id);
-            if (!$formResponseValue) {
+            if (! $formResponseValue) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Valor de respuesta no encontrado'
+                    'message' => 'Valor de respuesta no encontrado',
                 ], 404);
             }
 
@@ -152,7 +153,7 @@ class FormResponseValueController extends Controller
                                 $fail('El field_id ya está asociado a la response_id proporcionada.');
                             }
                         }
-                    }
+                    },
                 ],
                 'value' => ['nullable', 'string'],
                 'file_path' => ['nullable', 'string'],
@@ -162,7 +163,7 @@ class FormResponseValueController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Error de validación',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -171,13 +172,13 @@ class FormResponseValueController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Valor de respuesta actualizado exitosamente',
-                'data' => $formResponseValue
+                'data' => $formResponseValue,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -189,10 +190,10 @@ class FormResponseValueController extends Controller
     {
         try {
             $formResponseValue = FormResponseValue::find($id);
-            if (!$formResponseValue) {
+            if (! $formResponseValue) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Valor de respuesta no encontrado'
+                    'message' => 'Valor de respuesta no encontrado',
                 ], 404);
             }
 
@@ -200,13 +201,13 @@ class FormResponseValueController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Valor de respuesta eliminado exitosamente'
+                'message' => 'Valor de respuesta eliminado exitosamente',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

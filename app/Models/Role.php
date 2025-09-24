@@ -21,28 +21,25 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool $is_active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
  * @property Collection|User[] $users
- *
- * @package App\Models
  */
 class Role extends Model
 {
     use HasFactory;
 
-	protected $table = 'roles';
+    protected $table = 'roles';
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-	protected $fillable = [
-		'name',
-		'description',
-		'permissions',
-		'is_active'
-	];
+    protected $fillable = [
+        'name',
+        'description',
+        'permissions',
+        'is_active',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -56,10 +53,10 @@ class Role extends Model
         ];
     }
 
-	public function users()
-	{
-		return $this->hasMany(User::class);
-	}
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 
     /**
      * Scope active roles.

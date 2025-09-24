@@ -6,7 +6,6 @@ use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-
 class AuthService
 /**
  * Principios SOLID implementados en este archivo:
@@ -35,15 +34,13 @@ class AuthService
         $this->userRepository = $userRepository;
     }
 
-
-    public function register(array $data) 
+    public function register(array $data)
     {
         $data['password'] = Hash::make($data['password']);
         $userEntity = $this->userRepository->create($data);
         // Obtener el modelo para generar el token
         $userModel = $this->userRepository->findModelById($userEntity->id);
         $token = JWTAuth::fromUser($userModel);
-
 
         return [
             'user' => $userEntity,
@@ -55,7 +52,7 @@ class AuthService
     {
         $userModel = $this->userRepository->findModelByEmail($email);
 
-        if (!$userModel || !Hash::check($password, $userModel->password)) {
+        if (! $userModel || ! Hash::check($password, $userModel->password)) {
             return null;
         }
 

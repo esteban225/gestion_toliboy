@@ -10,35 +10,35 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class VBatchesByProduct
- * 
+ *
  * @property int $product_id
  * @property string $product_name
  * @property string|null $status
  * @property int $batch_count
  * @property float|null $total_quantity
  * @property float|null $total_defects
- *
- * @package App\Models
  */
 class VBatchesByProduct extends Model
 {
-	protected $table = 'v_batches_by_product';
-	public $incrementing = false;
-	public $timestamps = false;
+    protected $table = 'v_batches_by_product';
 
-	protected $casts = [
-		'product_id' => 'int',
-		'batch_count' => 'int',
-		'total_quantity' => 'float',
-		'total_defects' => 'float'
-	];
+    public $incrementing = false;
 
-	protected $fillable = [
-		'product_id',
-		'product_name',
-		'status',
-		'batch_count',
-		'total_quantity',
-		'total_defects'
-	];
+    public $timestamps = false;
+
+    protected $casts = [
+        'product_id' => 'int',
+        'batch_count' => 'int',
+        'total_quantity' => 'float',
+        'total_defects' => 'float',
+    ];
+
+    protected $fillable = [
+        'product_id',
+        'product_name',
+        'status',
+        'batch_count',
+        'total_quantity',
+        'total_defects',
+    ];
 }

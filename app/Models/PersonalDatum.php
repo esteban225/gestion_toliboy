@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class PersonalDatum
- * 
+ *
  * @property int $id
  * @property int $user_id
  * @property string|null $num_phone
@@ -23,32 +23,29 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $emergency_phone
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
  * @property User $user
- *
- * @package App\Models
  */
 class PersonalDatum extends Model
 {
-	protected $table = 'personal_data';
+    protected $table = 'personal_data';
 
-	protected $casts = [
-		'user_id' => 'int'
-	];
+    protected $casts = [
+        'user_id' => 'int',
+    ];
 
-	protected $fillable = [
-		'user_id',
-		'num_phone',
-		'num_phone_alt',
-		'num_identification',
-		'identification_type',
-		'address',
-		'emergency_contact',
-		'emergency_phone'
-	];
+    protected $fillable = [
+        'user_id',
+        'num_phone',
+        'num_phone_alt',
+        'num_identification',
+        'identification_type',
+        'address',
+        'emergency_contact',
+        'emergency_phone',
+    ];
 
-	public function user()
-	{
-		return $this->belongsTo(User::class);
-	}
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

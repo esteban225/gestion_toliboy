@@ -1,11 +1,11 @@
 <?php
 
 namespace App\Modules\Auth\Application\UseCases;
-use App\Modules\Auth\Domain\Services\AuthService;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
-use Illuminate\Support\Facades\Log;
+use App\Modules\Auth\Domain\Services\AuthService;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * Este código implementa varios principios SOLID:
@@ -33,10 +33,12 @@ class GetAuthenticatedUser
                 return $user;
             } else {
                 Log::warning('"UseCase.GetAuthenticatedUser": No authenticated user found');
+
                 return null;
             }
         } catch (Exception $e) {
-            Log::error('"UseCase.GetAuthenticatedUser": Error fetching authenticated user: ' . $e->getMessage());
+            Log::error('"UseCase.GetAuthenticatedUser": Error fetching authenticated user: '.$e->getMessage());
+
             return null;
         }
     }

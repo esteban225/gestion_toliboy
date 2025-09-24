@@ -2,8 +2,8 @@
 
 namespace App\Modules\RawMaterials\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
@@ -32,21 +32,20 @@ class RegisterRequest extends FormRequest
             'stock' => 'required|numeric|min:0',
             'min_stock' => 'nullable|numeric|min:0',
             'is_active' => 'required|boolean',
-            'created_by' => 'nullable|integer|exists:users,id'
+            'created_by' => 'nullable|integer|exists:users,id',
         ];
     }
 
     /**
      * Handle a failed validation attempt.
      *
-     * @param  \Illuminate\Contracts\Validation\Validator  $validator
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
     protected function failedValidation(Validator $validator): void
     {
         throw new HttpResponseException(response()->json([
             'success' => false,
-            'errors'  => $validator->errors(),
+            'errors' => $validator->errors(),
         ], 422));
     }
 

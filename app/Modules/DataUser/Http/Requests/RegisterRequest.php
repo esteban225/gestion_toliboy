@@ -2,8 +2,8 @@
 
 namespace App\Modules\DataUser\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
@@ -40,14 +40,13 @@ class RegisterRequest extends FormRequest
     /**
      * Handle a failed validation attempt.
      *
-     * @param  \Illuminate\Contracts\Validation\Validator  $validator
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
     protected function failedValidation(Validator $validator): void
     {
         throw new HttpResponseException(response()->json([
             'success' => false,
-            'errors'  => $validator->errors(),
+            'errors' => $validator->errors(),
         ], 422));
     }
 
@@ -55,27 +54,27 @@ class RegisterRequest extends FormRequest
     {
         return [
             'user_id.required' => 'El ID de usuario es obligatorio.',
-            'user_id.exists'   => 'El ID de usuario no existe.',
-            'user_id.unique'   => 'El ID de usuario ya tiene datos asociados.',
+            'user_id.exists' => 'El ID de usuario no existe.',
+            'user_id.unique' => 'El ID de usuario ya tiene datos asociados.',
             'num_phone.string' => 'El número de teléfono debe ser una cadena de texto.',
-            'num_phone.max'    => 'El número de teléfono no debe exceder los 20 caracteres.',
+            'num_phone.max' => 'El número de teléfono no debe exceder los 20 caracteres.',
             'num_phone_alt.string' => 'El número de teléfono alternativo debe ser una cadena de texto.',
-            'num_phone_alt.max'    => 'El número de teléfono alternativo no debe exceder los 20 caracteres.',
+            'num_phone_alt.max' => 'El número de teléfono alternativo no debe exceder los 20 caracteres.',
             'num_identification.required' => 'El número de identificación es obligatorio.',
-            'num_identification.string'   => 'El número de identificación debe ser una cadena de texto.',
-            'num_identification.max'      => 'El número de identificación no debe exceder los 50 caracteres.',
-            'num_identification.unique'   => 'El número de identificación ya está registrado.',
+            'num_identification.string' => 'El número de identificación debe ser una cadena de texto.',
+            'num_identification.max' => 'El número de identificación no debe exceder los 50 caracteres.',
+            'num_identification.unique' => 'El número de identificación ya está registrado.',
             'identification_type.required' => 'El tipo de identificación es obligatorio.',
-            'identification_type.string'   => 'El tipo de identificación debe ser una cadena de texto.',
-            'identification_type.max'      => 'El tipo de identificación no debe exceder los 45 caracteres.',
+            'identification_type.string' => 'El tipo de identificación debe ser una cadena de texto.',
+            'identification_type.max' => 'El tipo de identificación no debe exceder los 45 caracteres.',
             'address.string' => 'La dirección debe ser una cadena de texto.',
-            'address.max'    => 'La dirección no debe exceder los 45 caracteres.',
+            'address.max' => 'La dirección no debe exceder los 45 caracteres.',
             'emergency_contact.required' => 'El contacto de emergencia es obligatorio.',
-            'emergency_contact.string'   => 'El contacto de emergencia debe ser una cadena de texto.',
-            'emergency_contact.max'      => 'El contacto de emergencia no debe exceder los 100 caracteres.',
+            'emergency_contact.string' => 'El contacto de emergencia debe ser una cadena de texto.',
+            'emergency_contact.max' => 'El contacto de emergencia no debe exceder los 100 caracteres.',
             'emergency_phone.required' => 'El teléfono de emergencia es obligatorio.',
-            'emergency_phone.string'   => 'El teléfono de emergencia debe ser una cadena de texto.',
-            'emergency_phone.max'      => 'El teléfono de emergencia no debe exceder los 25 caracteres.',
+            'emergency_phone.string' => 'El teléfono de emergencia debe ser una cadena de texto.',
+            'emergency_phone.max' => 'El teléfono de emergencia no debe exceder los 25 caracteres.',
 
         ];
     }

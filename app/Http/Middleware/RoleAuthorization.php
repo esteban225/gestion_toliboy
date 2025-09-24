@@ -17,7 +17,7 @@ class RoleAuthorization
         try {
             $user = JWTAuth::parseToken()->authenticate();
 
-            if (!$user) {
+            if (! $user) {
                 return $this->unauthorized('Usuario no encontrado');
             }
 
@@ -63,7 +63,7 @@ class RoleAuthorization
         return response()->json([
             'message' => $message ?? 'No autenticado',
             'success' => false,
-            'code' => 'UNAUTHORIZED'
+            'code' => 'UNAUTHORIZED',
         ], 401);
     }
 
@@ -72,7 +72,7 @@ class RoleAuthorization
         return response()->json([
             'message' => $message ?? 'No tiene permisos para acceder a este recurso',
             'success' => false,
-            'code' => 'FORBIDDEN'
+            'code' => 'FORBIDDEN',
         ], 403);
     }
 }

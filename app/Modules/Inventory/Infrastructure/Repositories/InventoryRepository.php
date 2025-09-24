@@ -9,15 +9,22 @@ class InventoryRepository
     public function products(array $filters = []): array
     {
         $q = DB::table('products');
-        if (!empty($filters['q'])) $q->where('name','like',"%{$filters['q']}%");
+        if (! empty($filters['q'])) {
+            $q->where('name', 'like', "%{$filters['q']}%");
+        }
+
         return $q->get()->toArray();
     }
 
-    public function findProduct(string $id) { return DB::table('products')->where('id',$id)->first(); }
+    public function findProduct(string $id)
+    {
+        return DB::table('products')->where('id', $id)->first();
+    }
 
     public function rawMaterials(array $filters = []): array
     {
         $q = DB::table('raw_materials');
+
         return $q->get()->toArray();
     }
 

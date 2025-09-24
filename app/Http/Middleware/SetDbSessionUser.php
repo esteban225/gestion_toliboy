@@ -25,7 +25,7 @@ class SetDbSessionUser
                 $userId = Auth::id();
                 $ip = $request->ip() ?? '0.0.0.0';
                 $userAgent = substr($request->userAgent() ?? 'Unknown', 0, 1000);
-                
+
                 // Generamos un ID de sesión tipo string (UUID v4)
                 $sessionId = (string) Str::uuid();
 
@@ -39,7 +39,7 @@ class SetDbSessionUser
             }
         } catch (\Throwable $e) {
             // Registra el error pero no bloquea la petición
-            Log::warning('Error al registrar sesión en BD: ' . $e->getMessage());
+            Log::warning('Error al registrar sesión en BD: '.$e->getMessage());
         }
 
         return $next($request);
