@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetDbSessionUser
@@ -24,14 +25,20 @@ class SetDbSessionUser
                 $userId = Auth::id();
                 $ip = $request->ip() ?? '0.0.0.0';
                 $userAgent = substr($request->userAgent() ?? 'Unknown', 0, 1000);
+                
+                // Generamos un ID de sesión tipo string (UUID v4)
+                $sessionId = (string) Str::uuid();
 
-                // Llama al procedimiento almacenado para registrar la sesión
-                DB::statement('CALL ftoliboy_toliboy_data.set_current_user(?, ?, ?)', [
-                    $userId, $ip, $userAgent
+                // Llamamos al procedimiento almacenado con 4 parámetros
+                DB::statement('CALL ftoliboy_toliboy_data.set_current_user(?, ?, ?, ?)', [
+                    $sessionId,
+                    $userId,
+                    $ip,
+                    $userAgent,
                 ]);
             }
         } catch (\Throwable $e) {
-            // Registra el error pero no bloquees la petición
+            // Registra el error pero no bloquea la petición
             Log::warning('Error al registrar sesión en BD: ' . $e->getMessage());
         }
 

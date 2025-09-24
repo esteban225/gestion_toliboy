@@ -500,14 +500,15 @@ AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci;
 
+
 -- -----------------------------------------------------
 -- Funciones para manejo de sesiones (AHORA ANTES de los triggers)
 -- -----------------------------------------------------
-DROP PROCEDURE IF EXISTS set_current_user;
 DROP PROCEDURE IF EXISTS ftoliboy_toliboy_data.set_current_user;
--- Procedimiento para registrar la sesión por conexión
 DELIMITER $$
+
 CREATE PROCEDURE ftoliboy_toliboy_data.set_current_user(
+    IN p_id CHAR(36),          -- 👈 nuevo parámetro
     IN p_user_id BIGINT,
     IN p_ip_address VARCHAR(45),
     IN p_user_agent TEXT
@@ -520,23 +521,26 @@ BEGIN
     IF p_ip_address IS NULL THEN SET p_ip_address = '0.0.0.0'; END IF;
     IF p_user_agent IS NULL THEN SET p_user_agent = 'Desconocido'; END IF;
 
-    -- Borra la sesión de esta conexión (usa índice UNIQUE(connection_id))
+    -- Borra la sesión de esta conexión
     DELETE FROM ftoliboy_toliboy_data.current_user_sessions
     WHERE connection_id = v_connection_id
     LIMIT 1;
 
-    -- Limpia expiradas (lote, apto safe mode de Workbench)
+    -- Limpia expiradas
     DELETE FROM ftoliboy_toliboy_data.current_user_sessions
     WHERE expires_at <= NOW()
     LIMIT 10000;
 
-    -- Inserta todos los NOT NULL requeridos por la tabla
+    -- Inserta con el id UUID generado en Laravel
     INSERT INTO ftoliboy_toliboy_data.current_user_sessions
-      (connection_id, user_id, ip_address, user_agent, payload, last_activity, created_at, expires_at)
+      (id, connection_id, user_id, ip_address, user_agent, payload, last_activity, created_at, expires_at)
     VALUES
-      (v_connection_id, p_user_id, p_ip_address, p_user_agent, '',
+      (p_id, v_connection_id, p_user_id, p_ip_address, p_user_agent, '',
        UNIX_TIMESTAMP(), NOW(), TIMESTAMPADD(HOUR, 1, CURRENT_TIMESTAMP));
 END$$
+
+DELIMITER ;
+
 
 -- Funciones usadas por los triggers para saber el usuario/IP/UA actual
 DROP FUNCTION IF EXISTS ftoliboy_toliboy_data.get_current_user_id $$

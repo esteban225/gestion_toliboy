@@ -5,10 +5,11 @@ namespace App\Providers;
 use App\Models\User;
 use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\Auth\Infrastructure\Repositories\EloquentUserRepository;
+use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
+use App\Modules\Roles\Infrastructure\Repositories\EloquentRolesRepository;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
-use Illuminate\Auth\Access\Gate;
 use Illuminate\Routing\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -24,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UserRepositoryInterface::class,
             EloquentUserRepository::class
+        );
+
+        $this->app->bind(
+            RoleRepositoryInterface::class,
+            EloquentRolesRepository::class
         );
     }
 
