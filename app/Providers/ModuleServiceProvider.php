@@ -11,6 +11,7 @@ use App\Modules\Users\Infrastructure\Repositories\EloquentUsersRepository as Use
 use App\Modules\Notifications\Infrastructure\Repositories\NotificationsRepository;
 use App\Modules\Roles\Infrastructure\Repositories\EloquentRolesRepository as RolesRepository;
 use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository as DataUserRepository;
+use App\Modules\RawMaterials\Infrastructure\Repositories\RawMaterialRepositoryE as RawMaterialRepository;
 
 class ModuleServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,7 @@ class ModuleServiceProvider extends ServiceProvider
         $this->app->bind(NotificationsRepository::class, fn($app) => new NotificationsRepository());
         $this->app->bind(RolesRepository::class, fn($app) => new RolesRepository());
         $this->app->bind(DataUserRepository::class, fn($app) => new DataUserRepository());
+        $this->app->bind(RawMaterialRepository::class, fn($app) => new RawMaterialRepository());
     }
 
     public function boot()

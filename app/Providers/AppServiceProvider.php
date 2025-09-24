@@ -7,6 +7,8 @@ use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\Auth\Infrastructure\Repositories\EloquentUserRepository;
 use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
 use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository;
+use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
+use App\Modules\RawMaterials\Infrastructure\Repositories\RawMaterialRepositoryE;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
 use App\Modules\Users\Infrastructure\Repositories\EloquentUsersRepository;
 use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
@@ -17,6 +19,7 @@ use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Routing\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Termwind\Components\Raw;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,6 +47,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             DataUserRepositoryInterface::class,
             EloquentDataUserRepository::class
+        );
+
+        $this->app->bind(
+            RawMaterialRepositoryI::class,
+            RawMaterialRepositoryE::class
         );
     }
 
