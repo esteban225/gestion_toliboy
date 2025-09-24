@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Modules\Users\Domain\Repositories;
+
+use App\Modules\Users\Domain\Entities\UserEntity;
+
+/**
+ * Contrato para el repositorio de usuarios.
+ *
+ * Define los métodos que cualquier implementación de repositorio de usuarios debe proveer,
+ * permitiendo desacoplar la lógica de acceso a datos de la lógica de negocio.
+ *
+ * Principios SOLID aplicados:
+ * - SRP: Solo define la interfaz para persistencia de usuarios.
+ * - OCP: Puede extenderse con nuevas implementaciones sin modificar el contrato.
+ * - LSP: Cualquier implementación puede sustituir esta interfaz sin romper el sistema.
+ * - ISP: La interfaz es específica para usuarios.
+ * - DIP: Los servicios y casos de uso dependen de esta abstracción, no de una implementación concreta.
+ */
+interface UsersRepositoryInterface
+{
+    /**
+     * Obtiene todos los usuarios, opcionalmente filtrados.
+     *
+     * @param array $filters Filtros de búsqueda (ej: ['role_id' => 2])
+     * @return UserEntity[]|array Lista de entidades de usuario
+     */
+    public function all(array $filters = []): array;
+
+    /**
+     * Busca un usuario por su identificador.
+     *
+     * @param string $id Identificador único del usuario
+     * @return UserEntity|null Entidad de usuario o null si no existe
+     */
+    public function find(string $id): ?UserEntity;
+
+    /**
+     * Crea un nuevo usuario.
+     *
+     * @param array $data Datos del usuario (name, email, password, role_id, etc.)
+     * @return UserEntity|null Entidad creada o null si falla
+     */
+    public function create(array $data): ?UserEntity;
+
+    /**
+     * Actualiza un usuario existente.
+     *
+     * @param array $data Datos actualizados del usuario (debe incluir el id)
+     * @return bool True si la actualización fue exitosa, false en caso contrario
+     */
+    public function update(array $data): bool;
+
+    /**
+     * Elimina un usuario por su identificador.
+     *
+     * @param string $id Identificador único del usuario
+     * @return bool True si la eliminación fue exitosa, false en caso contrario
+     */
+    public function delete(string $id): bool;
+}

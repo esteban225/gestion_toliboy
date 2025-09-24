@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Models\User;
 use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\Auth\Infrastructure\Repositories\EloquentUserRepository;
+use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
+use App\Modules\Users\Infrastructure\Repositories\EloquentUsersRepository;
 use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
 use App\Modules\Roles\Infrastructure\Repositories\EloquentRolesRepository;
 use Dedoc\Scramble\Scramble;
@@ -30,6 +32,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             RoleRepositoryInterface::class,
             EloquentRolesRepository::class
+        );
+
+        $this->app->bind(
+            UsersRepositoryInterface::class,
+            EloquentUsersRepository::class
         );
     }
 

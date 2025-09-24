@@ -21,9 +21,24 @@ class ManageRoleUseCase
 {
     public function __construct(private RoleService $service) {}
 
-    public function getById(string $id) { return $this->service->getRoleById($id); }
-    public function list(array $filters) { return $this->service->getAllRoles(); }
-    public function create(array $data) { return $this->service->createRole($data); }
-    public function update(string $id, array $data) { return $this->service->updateRole(array_merge($data,['id'=>$id])); }
-    public function delete(string $id) { return $this->service->deleteRole($id); }
+    public function getById(string $id)
+    {
+        return $this->service->getRoleById($id);
+    }
+    public function list(array $filters)
+    {
+        return $this->service->getAllRoles();
+    }
+    public function create(array $data)
+    {
+        return $this->service->createRole($data);
+    }
+    public function update(string $id, array $data)
+    {
+        return $this->service->updateRole(array_merge($data, ['id' => $id]));
+    }
+    public function delete(string $id)
+    {
+        return $this->service->deleteRole($id);
+    }
 }
