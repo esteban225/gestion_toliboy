@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\Auth\Infrastructure\Repositories\EloquentUserRepository;
+use App\Modules\Batches\Domain\Repositories\BatcheRepositoryI;
+use App\Modules\Batches\Infrastructure\Repositories\BatcheRepositoryE;
 use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
 use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository;
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
@@ -54,6 +56,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             RawMaterialRepositoryI::class,
             RawMaterialRepositoryE::class
+        );
+
+        $this->app->bind(
+            BatcheRepositoryI::class,
+            BatcheRepositoryE::class
         );
         // Servicios específicos por módulo
         $this->app->bind(RawMaterialReportService::class);

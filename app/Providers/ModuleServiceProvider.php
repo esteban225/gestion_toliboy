@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Modules\Batches\Domain\Repositories\BatcheRepositoryI;
+use App\Modules\Batches\Infrastructure\Repositories\BatcheRepositoryE;
 use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository as DataUserRepository;
 use App\Modules\Forms\Infrastructure\Repositories\FormsRepository;
 use App\Modules\Inventory\Infrastructure\Repositories\InventoryRepository;
@@ -24,6 +26,7 @@ class ModuleServiceProvider extends ServiceProvider
     {
         // raw materials
         $this->app->bind(RawMaterialRepositoryI::class, RawMaterialRepositoryE::class);
+        $this->app->bind(BatcheRepositoryI::class, BatcheRepositoryE::class);
         $this->app->bind(RawMaterialReportService::class);
 
         // reports module

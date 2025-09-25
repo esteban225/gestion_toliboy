@@ -11,3 +11,5 @@ Route::middleware(['api', 'jwt.auth', 'role:DEV', \App\Http\Middleware\SetDbSess
     Route::put('/raw-materials/{id}', [RawMaterialsController::class, 'update']);
     Route::delete('/raw-materials/{id}', [RawMaterialsController::class, 'destroy']);
 });
+
+
