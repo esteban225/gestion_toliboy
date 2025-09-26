@@ -8,6 +8,8 @@ use App\Modules\Batches\Domain\Repositories\BatcheRepositoryI;
 use App\Modules\Batches\Infrastructure\Repositories\BatcheRepositoryE;
 use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
 use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository;
+use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositpyI;
+use App\Modules\InventoryMovements\Infrastructure\Repositories\InvMoveRepositoyE;
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
 use App\Modules\RawMaterials\Domain\Services\RawMaterialReportService;
 use App\Modules\RawMaterials\Infrastructure\Repositories\RawMaterialRepositoryE;
@@ -61,6 +63,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             BatcheRepositoryI::class,
             BatcheRepositoryE::class
+        );
+
+        $this->app->bind(
+            InvMoveRepositpyI::class,
+            InvMoveRepositoyE::class
         );
         // Servicios específicos por módulo
         $this->app->bind(RawMaterialReportService::class);

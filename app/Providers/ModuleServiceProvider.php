@@ -7,6 +7,8 @@ use App\Modules\Batches\Infrastructure\Repositories\BatcheRepositoryE;
 use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository as DataUserRepository;
 use App\Modules\Forms\Infrastructure\Repositories\FormsRepository;
 use App\Modules\Inventory\Infrastructure\Repositories\InventoryRepository;
+use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositpyI;
+use App\Modules\InventoryMovements\Infrastructure\Repositories\InvMoveRepositoyE;
 use App\Modules\Notifications\Infrastructure\Repositories\NotificationsRepository;
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
 use App\Modules\RawMaterials\Domain\Services\RawMaterialReportService;
@@ -24,9 +26,10 @@ class ModuleServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        // raw materials
+
         $this->app->bind(RawMaterialRepositoryI::class, RawMaterialRepositoryE::class);
         $this->app->bind(BatcheRepositoryI::class, BatcheRepositoryE::class);
+        $this->app->bind(InvMoveRepositpyI::class, InvMoveRepositoyE::class);
         $this->app->bind(RawMaterialReportService::class);
 
         // reports module
