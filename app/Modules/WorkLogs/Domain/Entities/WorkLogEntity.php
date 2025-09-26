@@ -2,7 +2,6 @@
 
 namespace App\Modules\WorkLogs\Domain\Entities;
 
-
 class WorkLogEntity
 {
     public function __construct(

@@ -2,8 +2,8 @@
 
 namespace App\Modules\WorkLogs\Http;
 
-use Illuminate\Support\Facades\Route;
 use App\Modules\WorkLogs\Http\Controllers\WorkLogController;
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['api', 'jwt.auth'])->group(function () {
     Route::get('/work-logs', [WorkLogController::class, 'index']);

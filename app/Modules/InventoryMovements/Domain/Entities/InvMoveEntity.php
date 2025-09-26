@@ -60,7 +60,6 @@ class InvMoveEntity
      * Crea una instancia de InvMoveEntity a partir de un array asociativo.
      *
      * @param  array<string, mixed>  $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -75,6 +74,7 @@ class InvMoveEntity
             $data['created_by'] ?? null,
         );
     }
+
     /**
      * Indica si el movimiento es de entrada.
      */

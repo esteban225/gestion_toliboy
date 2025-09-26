@@ -2,15 +2,15 @@
 
 namespace App\Modules\WorkLogs\Infrastructure\Repositories;
 
+use App\Models\WorkLog;
 use App\Modules\WorkLogs\Domain\Entities\WorkLogEntity;
 use App\Modules\WorkLogs\Domain\Repositories\WorkLogRepositoryI;
-use App\Models\WorkLog;
 
 class WorkLogRepositoryE implements WorkLogRepositoryI
 {
     public function create(WorkLogEntity $workLog): WorkLogEntity
     {
-        $workLogModel = new WorkLog();
+        $workLogModel = new WorkLog;
         $workLogModel->user_id = $workLog->user_id;
         $workLogModel->date = $workLog->date;
         $workLogModel->start_time = $workLog->start_time;
@@ -29,8 +29,8 @@ class WorkLogRepositoryE implements WorkLogRepositoryI
     public function update(WorkLogEntity $workLog): WorkLogEntity
     {
         $workLogModel = WorkLog::find($workLog->id);
-        if (!$workLogModel) {
-            throw new \Exception("WorkLog not found");
+        if (! $workLogModel) {
+            throw new \Exception('WorkLog not found');
         }
 
         $workLogModel->user_id = $workLog->user_id;
@@ -51,31 +51,35 @@ class WorkLogRepositoryE implements WorkLogRepositoryI
     public function delete(int $id): bool
     {
         $workLogModel = WorkLog::find($id);
-        if (!$workLogModel) {
+        if (! $workLogModel) {
             return false;
         }
+
         return $workLogModel->delete();
     }
 
     public function findById(int $id): ?WorkLogEntity
     {
         $workLogModel = WorkLog::find($id);
-        if (!$workLogModel) {
+        if (! $workLogModel) {
             return null;
         }
+
         return $this->mapToEntity($workLogModel);
     }
 
     public function findByUserId(int $userId): array
     {
         $workLogModels = WorkLog::where('user_id', $userId)->get();
-        return $workLogModels->map(fn($model) => $this->mapToEntity($model))->toArray();
+
+        return $workLogModels->map(fn ($model) => $this->mapToEntity($model))->toArray();
     }
 
     public function findAll(): array
     {
         $workLogModels = WorkLog::all();
-        return $workLogModels->map(fn($model) => $this->mapToEntity($model))->toArray();
+
+        return $workLogModels->map(fn ($model) => $this->mapToEntity($model))->toArray();
     }
 
     /**

@@ -21,7 +21,6 @@ use App\Modules\Roles\Infrastructure\Repositories\EloquentRolesRepository as Rol
 use App\Modules\Users\Infrastructure\Repositories\EloquentUsersRepository as UsersRepository;
 use App\Modules\WorkLogs\Domain\Repositories\WorkLogRepositoryI;
 use App\Modules\WorkLogs\Infrastructure\Repositories\WorkLogRepositoryE;
-use App\Modules\WorkLogs\Infrastructure\Repositories\WorkLogsRepository;
 use Illuminate\Support\ServiceProvider;
 
 class ModuleServiceProvider extends ServiceProvider

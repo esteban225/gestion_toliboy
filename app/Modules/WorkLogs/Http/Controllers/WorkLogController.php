@@ -3,8 +3,8 @@
 namespace App\Modules\WorkLogs\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\WorkLogs\Domain\Entities\WorkLogEntity;
 use App\Modules\WorkLogs\Application\UseCases\WorkLogUseCase;
+use App\Modules\WorkLogs\Domain\Entities\WorkLogEntity;
 use App\Modules\WorkLogs\Http\Requests\RegisterRequest;
 use App\Modules\WorkLogs\Http\Requests\UpDateRequest;
 use Illuminate\Http\JsonResponse;
@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 
 /**
  * @group WorkLogs
+ *
  * @description Endpoints para gestionar los registros de jornada laboral (work logs).
  *
  * Notas:
@@ -33,6 +34,7 @@ class WorkLogController extends Controller
      * Devuelve todos los work logs o los del usuario indicado.
      *
      * @queryParam user_id int Opcional. Filtra por ID de usuario. Example: 12
+     *
      * @response 200 {
      *   "success": true,
      *   "data": [
@@ -55,10 +57,11 @@ class WorkLogController extends Controller
     {
         $userId = $request->query('user_id');
         if ($userId) {
-            $workLogs = $this->workLogUseCase->getWorkLogsByUserId((int)$userId);
+            $workLogs = $this->workLogUseCase->getWorkLogsByUserId((int) $userId);
         } else {
             $workLogs = $this->workLogUseCase->getAllWorkLogs();
         }
+
         return response()->json($workLogs);
     }
 
@@ -111,6 +114,7 @@ class WorkLogController extends Controller
         );
 
         $createdWorkLog = $this->workLogUseCase->createWorkLog($workLogEntity);
+
         return response()->json($createdWorkLog, 201);
     }
 
@@ -120,6 +124,7 @@ class WorkLogController extends Controller
      * Obtiene los detalles de un work log por su ID.
      *
      * @urlParam id int required ID del work log. Example: 1
+     *
      * @response 200 {
      *   "success": true,
      *   "data": { "id": 1, "user_id": 12, "date": "2025-09-26", "start_time": "08:00", "end_time": "17:00" }
@@ -135,6 +140,7 @@ class WorkLogController extends Controller
         if ($workLog) {
             return response()->json($workLog);
         }
+
         return response()->json(['message' => 'Work log not found'], 404);
     }
 
@@ -144,6 +150,7 @@ class WorkLogController extends Controller
      * Actualiza un work log existente. start_time y end_time deben mantenerse en formato HH:MM si se envían.
      *
      * @urlParam id int required ID del work log a actualizar. Example: 1
+     *
      * @bodyParam date date Opcional. Fecha del registro. Example: "2025-09-26"
      * @bodyParam start_time string Opcional. Hora de inicio en formato HH:MM. Example: "08:00"
      * @bodyParam end_time string Opcional. Hora de fin en formato HH:MM. Example: "17:00"
@@ -166,7 +173,7 @@ class WorkLogController extends Controller
         $data = $request->validated();
         $existingWorkLog = $this->workLogUseCase->getWorkLogById($id);
 
-        if (!$existingWorkLog) {
+        if (! $existingWorkLog) {
             return response()->json(['message' => 'Work log not found'], 404);
         }
 
@@ -177,6 +184,7 @@ class WorkLogController extends Controller
             }
         }
         $updatedWorkLog = $this->workLogUseCase->updateWorkLog($existingWorkLog);
+
         return response()->json($updatedWorkLog);
     }
 
@@ -186,6 +194,7 @@ class WorkLogController extends Controller
      * Borra un work log por su ID.
      *
      * @urlParam id int required ID del work log a eliminar. Example: 1
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Work log deleted"
@@ -201,6 +210,7 @@ class WorkLogController extends Controller
         if ($deleted) {
             return response()->json(['message' => 'Work log deleted']);
         }
+
         return response()->json(['message' => 'Work log not found'], 404);
     }
 
@@ -210,6 +220,7 @@ class WorkLogController extends Controller
      * Devuelve los work logs del usuario indicado.
      *
      * @urlParam userId int required ID del usuario. Example: 12
+     *
      * @response 200 {
      *   "success": true,
      *   "data": [
@@ -220,6 +231,7 @@ class WorkLogController extends Controller
     public function showUserWorkLogs(int $userId): JsonResponse
     {
         $workLogs = $this->workLogUseCase->getWorkLogsByUserId($userId);
+
         return response()->json($workLogs);
     }
 }

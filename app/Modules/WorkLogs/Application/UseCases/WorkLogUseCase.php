@@ -17,6 +17,7 @@ class WorkLogUseCase
     public function createWorkLog(WorkLogEntity $workLog): WorkLogEntity
     {
         $workLogModel = $this->workLogService->createWorkLog($workLog);
+
         // Aquí puedes llamar al servicio de notificaciones si es necesario
         return $workLogModel;
     }
@@ -24,6 +25,7 @@ class WorkLogUseCase
     public function updateWorkLog(WorkLogEntity $workLog): WorkLogEntity
     {
         $workLogModel = $this->workLogService->updateWorkLog($workLog);
+
         // Aquí puedes llamar al servicio de notificaciones si es necesario
         return $workLogModel;
     }
@@ -31,6 +33,7 @@ class WorkLogUseCase
     public function deleteWorkLog(int $id): bool
     {
         $result = $this->workLogService->deleteWorkLog($id);
+
         // Aquí puedes llamar al servicio de notificaciones si es necesario
         return $result;
     }
@@ -44,6 +47,7 @@ class WorkLogUseCase
     {
         return $this->workLogService->getWorkLogsByUserId($userId);
     }
+
     public function getAllWorkLogs(): array
     {
         return $this->workLogService->getAllWorkLogs();

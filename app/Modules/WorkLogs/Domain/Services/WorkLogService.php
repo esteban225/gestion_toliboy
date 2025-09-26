@@ -38,6 +38,7 @@ class WorkLogService
     {
         return $this->workLogRepository->findByUserId($userId);
     }
+
     public function getAllWorkLogs(): array
     {
         return $this->workLogRepository->findAll();

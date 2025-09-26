@@ -72,7 +72,7 @@ class AppServiceProvider extends ServiceProvider
             InvMoveRepositoyE::class
         );
 
-                $this->app->bind(
+        $this->app->bind(
             WorkLogRepositoryI::class,
             WorkLogRepositoryE::class
         );
