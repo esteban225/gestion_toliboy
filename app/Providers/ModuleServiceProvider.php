@@ -9,6 +9,8 @@ use App\Modules\Forms\Infrastructure\Repositories\FormsRepository;
 use App\Modules\Inventory\Infrastructure\Repositories\InventoryRepository;
 use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositpyI;
 use App\Modules\InventoryMovements\Infrastructure\Repositories\InvMoveRepositoyE;
+use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
+use App\Modules\Notifications\Infrastructure\Repositories\NotificationRepositoryE;
 use App\Modules\Notifications\Infrastructure\Repositories\NotificationsRepository;
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
 use App\Modules\RawMaterials\Domain\Services\RawMaterialReportService;
@@ -32,6 +34,7 @@ class ModuleServiceProvider extends ServiceProvider
         $this->app->bind(BatcheRepositoryI::class, BatcheRepositoryE::class);
         $this->app->bind(InvMoveRepositpyI::class, InvMoveRepositoyE::class);
         $this->app->bind(WorkLogRepositoryI::class, WorkLogRepositoryE::class);
+        $this->app->bind(NotificationRepositoryI::class, NotificationRepositoryE::class);
         $this->app->bind(RawMaterialReportService::class);
 
         // reports module
@@ -44,7 +47,6 @@ class ModuleServiceProvider extends ServiceProvider
 
         $this->app->bind(InventoryRepository::class, fn ($app) => new InventoryRepository);
         $this->app->bind(UsersRepository::class, fn ($app) => new UsersRepository);
-        $this->app->bind(NotificationsRepository::class, fn ($app) => new NotificationsRepository);
         $this->app->bind(RolesRepository::class, fn ($app) => new RolesRepository);
         $this->app->bind(DataUserRepository::class, fn ($app) => new DataUserRepository);
         // $this->app->bind(RawMaterialRepository::class, fn ($app) => new RawMaterialRepository);

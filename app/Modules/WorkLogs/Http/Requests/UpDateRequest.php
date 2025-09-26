@@ -15,7 +15,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
  *
  * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
  */
-class UpdateRequest extends FormRequest
+class UpDateRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
