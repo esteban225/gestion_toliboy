@@ -19,6 +19,8 @@ use App\Modules\Reports\Domain\Services\ReportExportService;
 use App\Modules\Reports\Infrastructure\Repositories\ReportsRepository;
 use App\Modules\Roles\Infrastructure\Repositories\EloquentRolesRepository as RolesRepository;
 use App\Modules\Users\Infrastructure\Repositories\EloquentUsersRepository as UsersRepository;
+use App\Modules\WorkLogs\Domain\Repositories\WorkLogRepositoryI;
+use App\Modules\WorkLogs\Infrastructure\Repositories\WorkLogRepositoryE;
 use App\Modules\WorkLogs\Infrastructure\Repositories\WorkLogsRepository;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,6 +32,7 @@ class ModuleServiceProvider extends ServiceProvider
         $this->app->bind(RawMaterialRepositoryI::class, RawMaterialRepositoryE::class);
         $this->app->bind(BatcheRepositoryI::class, BatcheRepositoryE::class);
         $this->app->bind(InvMoveRepositpyI::class, InvMoveRepositoyE::class);
+        $this->app->bind(WorkLogRepositoryI::class, WorkLogRepositoryE::class);
         $this->app->bind(RawMaterialReportService::class);
 
         // reports module
@@ -39,7 +42,7 @@ class ModuleServiceProvider extends ServiceProvider
 
         $this->app->bind(ReportsRepository::class, fn ($app) => new ReportsRepository);
         $this->app->bind(FormsRepository::class, fn ($app) => new FormsRepository);
-        $this->app->bind(WorkLogsRepository::class, fn ($app) => new WorkLogsRepository);
+
         $this->app->bind(InventoryRepository::class, fn ($app) => new InventoryRepository);
         $this->app->bind(UsersRepository::class, fn ($app) => new UsersRepository);
         $this->app->bind(NotificationsRepository::class, fn ($app) => new NotificationsRepository);

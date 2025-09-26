@@ -20,6 +20,8 @@ use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
 use App\Modules\Roles\Infrastructure\Repositories\EloquentRolesRepository;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
 use App\Modules\Users\Infrastructure\Repositories\EloquentUsersRepository;
+use App\Modules\WorkLogs\Domain\Repositories\WorkLogRepositoryI;
+use App\Modules\WorkLogs\Infrastructure\Repositories\WorkLogRepositoryE;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -68,6 +70,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             InvMoveRepositpyI::class,
             InvMoveRepositoyE::class
+        );
+
+                $this->app->bind(
+            WorkLogRepositoryI::class,
+            WorkLogRepositoryE::class
         );
         // Servicios específicos por módulo
         $this->app->bind(RawMaterialReportService::class);
