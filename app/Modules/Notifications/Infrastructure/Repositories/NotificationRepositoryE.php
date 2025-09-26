@@ -2,12 +2,12 @@
 
 namespace App\Modules\Notifications\Infrastructure\Repositories;
 
-use App\Models\Notification;
-use App\Modules\Notifications\Domain\Entities\NotificationEntity;
 use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
-use Carbon\Carbon;
+use App\Modules\Notifications\Domain\Entities\NotificationEntity;
+use App\Models\Notification ;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Carbon\Carbon;
 
 class NotificationRepositoryE implements NotificationRepositoryI
 {
@@ -132,9 +132,30 @@ class NotificationRepositoryE implements NotificationRepositoryI
                 );
             });
     }
-
-    public function deleteExpiredNotifications(Carbon $currentDate): int
+    public function deleteExpiredNotifications($currentDate): int
     {
         return Notification::where('expires_at', '<', $currentDate)->delete();
     }
+
+    /**
+     * Implementación genérica de notify.
+     * Acepta NotificationEntity (si existe -> toArray()) o array payload.
+     */
+    public function notify(array $data): NotificationEntity
+    {
+        $notification = new NotificationEntity(
+           (int) $data['user_id'] ?? null, // user_id
+            $data['title'],           // title
+            $data['message'],         // message
+            $data['type'] ?? 'info',  // type
+            $data['related_table'] ?? null, // related_table
+            $data['related_id'] ?? null     // related_id
+        );
+
+        // Usa setters si los atributos son privados
+        $notification->setIsRead(false);
+
+        return $this->create($notification);
+    }
+
 }

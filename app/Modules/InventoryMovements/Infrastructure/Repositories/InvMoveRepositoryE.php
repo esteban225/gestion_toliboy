@@ -4,9 +4,9 @@ namespace App\Modules\InventoryMovements\Infrastructure\Repositories;
 
 use App\Models\InventoryMovement;
 use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
-use App\modules\InventoryMovements\Domain\Repositories\InvMoveRepositpyI;
+use App\modules\InventoryMovements\Domain\Repositories\InvMoveRepositoryI;
 
-class InvMoveRepositoyE implements InvMoveRepositpyI
+class InvMoveRepositoryE implements InvMoveRepositoryI
 {
     public function list(array $filters = []): array
     {

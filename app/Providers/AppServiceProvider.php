@@ -2,14 +2,15 @@
 
 namespace App\Providers;
 
+use App\Models\RawMaterial;
 use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\Auth\Infrastructure\Repositories\EloquentUserRepository;
 use App\Modules\Batches\Domain\Repositories\BatcheRepositoryI;
 use App\Modules\Batches\Infrastructure\Repositories\BatcheRepositoryE;
 use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
 use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository;
-use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositpyI;
-use App\Modules\InventoryMovements\Infrastructure\Repositories\InvMoveRepositoyE;
+use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositoryI;
+use App\Modules\InventoryMovements\Infrastructure\Repositories\InvMoveRepositoryE;
 use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
 use App\Modules\Notifications\Infrastructure\Repositories\NotificationRepositoryE;
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
@@ -24,6 +25,7 @@ use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
 use App\Modules\Users\Infrastructure\Repositories\EloquentUsersRepository;
 use App\Modules\WorkLogs\Domain\Repositories\WorkLogRepositoryI;
 use App\Modules\WorkLogs\Infrastructure\Repositories\WorkLogRepositoryE;
+use App\Observers\RawMaterialObserver;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -70,8 +72,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            InvMoveRepositpyI::class,
-            InvMoveRepositoyE::class
+            InvMoveRepositoryI::class,
+            InvMoveRepositoryE::class
         );
 
         $this->app->bind(
@@ -98,6 +100,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RawMaterial::observe(RawMaterialObserver::class);
         Scramble::configure()
             ->routes(function (Route $route) {
                 return Str::startsWith($route->uri, 'api/');

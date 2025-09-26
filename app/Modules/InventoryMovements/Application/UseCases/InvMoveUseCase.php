@@ -2,8 +2,11 @@
 
 namespace App\Modules\InventoryMovements\Application\UseCases;
 
+use App\Models\RawMaterial;
 use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
+use App\Modules\InventoryMovements\Domain\Events\InventoryLowStock;
 use App\Modules\InventoryMovements\Domain\Services\InvMoveService;
+use Illuminate\Support\Facades\DB;
 
 /*
 está clase cumple dos pricipios SOLID:
@@ -59,4 +62,25 @@ class InvMoveUseCase
     {
         return $this->service->delete($id);
     }
+
+public function reduceStock(int $itemId, float $qty): void
+{
+    DB::transaction(function () use ($itemId, $qty, &$newStock, &$threshold) {
+        // Bloquea el registro para evitar condiciones de carrera
+        $item = RawMaterial::lockForUpdate()->findOrFail($itemId);
+
+        // Calcula nuevo stock (respeta los decimales)
+        $newStock = max(0, (float) $item->stock - $qty);
+        $item->stock = $newStock;
+        $item->save();
+
+        // Usa min_stock como umbral (o config por defecto si está NULL)
+        $threshold = $item->min_stock ?? config('inventory.default_low_stock_threshold', 10);
+    });
+
+    // Dispara evento solo si se llegó al umbral
+    if ($threshold !== null && $newStock <= $threshold) {
+        event(new InventoryLowStock($itemId, $newStock, $threshold));
+    }
+}
 }

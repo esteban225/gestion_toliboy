@@ -6,7 +6,7 @@ class NotificationEntity
 {
     private ?int $id;
 
-    private int $user_id;
+    private int|string|null $user_id;
 
     private string $title;
 
@@ -24,7 +24,7 @@ class NotificationEntity
 
     public function __construct(
         ?int $id,
-        int $user_id,
+        ?int $user_id,
         string $title,
         string $message,
         string $type,
@@ -51,7 +51,7 @@ class NotificationEntity
         return $this->id;
     }
 
-    public function getUserId(): int
+    public function getUserId(): ?int
     {
         return $this->user_id;
     }
@@ -95,4 +95,16 @@ class NotificationEntity
     {
         $this->is_read = true;
     }
+
+    public function setExpiresAt(?string $expires_at): void
+    {
+        $this->expires_at = $expires_at;
+    }
+
+    public function setIsRead(bool $is_read): void
+    {
+        $this->is_read = $is_read;
+    }
+
+
 }

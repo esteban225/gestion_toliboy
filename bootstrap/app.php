@@ -36,5 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withProviders([
         ModuleServiceProvider::class, // 👈 aquí va tu provider
+        App\Providers\AppServiceProvider::class,
+        App\Providers\EventServiceProvider::class,
     ])
     ->create();

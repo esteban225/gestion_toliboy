@@ -26,7 +26,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:100|unique:raw_materials,code',
+            'code' => 'required|string|max:100',
             'description' => 'nullable|string',
             'unit_of_measure' => 'required|string|max:50',
             'stock' => 'required|numeric|min:0',

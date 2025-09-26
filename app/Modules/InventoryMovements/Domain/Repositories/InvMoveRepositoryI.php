@@ -19,7 +19,7 @@ use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
 
 Este es mi contrato el cual dice que se puede hacer más no como hacerlo
 */
-interface InvMoveRepositpyI
+interface InvMoveRepositoryI
 {
     public function create(InvMoveEntity $entity): InvMoveEntity;
 

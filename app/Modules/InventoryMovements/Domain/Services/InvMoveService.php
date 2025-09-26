@@ -3,7 +3,7 @@
 namespace App\Modules\InventoryMovements\Domain\Services;
 
 use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
-use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositpyI;
+use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositoryI;
 
 /*
 está clase cumple dos pricipios SOLID:
@@ -28,9 +28,9 @@ del codigo con metodos necesario y no redundantes
 
 class InvMoveService
 {
-    private InvMoveRepositpyI $repositoy;
+    private InvMoveRepositoryI $repositoy;
 
-    public function __construct(InvMoveRepositpyI $repositoy)
+    public function __construct(InvMoveRepositoryI $repositoy)
     {
         $this->repositoy = $repositoy;
     }
