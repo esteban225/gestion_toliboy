@@ -11,7 +11,6 @@ use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositpyI;
 use App\Modules\InventoryMovements\Infrastructure\Repositories\InvMoveRepositoyE;
 use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
 use App\Modules\Notifications\Infrastructure\Repositories\NotificationRepositoryE;
-use App\Modules\Notifications\Infrastructure\Repositories\NotificationsRepository;
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
 use App\Modules\RawMaterials\Domain\Services\RawMaterialReportService;
 use App\Modules\RawMaterials\Infrastructure\Repositories\RawMaterialRepositoryE;

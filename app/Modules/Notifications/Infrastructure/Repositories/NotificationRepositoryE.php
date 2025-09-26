@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Modules\Notifications\Infrastructure\Repositories;
+
+use App\Models\Notification;
 use App\Modules\Notifications\Domain\Entities\NotificationEntity;
 use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
-use App\Models\Notification;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class NotificationRepositoryE implements NotificationRepositoryI
 {
@@ -39,7 +40,7 @@ class NotificationRepositoryE implements NotificationRepositoryI
     public function findById(int $id): ?NotificationEntity
     {
         $notificacion = Notification::find($id);
-        if (!$notificacion) {
+        if (! $notificacion) {
             return null;
         }
 
@@ -86,18 +87,21 @@ class NotificationRepositoryE implements NotificationRepositoryI
     public function delete(int $id): bool
     {
         $notificacion = Notification::find($id);
-        if (!$notificacion) {
+        if (! $notificacion) {
             return false;
         }
+
         return $notificacion->delete();
     }
+
     public function markAsRead(int $id): bool
     {
         $notificacion = Notification::find($id);
-        if (!$notificacion) {
+        if (! $notificacion) {
             return false;
         }
         $notificacion->is_read = true;
+
         return $notificacion->save();
     }
 
@@ -133,5 +137,4 @@ class NotificationRepositoryE implements NotificationRepositoryI
     {
         return Notification::where('expires_at', '<', $currentDate)->delete();
     }
-
 }

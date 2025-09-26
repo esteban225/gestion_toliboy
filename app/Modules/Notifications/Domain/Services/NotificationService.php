@@ -4,9 +4,9 @@ namespace App\Modules\Notifications\Domain\Services;
 
 use App\Modules\Notifications\Domain\Entities\NotificationEntity;
 use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class NotificationService
 {

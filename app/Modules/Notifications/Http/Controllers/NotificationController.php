@@ -8,10 +8,10 @@ use App\Modules\Notifications\Domain\Entities\NotificationEntity;
 use App\Modules\Notifications\Http\Requests\RegisterRequest;
 use App\Modules\Notifications\Http\Requests\UpdateRequest;
 use App\Modules\Notifications\Http\Resources\NotificationResource;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
@@ -53,7 +53,7 @@ class NotificationController extends Controller
     {
         $notification = $this->notificationUseCase->getNotificationById($id);
 
-        if (!$notification) {
+        if (! $notification) {
             return response()->json(['message' => 'Notification not found'], 404);
         }
 
@@ -68,7 +68,7 @@ class NotificationController extends Controller
         $data = $request->validated();
         $notification = $this->notificationUseCase->getNotificationById($id);
 
-        if (!$notification) {
+        if (! $notification) {
             return response()->json(['message' => 'Notification not found'], 404);
         }
 
@@ -97,7 +97,7 @@ class NotificationController extends Controller
     {
         $deleted = $this->notificationUseCase->deleteNotification($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return response()->json(['message' => 'Notification not found'], 404);
         }
 
@@ -111,7 +111,7 @@ class NotificationController extends Controller
     {
         $marked = $this->notificationUseCase->markAsRead($id);
 
-        if (!$marked) {
+        if (! $marked) {
             return response()->json(['message' => 'Notification not found'], 404);
         }
 

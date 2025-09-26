@@ -1,12 +1,12 @@
 <?php
 
-
 namespace App\Modules\Notifications\Application\UseCases;
+
 use App\Modules\Notifications\Domain\Entities\NotificationEntity;
 use App\Modules\Notifications\Domain\Services\NotificationService;
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class NotificationUseCase
 {
