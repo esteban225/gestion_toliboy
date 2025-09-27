@@ -127,7 +127,7 @@ class NotificationRepositoryE implements NotificationRepositoryI
                     $notificacion->type,
                     $notificacion->is_read,
                     $notificacion->related_table,
-                    $notificacion->related_id,
+                    $notificacion->related_id !== null ? (int) $notificacion->related_id : null,
                     $notificacion->expires_at
                 );
             });
@@ -144,12 +144,14 @@ class NotificationRepositoryE implements NotificationRepositoryI
     public function notify(array $data): NotificationEntity
     {
         $notification = new NotificationEntity(
+            null,                      // id
            (int) $data['user_id'] ?? null, // user_id
             $data['title'],           // title
             $data['message'],         // message
             $data['type'] ?? 'info',  // type
+            false,                    // is_read
             $data['related_table'] ?? null, // related_table
-            $data['related_id'] ?? null     // related_id
+            isset($data['related_id']) ? (int) $data['related_id'] : null   // related_id
         );
 
         // Usa setters si los atributos son privados

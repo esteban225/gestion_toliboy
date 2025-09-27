@@ -19,6 +19,9 @@ class NotificationService
 
     public function createNotification(NotificationEntity $notification): NotificationEntity
     {
+        if($notification->getExpiresAt() === null){
+            $notification->setExpiresAt(Carbon::now()->addDays(2));
+        }
         return $this->notificationRepository->create($notification);
     }
 
@@ -75,7 +78,7 @@ class NotificationService
         if ($expiresAt !== null && $expiresAt !== '') {
             $expiresAt = \Carbon\Carbon::parse($expiresAt);
         } else {
-            $expiresAt = null;
+            $expiresAt = Carbon::now()->addDays(2);
         }
 
         $entity = new \App\Modules\Notifications\Domain\Entities\NotificationEntity(
