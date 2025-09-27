@@ -4,107 +4,83 @@ use Dedoc\Scramble\Http\Middleware\RestrictedDocsAccess;
 
 return [
     /*
-     * Your API path. By default, all routes starting with this path will be added to the docs.
-     * If you need to change this behavior, you can add your custom routes resolver using `Scramble::routes()`.
+     * Ruta base de la API. Todas las rutas que comiencen con este prefijo se incluirán en la documentación.
      */
     'api_path' => 'api',
 
     /*
-     * Your API domain. By default, app domain is used. This is also a part of the default API routes
-     * matcher, so when implementing your own, make sure you use this config if needed.
+     * Dominio de la API. Si es null, se usará el dominio principal de la app.
      */
     'api_domain' => null,
 
     /*
-     * The path where your OpenAPI specification will be exported.
+     * Ruta donde se exportará el archivo OpenAPI (JSON).
      */
     'export_path' => 'api.json',
 
     'info' => [
         /*
-         * API version.
+         * Versión de la API.
          */
-        'version' => env('API_VERSION', '0.0.1'),
+        'version' => env('API_VERSION', '1.0.0'),
 
         /*
-         * Description rendered on the home page of the API documentation (`/docs/api`).
+         * Descripción mostrada en la página principal de la documentación.
          */
-        'description' => '',
+        'description' => '
+            📘 Bienvenido a la documentación de la **API de Gestión Toliboy**.
+
+            La API permite a aplicaciones móviles y servicios externos integrarse con el sistema de gestión,
+            ofreciendo funcionalidades clave como:
+
+            - 👤 **Autenticación y gestión de usuarios**
+            - 📦 **Productos y categorías**
+            - 🛒 **Pedidos y facturación electrónica**
+            - 📊 **Reportes y estadísticas**
+
+            ⚠️ **Nota importante:**
+            - Todos los endpoints protegidos requieren autenticación vía **Bearer Token (JWT)**.
+            - Revisa cada sección para ver parámetros, ejemplos de respuestas y posibles errores.
+
+            👉 Si necesitas ayuda, contacta con el equipo de soporte de Toliboy.
+        ',
     ],
 
     /*
-     * Customize Stoplight Elements UI
+     * Personalización de la interfaz de la documentación (UI).
      */
     'ui' => [
-        /*
-         * Define the title of the documentation's website. App name is used when this config is `null`.
-         */
-        'title' => null,
-
-        /*
-         * Define the theme of the documentation. Available options are `light`, `dark`, and `system`.
-         */
-        'theme' => 'system',
-
-        /*
-         * Hide the `Try It` feature. Enabled by default.
-         */
+        'title' => 'Toliboy API Docs',
+        'theme' => 'dark',
         'hide_try_it' => false,
-
-        /*
-         * Hide the schemas in the Table of Contents. Enabled by default.
-         */
         'hide_schemas' => false,
-
-        /*
-         * URL to an image that displays as a small square logo next to the title, above the table of contents.
-         */
-        'logo' => '',
-
-        /*
-         * Use to fetch the credential policy for the Try It feature. Options are: omit, include (default), and same-origin
-         */
+        'logo' => '/resources/img/carita.svg', // cambia por la ruta real de tu logo
         'try_it_credentials_policy' => 'include',
-
-        /*
-         * There are three layouts for Elements:
-         * - sidebar - (Elements default) Three-column design with a sidebar that can be resized.
-         * - responsive - Like sidebar, except at small screen sizes it collapses the sidebar into a drawer that can be toggled open.
-         * - stacked - Everything in a single column, making integrations with existing websites that have their own sidebar or other columns already.
-         */
-        'layout' => 'responsive',
+        'layout' => 'sidebar', // opciones: sidebar | responsive | stacked
     ],
 
     /*
-     * The list of servers of the API. By default, when `null`, server URL will be created from
-     * `scramble.api_path` and `scramble.api_domain` config variables. When providing an array, you
-     * will need to specify the local server URL manually (if needed).
-     *
-     * Example of non-default config (final URLs are generated using Laravel `url` helper):
-     *
-     * ```php
-     * 'servers' => [
-     *     'Live' => 'api',
-     *     'Prod' => 'https://scramble.dedoc.co/api',
-     * ],
-     * ```
+     * Servidores configurados para pruebas desde la doc.
      */
-    'servers' => null,
+    'servers' => [
+        'Local' => 'http://127.0.0.1:8000/api',
+        'Staging' => 'https://staging.toliboy.com/api',
+        'Producción' => 'https://toliboy.com/api',
+    ],
 
-    /**
-     * Determines how Scramble stores the descriptions of enum cases.
-     * Available options:
-     * - 'description' – Case descriptions are stored as the enum schema's description using table formatting.
-     * - 'extension' – Case descriptions are stored in the `x-enumDescriptions` enum schema extension.
-     *
-     *    @see https://redocly.com/docs-legacy/api-reference-docs/specification-extensions/x-enum-descriptions
-     * - false - Case descriptions are ignored.
+    /*
+     * Estrategia para mostrar las descripciones de enums.
      */
     'enum_cases_description_strategy' => 'description',
 
+    /*
+     * Middleware que protege la ruta de los docs.
+     */
     'middleware' => [
         'web',
-        RestrictedDocsAccess::class,
+        RestrictedDocsAccess::class, // solo usuarios autenticados pueden ver docs
+        // 'auth', // puedes descomentar esto si quieres exigir login
+        // 'can:viewDocs', // o usar permisos personalizados
     ],
 
     'extensions' => [],

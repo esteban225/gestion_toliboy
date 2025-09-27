@@ -41,21 +41,3 @@ Route::prefix('notifications')->middleware(['api', 'jwt.auth'])->group(function 
     Route::delete('/actions/clean-expired', [NotificationController::class, 'deleteExpiredNotifications'])
         ->name('notifications.clean-expired');
 });
-
-// 🔄 Alternativa si prefieres rutas resource (más concisas)
-// Route::prefix('api')->middleware(['api'])->group(function () {
-//     Route::apiResource('notifications', NotificationController::class)->except(['store']);
-
-//     // Rutas adicionales que no vienen con apiResource
-//     Route::get('/notifications/user/unread', [NotificationController::class, 'getUnreadNotifications'])
-//         ->name('notifications.unread');
-
-//     Route::post('/notifications', [NotificationController::class, 'createNotification'])
-//         ->name('notifications.store');
-
-//     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])
-//         ->name('notifications.mark-as-read');
-
-//     Route::delete('/notifications/actions/clean-expired', [NotificationController::class, 'deleteExpiredNotifications'])
-//         ->name('notifications.clean-expired');
-// });

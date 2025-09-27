@@ -21,12 +21,12 @@ class RawMaterialObserver
      */
     public function updated(RawMaterial $rawMaterial): void
     {
-        if (!$rawMaterial->isDirty('stock')) {
+        if (! $rawMaterial->isDirty('stock')) {
             return;
         }
 
-        $stock = (float)$rawMaterial->stock;
-        $threshold = $rawMaterial->min_stock !== null ? (float)$rawMaterial->min_stock : null;
+        $stock = (float) $rawMaterial->stock;
+        $threshold = $rawMaterial->min_stock !== null ? (float) $rawMaterial->min_stock : null;
 
         if ($threshold === null) {
             return; // sin umbral no hay notificación
@@ -34,10 +34,10 @@ class RawMaterialObserver
 
         if ($stock <= $threshold) {
             // Opcional: evitar duplicados recientes (consulta rápida)
-            $exists = \App\Models\Notification::where('type','low_stock')
-                ->where('related_table','raw_materials')
-                ->where('related_id',$rawMaterial->id)
-                ->where('created_at','>=', now()->subMinutes(60))
+            $exists = \App\Models\Notification::where('type', 'low_stock')
+                ->where('related_table', 'raw_materials')
+                ->where('related_id', $rawMaterial->id)
+                ->where('created_at', '>=', now()->subMinutes(60))
                 ->exists();
 
             if ($exists) {
@@ -47,10 +47,10 @@ class RawMaterialObserver
             // Después de commit (si hay transacción)
             if (DB::transactionLevel() > 0) {
                 DB::afterCommit(function () use ($rawMaterial, $stock, $threshold) {
-                    event(new InventoryLowStock($rawMaterial->id, (int)$stock, (int)$threshold));
+                    event(new InventoryLowStock($rawMaterial->id, (int) $stock, (int) $threshold));
                 });
             } else {
-                event(new InventoryLowStock($rawMaterial->id, (int)$stock, (int)$threshold));
+                event(new InventoryLowStock($rawMaterial->id, (int) $stock, (int) $threshold));
             }
         }
     }

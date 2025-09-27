@@ -3,7 +3,10 @@
 use App\Modules\Roles\Http\Controllers\RolesController;
 use Illuminate\Support\Facades\Route;
 
-const ROLE_ID_ROUTE = '/roles/{id}';
+// ✅ Evita redefinir la constante si el archivo se carga varias veces
+if (! defined('ROLE_ID_ROUTE')) {
+    define('ROLE_ID_ROUTE', '/roles/{id}');
+}
 
 Route::middleware(['api', 'jwt.auth', 'role:DEV', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
     Route::get(ROLE_ID_ROUTE, [RolesController::class, 'getById']);

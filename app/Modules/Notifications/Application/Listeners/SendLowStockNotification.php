@@ -2,10 +2,10 @@
 
 namespace App\Modules\Notifications\Application\Listeners;
 
+use App\Models\Product;
+use App\Models\RawMaterial;
 use App\Modules\InventoryMovements\Domain\Events\InventoryLowStock;
 use App\Modules\Notifications\Domain\Services\NotificationService;
-use App\Models\RawMaterial;
-use App\Models\Product;
 
 class SendLowStockNotification
 {

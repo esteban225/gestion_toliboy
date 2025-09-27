@@ -11,19 +11,12 @@ use App\Modules\Auth\Application\UseCases\RegisterUser;
 use App\Modules\Auth\Http\Requests\LoginRequest;
 use App\Modules\Auth\Http\Requests\RegisterRequest;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Este código implementa varios principios SOLID:
+ * @group Autenticación
  *
- * 1. Single Responsibility Principle (SRP): Cada clase o función tiene una única responsabilidad,
- *    facilitando su mantenimiento y comprensión.
- * 2. Open/Closed Principle (OCP): El código está diseñado para ser abierto a extensión pero cerrado a modificación,
- *    permitiendo agregar nuevas funcionalidades sin alterar el código existente.
- * 3. Liskov Substitution Principle (LSP): Las clases derivadas pueden sustituir a sus clases base sin alterar el funcionamiento del programa.
- * 4. Interface Segregation Principle (ISP): Las interfaces están divididas según sus responsabilidades, evitando que los clientes dependan de métodos que no utilizan.
- * 5. Dependency Inversion Principle (DIP): El código depende de abstracciones y no de implementaciones concretas, facilitando la flexibilidad y el desacoplamiento.
+ * Endpoints para registro, login, obtención de usuario autenticado y gestión de tokens.
  */
 class AuthController extends Controller
 {
@@ -52,33 +45,45 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle user login.
+     * Iniciar sesión
      *
-     * @unauthenticated
+     * Inicia sesión con email y contraseña, devuelve un token JWT.
      *
-     * @return \Illuminate\Http\JsonResponse
+     *  @unauthenticated
      */
     public function login(LoginRequest $request)
     {
-        $data = $request->validated();
-        $token = $this->loginUser->handle($data['email'], $data['password']);
-        if (! $token) {
-            return response()->json(['error' => 'Invalid credentials or inactive user'], 401);
-        }
+        try {
+            $data = $request->validated();
+            $token = $this->loginUser->handle($data['email'], $data['password']);
+            if (! $token) {
+                Log::error('"AuthController": Error during login', ['email' => $data['email']]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login successful',
-            'token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => config('jwt.ttl') * 60,
-        ], 200);
+                return response()->json(['error' => 'Credenciales Invalidas o Usuario Inactivo'], 401);
+            } else {
+                Log::info('"AuthController": User logged in', ['email' => $data['email']]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Ingreso exitoso',
+                    'token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => config('jwt.ttl') * 60,
+                ], 200);
+            }
+        } catch (Exception $e) {
+            Log::error('"AuthController": Error during login', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'error' => 'Credenciales Invalidas o Usuario Inactivo',
+            ], 401);
+        }
     }
 
     /**
-     * Handle user registration.
+     * Registrar usuario
      *
-     * @return \Illuminate\Http\JsonResponse
+     * Registra un nuevo usuario en el sistema.
      */
     public function register(RegisterRequest $request)
     {
@@ -88,21 +93,22 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'User registered successfully',
+                'message' => 'Usuario registrado !',
             ], 201);
         } catch (\Exception $e) {
+            Log::error('"AuthController": Error during register', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Registration failed: '.$e->getMessage(),
+                'message' => 'Falla en el registro: '.$e->getMessage(),
             ], 400);
         }
     }
 
     /**
-     * Handle user autenticado.
+     * Obtener usuario autenticado
      *
-     * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * Devuelve la información del usuario autenticado mediante el token JWT.
      */
     public function me()
     {
@@ -118,9 +124,11 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'user' => $user,
+                'data' => $user,
             ]);
         } catch (\Exception $e) {
+            Log::error('"AuthController": Error during get me', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve user: '.$e->getMessage(),
@@ -129,7 +137,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Refresh a token.
+     * Refrescar token
+     *
+     * Devuelve un nuevo token JWT a partir de uno válido.
      */
     public function refresh()
     {
@@ -138,7 +148,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Token refreshed successfully',
+                'message' => 'Token actualizada con éxito',
                 'token' => $newToken,
                 'token_type' => 'bearer',
                 'expires_in' => config('jwt.ttl') * 60,
@@ -154,7 +164,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Log the user out (Invalidate the token).
+     * Cerrar sesión
+     *
+     * Invalida el token actual y cierra la sesión del usuario.
      */
     public function logout()
     {
@@ -163,14 +175,14 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Successfully logged out',
+                'message' => 'Sesión cerrada con éxito',
             ]);
         } catch (Exception $e) {
             Log::error('"AuthController": Error during logout', ['error' => $e->getMessage()]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to logout, please try again',
+                'message' => 'No se pudo cerrar la sesión',
             ], 500);
         }
     }

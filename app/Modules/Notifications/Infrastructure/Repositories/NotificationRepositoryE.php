@@ -2,12 +2,12 @@
 
 namespace App\Modules\Notifications\Infrastructure\Repositories;
 
-use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
+use App\Models\Notification;
 use App\Modules\Notifications\Domain\Entities\NotificationEntity;
-use App\Models\Notification ;
+use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
+use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Carbon\Carbon;
 
 class NotificationRepositoryE implements NotificationRepositoryI
 {
@@ -132,6 +132,7 @@ class NotificationRepositoryE implements NotificationRepositoryI
                 );
             });
     }
+
     public function deleteExpiredNotifications($currentDate): int
     {
         return Notification::where('expires_at', '<', $currentDate)->delete();
@@ -145,13 +146,14 @@ class NotificationRepositoryE implements NotificationRepositoryI
     {
         $notification = new NotificationEntity(
             null,                      // id
-           (int) $data['user_id'] ?? null, // user_id
+            (int) $data['user_id'] ?? null, // user_id
             $data['title'],           // title
             $data['message'],         // message
             $data['type'] ?? 'info',  // type
             false,                    // is_read
             $data['related_table'] ?? null, // related_table
-            isset($data['related_id']) ? (int) $data['related_id'] : null   // related_id
+            isset($data['related_id']) ? (int) $data['related_id'] : null, // related_id
+            isset($data['expires_at']) ? Carbon::parse($data['expires_at']) : Carbon::now()->addDays((int) config('notifications.ttl_days', 2)) // expires_at
         );
 
         // Usa setters si los atributos son privados
@@ -159,5 +161,4 @@ class NotificationRepositoryE implements NotificationRepositoryI
 
         return $this->create($notification);
     }
-
 }

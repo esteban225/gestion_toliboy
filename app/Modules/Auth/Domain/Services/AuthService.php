@@ -39,7 +39,7 @@ class AuthService
         $data['password'] = Hash::make($data['password']);
         $userEntity = $this->userRepository->create($data);
         // Obtener el modelo para generar el token
-        $userModel = $this->userRepository->findModelById($userEntity->id);
+        $userModel = $this->userRepository->findModelById($userEntity->getId());
         $token = JWTAuth::fromUser($userModel);
 
         return [

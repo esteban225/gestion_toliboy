@@ -24,5 +24,6 @@ interface NotificationRepositoryI
     public function getUnreadNotifications(int $userId): Collection;
 
     public function deleteExpiredNotifications(Carbon $currentDate): int;
+
     public function notify(array $data): NotificationEntity;
 }

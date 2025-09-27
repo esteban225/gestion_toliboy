@@ -5,7 +5,9 @@ namespace App\Modules\InventoryMovements\Domain\Events;
 class InventoryLowStock
 {
     public int $itemId; // raw_material_id or product_id depending your model
+
     public int $currentStock;
+
     public ?int $threshold;
 
     public function __construct(int $itemId, int $currentStock, ?int $threshold = null)

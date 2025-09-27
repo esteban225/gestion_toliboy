@@ -101,13 +101,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RawMaterial::observe(RawMaterialObserver::class);
+
+        if ($this->app->runningInConsole()) {
+            return; // 👈 Evita ejecutar Scramble en comandos artisan
+        }
+
         Scramble::configure()
             ->routes(function (Route $route) {
                 return Str::startsWith($route->uri, 'api/');
             })
             ->withDocumentTransformers(function (OpenApi $openApi) {
                 $openApi->secure(
-                    SecurityScheme::http('bearer', 'JWT') // JWT Bearer
+                    SecurityScheme::http('bearer', 'JWT')
                 );
             });
     }

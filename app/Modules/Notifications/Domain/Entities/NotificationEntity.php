@@ -8,13 +8,21 @@ use DateTimeInterface;
 class NotificationEntity
 {
     private ?int $id;
+
     private ?int $user_id;
+
     private string $title;
+
     private string $message;
+
     private ?string $type;
+
     private bool $is_read;
+
     private ?string $related_table;
+
     private ?int $related_id;
+
     private ?DateTimeInterface $expires_at;
 
     public function __construct(
@@ -53,19 +61,61 @@ class NotificationEntity
     }
 
     // Getters
-    public function getId(): ?int { return $this->id; }
-    public function getUserId(): ?int { return $this->user_id; }
-    public function getTitle(): string { return $this->title; }
-    public function getMessage(): string { return $this->message; }
-    public function getType(): ?string { return $this->type; }
-    public function isRead(): bool { return $this->is_read; }
-    public function getRelatedTable(): ?string { return $this->related_table; }
-    public function getRelatedId(): ?int { return $this->related_id; }
-    public function getExpiresAt(): ?DateTimeInterface { return $this->expires_at; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->user_id;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function isRead(): bool
+    {
+        return $this->is_read;
+    }
+
+    public function getRelatedTable(): ?string
+    {
+        return $this->related_table;
+    }
+
+    public function getRelatedId(): ?int
+    {
+        return $this->related_id;
+    }
+
+    public function getExpiresAt(): ?DateTimeInterface
+    {
+        return $this->expires_at;
+    }
 
     // Mutators / domain behaviour
-    public function markAsRead(): void { $this->is_read = true; }
-    public function setIsRead(bool $v): void { $this->is_read = $v; }
+    public function markAsRead(): void
+    {
+        $this->is_read = true;
+    }
+
+    public function setIsRead(bool $v): void
+    {
+        $this->is_read = $v;
+    }
 
     /**
      * Setea expires_at. Acepta DateTimeInterface, string parseable, o null.
@@ -83,6 +133,7 @@ class NotificationEntity
     {
         $clone = clone $this;
         $clone->setExpiresAt($expires_at);
+
         return $clone;
     }
 
