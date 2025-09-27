@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth\Application\UseCases;
 
+use App\Modules\Auth\Domain\Entities\UserEntity;
 use App\Modules\Auth\Domain\Services\AuthService;
 
 /**
@@ -22,8 +23,8 @@ class RegisterUser
         $this->authService = $authService;
     }
 
-    public function handle(array $data)
+    public function handle(UserEntity $entity)
     {
-        return $this->authService->register($data);
+        return $this->authService->register($entity);
     }
 }

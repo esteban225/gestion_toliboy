@@ -25,7 +25,7 @@ use App\Modules\Auth\Domain\Entities\UserEntity;
  */
 interface UserRepositoryInterface
 {
-    public function create(array $data): UserEntity;
+    public function create(UserEntity $entity): UserEntity;
 
     public function findByEmail(string $email): ?UserEntity;
 

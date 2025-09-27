@@ -23,7 +23,9 @@ class UserEntity
 
     private ?string $role_id;
 
-    private ?bool $status;
+    private ?string $position;
+
+    private ?bool $is_active;
 
     private ?string $last_login;
 
@@ -33,7 +35,8 @@ class UserEntity
         string $email,
         string $password,
         ?string $role_id,
-        ?bool $status,
+        ?string $position,
+        ?bool $is_active,
         ?string $last_login,
 
     ) {
@@ -42,9 +45,9 @@ class UserEntity
         $this->email = $email;
         $this->password = $password;
         $this->role_id = $role_id;
-        $this->status = $status;
+        $this->position = $position;
+        $this->is_active = $is_active;
         $this->last_login = $last_login;
-
     }
 
     // Getters
@@ -73,9 +76,14 @@ class UserEntity
         return $this->role_id;
     }
 
-    public function getStatus(): ?bool
+    public function getPosition(): ?string
     {
-        return $this->status;
+        return $this->position;
+    }
+
+    public function getIsActive(): ?bool
+    {
+        return $this->is_active;
     }
 
     public function getLastLogin(): ?string
@@ -104,9 +112,14 @@ class UserEntity
         $this->role_id = $role_id;
     }
 
-    public function setStatus(?bool $status): void
+    public function setPosition(?string $position): void
     {
-        $this->status = $status;
+        $this->position = $position;
+    }
+
+    public function setIsActive(?bool $is_active): void
+    {
+        $this->is_active = $is_active;
     }
 
     public function setLastLogin(?string $last_login): void
@@ -117,6 +130,34 @@ class UserEntity
     // Domain behaviour
     public function isActive(): bool
     {
-        return $this->status === 1;
+        return $this->is_active === 1;
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            id: $data['id'] ?? null,
+            name: $data['name'],
+            email: $data['email'],
+            password: $data['password'],
+            role_id: $data['role_id'] ?? null,
+            position: $data['position'] ?? null,
+            is_active: $data['is_active'] ?? true,
+            last_login: $data['last_login'] ?? null,
+        );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'password' => $this->password,
+            'role_id' => $this->role_id,
+            'position' => $this->position,
+            'is_active' => $this->is_active,
+            'last_login' => $this->last_login,
+        ];
     }
 }

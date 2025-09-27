@@ -6,11 +6,10 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class CurrentUserSession
+ * Class Session
  *
  * @property string $id
  * @property int|null $user_id
@@ -18,14 +17,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $user_agent
  * @property string $payload
  * @property int $last_activity
- * @property int $connection_id
- * @property Carbon|null $created_at
- * @property Carbon|null $expires_at
- * @property User|null $user
  */
-class CurrentUserSession extends Model
+class Session extends Model
 {
-    protected $table = 'current_user_sessions';
+    protected $table = 'sessions';
 
     public $incrementing = false;
 
@@ -34,8 +29,6 @@ class CurrentUserSession extends Model
     protected $casts = [
         'user_id' => 'int',
         'last_activity' => 'int',
-        'connection_id' => 'int',
-        'expires_at' => 'datetime',
     ];
 
     protected $fillable = [
@@ -44,12 +37,5 @@ class CurrentUserSession extends Model
         'user_agent',
         'payload',
         'last_activity',
-        'connection_id',
-        'expires_at',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }

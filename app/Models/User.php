@@ -55,32 +55,14 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'role_id',
-        'status',
+        'position',
+        'is_active',
         'last_login',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function role()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'last_login' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Role::class);
     }
 
     /**
@@ -102,83 +84,48 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    /**
-     * Get the user's role.
-     */
-    public function role()
+    public function current_user_sessions()
     {
-        return $this->belongsTo(Role::class);
+        return $this->hasMany(CurrentUserSession::class);
     }
 
-    /**
-     * Get the user's form responses.
-     */
-    public function formResponses()
+    public function form_responses()
     {
         return $this->hasMany(FormResponse::class);
     }
 
-    /**
-     * Get the user's work logs.
-     */
-    public function workLogs()
+    public function forms()
     {
-        return $this->hasMany(WorkLog::class);
+        return $this->hasMany(Form::class, 'created_by');
     }
 
-    /**
-     * Get the user's notifications.
-     */
+    public function inventory_movements()
+    {
+        return $this->hasMany(InventoryMovement::class, 'created_by');
+    }
+
     public function notifications()
     {
         return $this->hasMany(Notification::class);
     }
 
-    /**
-     * Check if user has a specific role.
-     */
-    public function hasRole(string $roleName): bool
+    public function personal_datum()
     {
-        return $this->role && $this->role->name === $roleName;
+        return $this->hasOne(PersonalDatum::class);
     }
 
-    /**
-     * Check if user has any of the given roles.
-     */
-    public function hasAnyRole(array $roles): bool
+    public function products()
     {
-        return $this->role && in_array($this->role->name, $roles);
+        return $this->hasMany(Product::class, 'created_by');
     }
 
-    /**
-     * Get user permissions based on role.
-     */
-    public function getPermissions(): array
+    public function raw_materials()
     {
-        if (! $this->role) {
-            return [];
-        }
-
-        // This method would ideally be moved to a dedicated Permission service
-        $permissions = [
-            'DEV' => ['*'], // All permissions
-            'GG' => ['dashboard.view', 'reports.read', 'reports.export'],
-            'INPL' => ['forms.manage', 'work_logs.manage', 'dashboard.view'],
-            'INPR' => ['forms.manage', 'work_logs.manage', 'dashboard.view'],
-            'TRZ' => ['forms.read', 'batches.read', 'reports.read'],
-            'OP' => ['forms.create', 'work_logs.create'],
-        ];
-
-        return $permissions[$this->role->name] ?? [];
+        return $this->hasMany(RawMaterial::class, 'created_by');
     }
 
-    /**
-     * Check if user has specific permission.
-     */
-    public function hasPermission(string $permission): bool
+    public function work_logs()
     {
-        $permissions = $this->getPermissions();
-
-        return in_array('*', $permissions) || in_array($permission, $permissions);
+        return $this->hasMany(WorkLog::class);
     }
 }

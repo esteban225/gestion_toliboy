@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class ActiveSession
  *
- * @property int $id
+ * @property string $id
  * @property int $connection_id
  * @property int|null $user_id
  * @property string $user_name
@@ -32,7 +32,6 @@ class ActiveSession extends Model
     public $timestamps = false;
 
     protected $casts = [
-        'id' => 'int',
         'connection_id' => 'int',
         'user_id' => 'int',
         'expires_at' => 'datetime',

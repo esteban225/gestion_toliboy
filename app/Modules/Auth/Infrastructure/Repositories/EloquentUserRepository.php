@@ -5,6 +5,7 @@ namespace App\Modules\Auth\Infrastructure\Repositories;
 use App\Models\User as EloquentUser;
 use App\Modules\Auth\Domain\Entities\UserEntity;
 use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Este código implementa varios principios SOLID:
@@ -36,9 +37,12 @@ class EloquentUserRepository implements UserRepositoryInterface
         return EloquentUser::find($id);
     }
 
-    public function create(array $data): UserEntity
+    public function create(UserEntity $entity): UserEntity
     {
-        $user = EloquentUser::create($data);
+
+        $userArray = $entity->toArray();
+
+        $user = EloquentUser::create($userArray);
 
         return $this->toEntity($user);
     }
@@ -68,7 +72,8 @@ class EloquentUserRepository implements UserRepositoryInterface
             email: $user->email,
             password: $user->password,
             role_id: $user->role_id,
-            status: $user->status,
+            position: $user->position,
+            is_active: $user->is_active,
             last_login: $user->last_login
         );
     }

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth\Domain\Services;
 
+use App\Modules\Auth\Domain\Entities\UserEntity;
 use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -34,18 +35,12 @@ class AuthService
         $this->userRepository = $userRepository;
     }
 
-    public function register(array $data)
+    public function register(UserEntity $data)
     {
-        $data['password'] = Hash::make($data['password']);
+        $data->setPassword(Hash::make($data->getPassword()));
         $userEntity = $this->userRepository->create($data);
-        // Obtener el modelo para generar el token
-        $userModel = $this->userRepository->findModelById($userEntity->getId());
-        $token = JWTAuth::fromUser($userModel);
 
-        return [
-            'user' => $userEntity,
-            'token' => $token,
-        ];
+        return $userEntity;
     }
 
     public function login(string $email, string $password): ?string

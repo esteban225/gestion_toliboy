@@ -8,6 +8,7 @@ use App\Modules\Auth\Application\UseCases\LoginUser;
 use App\Modules\Auth\Application\UseCases\LogoutUser;
 use App\Modules\Auth\Application\UseCases\RefreshToken;
 use App\Modules\Auth\Application\UseCases\RegisterUser;
+use App\Modules\Auth\Domain\Entities\UserEntity;
 use App\Modules\Auth\Http\Requests\LoginRequest;
 use App\Modules\Auth\Http\Requests\RegisterRequest;
 use Exception;
@@ -88,8 +89,8 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         try {
-            $data = $request->validated();
-            $this->registerUser->handle($data);
+            $entity = UserEntity::fromArray($request->validated());
+            $this->registerUser->handle($entity);
 
             return response()->json([
                 'success' => true,

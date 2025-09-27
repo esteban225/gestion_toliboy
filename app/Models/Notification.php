@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * Class Notification
  *
  * @property int $id
- * @property int $user_id
+ * @property int|null $user_id
  * @property string $title
  * @property string $message
  * @property string $type
@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $related_id
  * @property Carbon|null $expires_at
  * @property Carbon|null $created_at
- * @property User $user
+ * @property User|null $user
  */
 class Notification extends Model
 {
