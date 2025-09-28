@@ -43,22 +43,42 @@ class DataUserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->except(['page', 'per_page']);
-        $perPage = $request->input('per_page', 15);
+        try {
+            $filters = $request->only(['user_id', 'type', 'created_at']); // Ejemplo de filtros
+            $perPage = (int) $request->get('per_page', 15); // Paginación, por defecto 15 por página
+            $dataUsers = $this->useCase->paginate($filters, $perPage);
 
-        $paginator = $this->useCase->paginate($filters, $perPage);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Datos de usuario paginados',
-            'data' => $paginator->items(),
-            'meta' => [
-                'current_page' => $paginator->currentPage(),
-                'last_page' => $paginator->lastPage(),
-                'per_page' => $paginator->perPage(),
-                'total' => $paginator->total(),
-            ],
-        ]);
+            if ($dataUsers->isEmpty()) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'No se encontraron datos de usuario',
+                    'data' => [],
+                    'meta' => [
+                        'total' => 0,
+                        'per_page' => $perPage,
+                        'current_page' => 1,
+                        'last_page' => 0,
+                    ],
+                ], 404);
+            }
+            return response()->json([
+                'status' => true,
+                'message' => 'Listado de datos de usuario',
+                'data' => $dataUsers->items(),
+                'meta' => [
+                    'total' => $dataUsers->total(),
+                    'per_page' => $dataUsers->perPage(),
+                    'current_page' => $dataUsers->currentPage(),
+                    'last_page' => $dataUsers->lastPage(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error al obtener el listado de datos de usuario',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -69,21 +89,29 @@ class DataUserController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $dataUser = $this->useCase->get($id);
+        try {
+            $dataUser = $this->useCase->get($id);
 
-        if (! $dataUser) {
+            if (! $dataUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Datos de usuario no encontrados',
+                    'data' => null,
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Datos de usuario encontrados',
+                'data' => $dataUser,
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Datos de usuario no encontrados',
-                'data' => null,
-            ], 404);
+                'message' => 'Error al obtener los datos de usuario',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Datos de usuario encontrados',
-            'data' => $dataUser,
-        ]);
     }
 
     /**
@@ -94,22 +122,21 @@ class DataUserController extends Controller
      */
     public function store(RegisterRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $createdDataUser = $this->useCase->create($data);
-
-        if (! $createdDataUser) {
+        try{
+            $data = $request->validated();
+            $createdDataUser = $this->useCase->create($data);
+            return response()->json([
+                'status' => true,
+                'message' => 'Datos de usuario creados exitosamente',
+                'data' => $createdDataUser,
+            ], 201);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Error al crear los datos de usuario',
-                'data' => null,
+                'error' => $e->getMessage(),
             ], 500);
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Datos de usuario creados exitosamente',
-            'data' => $createdDataUser,
-        ], 201);
     }
 
     /**
@@ -120,20 +147,36 @@ class DataUserController extends Controller
      */
     public function update(RegisterRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $updated = $this->useCase->update($data);
+        try{
+            $data = $request->validated();
+            $id = $data['id'] ?? null;
+            if (! $id) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'El identificador de los datos de usuario es obligatorio para la actualización',
+                ], 400);
+            }
 
-        if (! $updated) {
+            $updatedDataUser = $this->useCase->update($id, $data);
+            if (! $updatedDataUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Datos de usuario no encontrados para actualizar',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Datos de usuario actualizados exitosamente',
+                'data' => $updatedDataUser,
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Error al actualizar los datos de usuario',
+                'error' => $e->getMessage(),
             ], 500);
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Datos de usuario actualizados exitosamente',
-        ]);
     }
 
     /**
@@ -144,18 +187,25 @@ class DataUserController extends Controller
      */
     public function destroy(string $id): JsonResponse
     {
-        $deleted = $this->useCase->delete($id);
+        try {
+            $deleted = $this->useCase->delete($id);
+            if (! $deleted) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Datos de usuario no encontrados para eliminar',
+                ], 404);
+            }
 
-        if (! $deleted) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Datos de usuario eliminados exitosamente',
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Error al eliminar los datos de usuario',
+                'error' => $e->getMessage(),
             ], 500);
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Datos de usuario eliminados exitosamente',
-        ]);
     }
 }
