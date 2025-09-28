@@ -62,6 +62,7 @@ class DataUserController extends Controller
                     ],
                 ], 404);
             }
+
             return response()->json([
                 'status' => true,
                 'message' => 'Listado de datos de usuario',
@@ -126,6 +127,7 @@ class DataUserController extends Controller
         try {
             $data = $request->validated();
             $createdDataUser = $this->useCase->create($data);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Datos de usuario creados exitosamente',

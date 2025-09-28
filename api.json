@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8000/api",
+            "url": "http://127.0.0.1:8000/api",
             "description": "Local"
         },
         {
@@ -39,14 +39,65 @@
                     }
                 },
                 "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Credenciales Invalidas o Usuario Inactivo"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "integer",
-                                    "enum": [
-                                        200
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Ingreso exitoso"
+                                            ]
+                                        },
+                                        "token": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "enum": [
+                                                "bearer"
+                                            ]
+                                        },
+                                        "expires_in": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "token",
+                                        "token_type",
+                                        "expires_in"
                                     ]
                                 }
                             }
@@ -54,6 +105,149 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/refresh": {
+            "post": {
+                "operationId": "auth.refresh",
+                "description": "Devuelve un nuevo token JWT a partir de uno v\u00e1lido.",
+                "summary": "Refrescar token",
+                "tags": [
+                    "Auth"
+                ],
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Token could not be refreshed"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Token actualizada con \u00e9xito"
+                                            ]
+                                        },
+                                        "token": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "enum": [
+                                                "bearer"
+                                            ]
+                                        },
+                                        "expires_in": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "token",
+                                        "token_type",
+                                        "expires_in"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "operationId": "auth.logout",
+                "description": "Invalida el token actual y cierra la sesi\u00f3n del usuario.",
+                "summary": "Cerrar sesi\u00f3n",
+                "tags": [
+                    "Auth"
+                ],
+                "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "No se pudo cerrar la sesi\u00f3n"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Sesi\u00f3n cerrada con \u00e9xito"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -67,14 +261,73 @@
                     "Auth"
                 ],
                 "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "integer",
-                                    "enum": [
-                                        200
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "No autenticado."
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message"
                                     ]
                                 }
                             }
@@ -102,14 +355,48 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "400": {
                         "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "integer",
-                                    "enum": [
-                                        201
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Usuario registrado !"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message"
                                     ]
                                 }
                             }
@@ -117,56 +404,6 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
-                    }
-                }
-            }
-        },
-        "/auth/refresh": {
-            "post": {
-                "operationId": "auth.refresh",
-                "description": "Devuelve un nuevo token JWT a partir de uno v\u00e1lido.",
-                "summary": "Refrescar token",
-                "tags": [
-                    "Auth"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "integer",
-                                    "enum": [
-                                        200
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/logout": {
-            "post": {
-                "operationId": "auth.logout",
-                "description": "Invalida el token actual y cierra la sesi\u00f3n del usuario.",
-                "summary": "Cerrar sesi\u00f3n",
-                "tags": [
-                    "Auth"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "integer",
-                                    "enum": [
-                                        200
-                                    ]
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -353,6 +590,35 @@
                     "DataUser"
                 ],
                 "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Error al obtener el listado de datos de usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
@@ -366,18 +632,109 @@
                                         "message": {
                                             "type": "string",
                                             "enum": [
-                                                "Datos de usuario encontrados"
+                                                "Listado de datos de usuario"
                                             ]
                                         },
                                         "data": {
-                                            "type": "array",
-                                            "items": {}
+                                            "type": "string"
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "string"
+                                                },
+                                                "current_page": {
+                                                    "type": "string"
+                                                },
+                                                "last_page": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "total",
+                                                "per_page",
+                                                "current_page",
+                                                "last_page"
+                                            ]
                                         }
                                     },
                                     "required": [
                                         "status",
                                         "message",
-                                        "data"
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "No se encontraron datos de usuario"
+                                            ]
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "minItems": 0,
+                                            "maxItems": 0,
+                                            "additionalItems": false
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "enum": [
+                                                        0
+                                                    ]
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "enum": [
+                                                        1
+                                                    ]
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "enum": [
+                                                        0
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "total",
+                                                "per_page",
+                                                "current_page",
+                                                "last_page"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data",
+                                        "meta"
                                     ]
                                 }
                             }
@@ -396,12 +753,41 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/App.Modules.DataUser.Http.Requests.RegisterRequest"
+                                "$ref": "#/components/schemas/DataUserRegisterRequest"
                             }
                         }
                     }
                 },
                 "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Error al crear los datos de usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "201": {
                         "description": "",
                         "content": {
@@ -419,39 +805,17 @@
                                             ]
                                         },
                                         "data": {
-                                            "type": [
-                                                "object",
-                                                "null"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "object"
+                                                }
                                             ]
-                                        }
-                                    },
-                                    "required": [
-                                        "status",
-                                        "message",
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Error al crear los datos de usuario"
-                                            ]
-                                        },
-                                        "data": {
-                                            "type": "null"
                                         }
                                     },
                                     "required": [
@@ -488,6 +852,35 @@
                     }
                 ],
                 "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Error al obtener los datos de usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
@@ -505,9 +898,16 @@
                                             ]
                                         },
                                         "data": {
-                                            "type": [
-                                                "object",
-                                                "null"
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                },
+                                                {
+                                                    "type": "object"
+                                                }
                                             ]
                                         }
                                     },
@@ -568,16 +968,44 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/App.Modules.DataUser.Http.Requests.RegisterRequest"
+                                "$ref": "#/components/schemas/DataUserUpDateRequest"
                             }
                         }
                     }
                 },
                 "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Error al actualizar los datos de usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
@@ -603,7 +1031,7 @@
                             }
                         }
                     },
-                    "500": {
+                    "404": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -616,7 +1044,7 @@
                                         "message": {
                                             "type": "string",
                                             "enum": [
-                                                "Error al actualizar los datos de usuario"
+                                                "Datos de usuario no encontrados para actualizar"
                                             ]
                                         }
                                     },
@@ -651,6 +1079,35 @@
                     }
                 ],
                 "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Error al eliminar los datos de usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
@@ -676,7 +1133,7 @@
                             }
                         }
                     },
-                    "500": {
+                    "404": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -689,7 +1146,7 @@
                                         "message": {
                                             "type": "string",
                                             "enum": [
-                                                "Error al eliminar los datos de usuario"
+                                                "Datos de usuario no encontrados para eliminar"
                                             ]
                                         }
                                     },
@@ -3351,6 +3808,35 @@
                     "Users"
                 ],
                 "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Error al obtener el listado de datos de usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
@@ -3364,18 +3850,109 @@
                                         "message": {
                                             "type": "string",
                                             "enum": [
-                                                "Usuarios encontrados"
+                                                "Listado de datos de usuario"
                                             ]
                                         },
                                         "data": {
-                                            "type": "array",
-                                            "items": {}
+                                            "type": "string"
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "string"
+                                                },
+                                                "current_page": {
+                                                    "type": "string"
+                                                },
+                                                "last_page": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "total",
+                                                "per_page",
+                                                "current_page",
+                                                "last_page"
+                                            ]
                                         }
                                     },
                                     "required": [
                                         "status",
                                         "message",
-                                        "data"
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "No se encontraron datos de usuario"
+                                            ]
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "minItems": 0,
+                                            "maxItems": 0,
+                                            "additionalItems": false
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "enum": [
+                                                        0
+                                                    ]
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "enum": [
+                                                        1
+                                                    ]
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "enum": [
+                                                        0
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "total",
+                                                "per_page",
+                                                "current_page",
+                                                "last_page"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "data",
+                                        "meta"
                                     ]
                                 }
                             }
@@ -3394,37 +3971,12 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/App.Modules.Users.Http.Requests.RegisterRequest"
+                                "$ref": "#/components/schemas/UserRegisterRequest"
                             }
                         }
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Usuario creado"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "status",
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
                     "500": {
                         "description": "",
                         "content": {
@@ -3439,6 +3991,35 @@
                                             "type": "string",
                                             "enum": [
                                                 "Error al crear el usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Usuario creado exitosamente"
                                             ]
                                         }
                                     },
@@ -3475,6 +4056,35 @@
                     }
                 ],
                 "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Error al obtener el usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
@@ -3492,9 +4102,42 @@
                                             ]
                                         },
                                         "data": {
-                                            "type": [
-                                                "object",
-                                                "null"
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "password": {
+                                                    "type": "string"
+                                                },
+                                                "role_id": {
+                                                    "type": "string"
+                                                },
+                                                "position": {
+                                                    "type": "string"
+                                                },
+                                                "is_active": {
+                                                    "type": "string"
+                                                },
+                                                "last_login": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "email",
+                                                "password",
+                                                "role_id",
+                                                "position",
+                                                "is_active",
+                                                "last_login"
                                             ]
                                         }
                                     },
@@ -3556,12 +4199,41 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/App.Modules.Users.Http.Requests.RegisterRequest"
+                                "$ref": "#/components/schemas/UserUpDateRequest"
                             }
                         }
                     }
                 },
                 "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Error al actualizar el usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
@@ -3569,14 +4241,18 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "enum": [
-                                                "ok"
+                                                "Usuario actualizado exitosamente"
                                             ]
                                         }
                                     },
                                     "required": [
+                                        "status",
                                         "message"
                                     ]
                                 }
@@ -3590,14 +4266,18 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "enum": [
-                                                "Usuario no encontrado o no actualizado"
+                                                "Usuario no encontrado para actualizar"
                                             ]
                                         }
                                     },
                                     "required": [
+                                        "status",
                                         "message"
                                     ]
                                 }
@@ -3627,6 +4307,35 @@
                     }
                 ],
                 "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Error al eliminar el usuario"
+                                            ]
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "status",
+                                        "message",
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
                     "200": {
                         "description": "",
                         "content": {
@@ -3634,14 +4343,18 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "enum": [
-                                                "ok"
+                                                "Usuario eliminado exitosamente"
                                             ]
                                         }
                                     },
                                     "required": [
+                                        "status",
                                         "message"
                                     ]
                                 }
@@ -3655,14 +4368,18 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
+                                        "status": {
+                                            "type": "boolean"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "enum": [
-                                                "Usuario no encontrado o no eliminado"
+                                                "Usuario no encontrado para eliminar"
                                             ]
                                         }
                                     },
                                     "required": [
+                                        "status",
                                         "message"
                                     ]
                                 }
@@ -3966,61 +4683,6 @@
                 ],
                 "title": "App.Modules.Batches.Http.Requests.RegisterRequest"
             },
-            "App.Modules.DataUser.Http.Requests.RegisterRequest": {
-                "type": "object",
-                "description": "RegisterRequest gestiona la validaci\u00f3n de datos para el registro de usuarios.\n\nPrincipio SOLID aplicado:\n- SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validaci\u00f3n y autorizaci\u00f3n\n  de la solicitud de registro, manteniendo su responsabilidad clara y \u00fanica.\n\nNo implementa otros principios SOLID directamente, pero su dise\u00f1o facilita la extensi\u00f3n y el mantenimiento.",
-                "properties": {
-                    "user_id": {
-                        "type": "integer"
-                    },
-                    "num_phone": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "maxLength": 20
-                    },
-                    "num_phone_alt": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "maxLength": 20
-                    },
-                    "num_identification": {
-                        "type": "string",
-                        "description": "'personal_data' is likely a typo, it should be 'personal_data'",
-                        "maxLength": 50
-                    },
-                    "identification_type": {
-                        "type": "string",
-                        "maxLength": 45
-                    },
-                    "address": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "maxLength": 45
-                    },
-                    "emergency_contact": {
-                        "type": "string",
-                        "maxLength": 100
-                    },
-                    "emergency_phone": {
-                        "type": "string",
-                        "maxLength": 25
-                    }
-                },
-                "required": [
-                    "user_id",
-                    "num_identification",
-                    "identification_type",
-                    "emergency_contact",
-                    "emergency_phone"
-                ],
-                "title": "App.Modules.DataUser.Http.Requests.RegisterRequest"
-            },
             "App.Modules.InventoryMovements.Http.Requests.RegisterRequest": {
                 "type": "object",
                 "description": "RegisterRequest gestiona la validaci\u00f3n de datos para el registro de usuarios.\n\nPrincipio SOLID aplicado:\n- SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validaci\u00f3n y autorizaci\u00f3n\n  de la solicitud de registro, manteniendo su responsabilidad clara y \u00fanica.\n\nNo implementa otros principios SOLID directamente, pero su dise\u00f1o facilita la extensi\u00f3n y el mantenimiento.",
@@ -4240,43 +4902,6 @@
                 ],
                 "title": "App.Modules.Roles.Http.Requests.RegisterRequest"
             },
-            "App.Modules.Users.Http.Requests.RegisterRequest": {
-                "type": "object",
-                "description": "RegisterRequest gestiona la validaci\u00f3n de datos para el registro de usuarios.\n\nPrincipio SOLID aplicado:\n- SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validaci\u00f3n y autorizaci\u00f3n\n  de la solicitud de registro, manteniendo su responsabilidad clara y \u00fanica.\n\nNo implementa otros principios SOLID directamente, pero su dise\u00f1o facilita la extensi\u00f3n y el mantenimiento.",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "maxLength": 255
-                    },
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "maxLength": 255
-                    },
-                    "password": {
-                        "type": "string",
-                        "minLength": 8
-                    },
-                    "role_id": {
-                        "type": [
-                            "integer",
-                            "null"
-                        ]
-                    },
-                    "is_active": {
-                        "type": [
-                            "boolean",
-                            "null"
-                        ]
-                    }
-                },
-                "required": [
-                    "name",
-                    "email",
-                    "password"
-                ],
-                "title": "App.Modules.Users.Http.Requests.RegisterRequest"
-            },
             "App.Modules.WorkLogs.Http.Requests.RegisterRequest": {
                 "type": "object",
                 "description": "RegisterRequest gestiona la validaci\u00f3n de datos para el registro de usuarios.\n\nPrincipio SOLID aplicado:\n- SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validaci\u00f3n y autorizaci\u00f3n\n  de la solicitud de registro, manteniendo su responsabilidad clara y \u00fanica.\n\nNo implementa otros principios SOLID directamente, pero su dise\u00f1o facilita la extensi\u00f3n y el mantenimiento.",
@@ -4382,6 +5007,109 @@
                 },
                 "title": "App.Modules.WorkLogs.Http.Requests.UpDateRequest"
             },
+            "DataUserRegisterRequest": {
+                "type": "object",
+                "description": "RegisterRequest gestiona la validaci\u00f3n de datos para el registro de usuarios.\n\nPrincipio SOLID aplicado:\n- SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validaci\u00f3n y autorizaci\u00f3n\n  de la solicitud de registro, manteniendo su responsabilidad clara y \u00fanica.\n\nNo implementa otros principios SOLID directamente, pero su dise\u00f1o facilita la extensi\u00f3n y el mantenimiento.",
+                "properties": {
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "num_phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 20
+                    },
+                    "num_phone_alt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 20
+                    },
+                    "num_identification": {
+                        "type": "string",
+                        "description": "'personal_data' is likely a typo, it should be 'personal_data'",
+                        "maxLength": 50
+                    },
+                    "identification_type": {
+                        "type": "string",
+                        "maxLength": 45
+                    },
+                    "address": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 45
+                    },
+                    "emergency_contact": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "emergency_phone": {
+                        "type": "string",
+                        "maxLength": 25
+                    }
+                },
+                "required": [
+                    "user_id",
+                    "num_identification",
+                    "identification_type",
+                    "emergency_contact",
+                    "emergency_phone"
+                ],
+                "title": "DataUserRegisterRequest"
+            },
+            "DataUserUpDateRequest": {
+                "type": "object",
+                "description": "UpDateRequest gestiona la validaci\u00f3n de datos para el registro de usuarios.\n\nPrincipio SOLID aplicado:\n- SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validaci\u00f3n y autorizaci\u00f3n\n  de la solicitud de registro, manteniendo su responsabilidad clara y \u00fanica.\n\nNo implementa otros principios SOLID directamente, pero su dise\u00f1o facilita la extensi\u00f3n y el mantenimiento.",
+                "properties": {
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "num_phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 20
+                    },
+                    "num_phone_alt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 20
+                    },
+                    "num_identification": {
+                        "type": "string",
+                        "description": "'personal_data' is likely a typo, it should be 'personal_data'",
+                        "maxLength": 50
+                    },
+                    "identification_type": {
+                        "type": "string",
+                        "maxLength": 45
+                    },
+                    "address": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 45
+                    },
+                    "emergency_contact": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "emergency_phone": {
+                        "type": "string",
+                        "maxLength": 25
+                    }
+                },
+                "title": "DataUserUpDateRequest"
+            },
             "LoginRequest": {
                 "type": "object",
                 "description": "RegisterRequest gestiona la validaci\u00f3n de datos para el registro de usuarios.\n\nPrincipio SOLID aplicado:\n- SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validaci\u00f3n y autorizaci\u00f3n\n  de la solicitud de registro, manteniendo su responsabilidad clara y \u00fanica.\n\nNo implementa otros principios SOLID directamente, pero su dise\u00f1o facilita la extensi\u00f3n y el mantenimiento.",
@@ -4421,12 +5149,21 @@
                     "password": {
                         "type": "string",
                         "minLength": 8
+                    },
+                    "role_id": {
+                        "type": "number"
+                    },
+                    "position": {
+                        "type": "string",
+                        "maxLength": 255
                     }
                 },
                 "required": [
                     "name",
                     "email",
-                    "password"
+                    "password",
+                    "role_id",
+                    "position"
                 ],
                 "title": "RegisterRequest"
             },
@@ -4539,6 +5276,85 @@
                     }
                 },
                 "title": "UpdateRequest"
+            },
+            "UserRegisterRequest": {
+                "type": "object",
+                "description": "RegisterRequest gestiona la validaci\u00f3n de datos para el registro de usuarios.\n\nPrincipio SOLID aplicado:\n- SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validaci\u00f3n y autorizaci\u00f3n\n  de la solicitud de registro, manteniendo su responsabilidad clara y \u00fanica.\n\nNo implementa otros principios SOLID directamente, pero su dise\u00f1o facilita la extensi\u00f3n y el mantenimiento.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 8
+                    },
+                    "role_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "position": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 100
+                    },
+                    "is_active": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "email",
+                    "password"
+                ],
+                "title": "UserRegisterRequest"
+            },
+            "UserUpDateRequest": {
+                "type": "object",
+                "description": "RegisterRequest gestiona la validaci\u00f3n de datos para el registro de usuarios.\n\nPrincipio SOLID aplicado:\n- SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validaci\u00f3n y autorizaci\u00f3n\n  de la solicitud de registro, manteniendo su responsabilidad clara y \u00fanica.\n\nNo implementa otros principios SOLID directamente, pero su dise\u00f1o facilita la extensi\u00f3n y el mantenimiento.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 8
+                    },
+                    "role_id": {
+                        "type": "integer"
+                    },
+                    "position": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name",
+                    "email",
+                    "password"
+                ],
+                "title": "UserUpDateRequest"
             }
         },
         "responses": {

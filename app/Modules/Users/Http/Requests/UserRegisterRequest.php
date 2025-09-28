@@ -15,7 +15,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
  *
  * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
  */
-class RegisterRequest extends FormRequest
+class UserRegisterRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -29,6 +29,7 @@ class RegisterRequest extends FormRequest
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8',
             'role_id' => 'nullable|integer|exists:roles,id',
+            'position' => 'nullable|string|max:100',
             'is_active' => 'nullable|boolean',
         ];
     }
@@ -55,7 +56,8 @@ class RegisterRequest extends FormRequest
             'email.email' => 'Debes ingresar un correo válido.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'role_id.exists' => 'El rol especificado no existe.',
-            'status.boolean' => 'El estado debe ser verdadero o falso.',
+            'position.max' => 'La posición no puede tener más de 100 caracteres.',
+            'is_active.boolean' => 'El estado debe ser verdadero o falso.',
         ];
     }
 }

@@ -172,10 +172,10 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
     public function delete(string $id): bool
     {
         $dataUser = DataUserModel::find($id);
-        if (! $dataUser) {
-            return false; // No se encontró el registro
+        if ($dataUser) {
+            return (bool) $dataUser->delete() > 0;
         }
 
-        return $dataUser->delete();
+        return false;
     }
 }

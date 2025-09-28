@@ -2,7 +2,10 @@
 
 namespace App\Modules\Users\Aplication\UseCases;
 
+use App\Models\User;
+use App\Modules\Users\Domain\Entities\UserEntity;
 use App\Modules\Users\Domain\Services\UserService;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Caso de uso para la gestión de usuarios.
@@ -34,6 +37,20 @@ class ManageUserUseCase
         return $this->userService->listUsers($filters);
     }
 
+    public function paginate(array $filters, int $perPage = 15)
+    {
+        $paginator = $this->userService->paginateUsers($filters, $perPage);
+
+        // Si $paginator->items existe y es iterable
+        if (property_exists($paginator, 'items')) {
+            $paginator->getCollection()->transform(function ($entity) {
+                return method_exists($entity, 'toArray') ? $entity->toArray() : (array) $entity;
+            });
+        }
+
+        return $paginator;
+    }
+
     /**
      * Obtener usuario por ID.
      *
@@ -42,16 +59,19 @@ class ManageUserUseCase
      */
     public function get(string $id)
     {
-        return $this->userService->getUser($id);
+        $data = $this->userService->getUser($id);
+        Log::info("USECASE: Obteniendo usuario con ID: $id", ['data' => $data]);
+
+        return $data;
     }
 
     /**
      * Crear usuario.
      *
-     * @param  array  $data  Datos del usuario (name, email, password, role_id, etc.)
+     * @param  UserEntity  $data  Datos del usuario (name, email, password, role_id, etc.)
      * @return mixed
      */
-    public function create(array $data)
+    public function create(UserEntity $data)
     {
         return $this->userService->createUser($data);
     }
@@ -60,11 +80,13 @@ class ManageUserUseCase
      * Actualizar usuario.
      *
      * @param  string  $id  Identificador único del usuario
-     * @param  array  $data  Datos actualizados del usuario
+     * @param  UserEntity  $data  Datos actualizados del usuario
      */
-    public function update(string $id, array $data): bool
+    public function update(string $id, UserEntity $data): bool
     {
-        return $this->userService->updateUser(array_merge($data, ['id' => $id]));
+        Log::debug('UseCase.update.input', $data->toArray());
+        $data->setId($id);
+        return $this->userService->updateUser($data);
     }
 
     /**

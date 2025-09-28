@@ -5,6 +5,8 @@ namespace App\Modules\Users\Infrastructure\Repositories;
 use App\Models\User;
 use App\Modules\Users\Domain\Entities\UserEntity;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Repositorio de usuarios basado en Eloquent ORM.
@@ -36,19 +38,23 @@ class EloquentUsersRepository implements UsersRepositoryInterface
             $query->where($key, $value);
         }
 
-        return $query->get()->map(function ($user) {
-            return new UserEntity(
-                $user->id,
-                $user->name,
-                $user->email,
-                $user->password,
-                $user->role_id,
-                $user->is_active,
-                $user->last_login,
-                $user->created_at,
-                $user->updated_at
-            );
-        })->all();
+        return $query->get()->map(fn ($user) => $this->mapToEntity($user))->all();
+    }
+
+    public function paginate(array $filters = [], int $perPage = 15)
+    {
+        $query = User::query();
+
+        // Aplicar filtros si existen
+        foreach ($filters as $key => $value) {
+            $query->where($key, $value);
+        }
+
+        $paginator = $query->paginate($perPage);
+
+        $paginator->getCollection()->transform(fn ($user) => $this->mapToEntity($user));
+
+        return $paginator;
     }
 
     /**
@@ -60,56 +66,37 @@ class EloquentUsersRepository implements UsersRepositoryInterface
     public function find(string $id): ?UserEntity
     {
         $user = User::find($id);
+        Log::info('EloquentRepository: Usuario encontrado:', ['user' => $user]);
 
-        return $user
-            ? new UserEntity(
-                $user->id,
-                $user->name,
-                $user->email,
-                $user->password,
-                $user->role_id,
-                $user->is_active,
-                $user->last_login,
-                $user->created_at,
-                $user->updated_at
-            )
-            : null;
+        return $this->mapToEntity($user);
     }
 
     /**
      * Crea un nuevo usuario.
      *
-     * @param  array  $data  Datos del usuario (name, email, password, role_id, etc.)
+     * @param  UserEntity  $data  Datos del usuario (name, email, password, role_id, etc.)
      * @return UserEntity|null Entidad creada o null si falla
      */
-    public function create(array $data): ?UserEntity
+    public function create(UserEntity $data): ?UserEntity
     {
-        $user = User::create($data);
+        $data->setPassword(Hash::make($data->getPassword()));
+        $user = User::create($data->toArray());
 
-        return new UserEntity(
-            $user->id,
-            $user->name,
-            $user->email,
-            $user->password,
-            $user->role_id,
-            $user->is_active,
-            $user->last_login,
-            $user->created_at,
-            $user->updated_at
-        );
+        return $this->mapToEntity($user);
     }
 
     /**
      * Actualiza un usuario existente.
      *
-     * @param  array  $data  Datos actualizados del usuario (debe incluir el id)
+     * @param  UserEntity  $data  Datos actualizados del usuario (debe incluir el id)
      * @return bool True si la actualización fue exitosa, false en caso contrario
      */
-    public function update(array $data): bool
+    public function update(UserEntity $data): bool
     {
-        $user = User::find($data['id']);
+        Log::debug('Repository.update.input', is_array($data)? $data : (method_exists($data,'toArray')?$data->toArray():[]));
+        $user = User::find($data->getId());
         if ($user) {
-            return $user->update($data);
+            return $user->update($data->toArray());
         }
 
         return false;
@@ -129,5 +116,21 @@ class EloquentUsersRepository implements UsersRepositoryInterface
         }
 
         return false;
+    }
+
+    private function mapToEntity(User $user): UserEntity
+    {
+        return new UserEntity(
+            $user->id,
+            $user->name,
+            $user->email,
+            $user->password,
+            $user->role_id,
+            $user->position,
+            $user->is_active,
+            $user->last_login,
+            $user->created_at,
+            $user->updated_at
+        );
     }
 }

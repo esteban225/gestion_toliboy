@@ -28,6 +28,15 @@ interface UsersRepositoryInterface
     public function all(array $filters = []): array;
 
     /**
+     * Obtiene datos de usuario paginados.
+     *
+     * @param  array  $filters  Filtros de búsqueda
+     * @param  int  $perPage  Cantidad por página
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function paginate(array $filters = [], int $perPage = 15);
+
+    /**
      * Busca un usuario por su identificador.
      *
      * @param  string  $id  Identificador único del usuario
@@ -38,18 +47,18 @@ interface UsersRepositoryInterface
     /**
      * Crea un nuevo usuario.
      *
-     * @param  array  $data  Datos del usuario (name, email, password, role_id, etc.)
+     * @param  UserEntity  $data  Datos del usuario (name, email, password, role_id, etc.)
      * @return UserEntity|null Entidad creada o null si falla
      */
-    public function create(array $data): ?UserEntity;
+    public function create(UserEntity $data): ?UserEntity;
 
     /**
      * Actualiza un usuario existente.
      *
-     * @param  array  $data  Datos actualizados del usuario (debe incluir el id)
+     * @param  UserEntity  $data  Datos actualizados del usuario (debe incluir el id)
      * @return bool True si la actualización fue exitosa, false en caso contrario
      */
-    public function update(array $data): bool;
+    public function update(UserEntity $data): bool;
 
     /**
      * Elimina un usuario por su identificador.

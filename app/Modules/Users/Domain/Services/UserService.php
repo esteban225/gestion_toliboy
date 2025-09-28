@@ -4,6 +4,8 @@ namespace App\Modules\Users\Domain\Services;
 
 use App\Modules\Users\Domain\Entities\UserEntity;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Servicio de dominio para gestión de usuarios.
@@ -30,38 +32,51 @@ class UserService
         return $data;
     }
 
+    public function paginateUsers(array $filters, int $perPage = 15)
+    {
+        $paginator = $this->users_repository->paginate($filters, $perPage);
+        Log::info('Paginador de usuarios:', ['paginator' => $paginator]);
+
+        return $paginator;
+    }
+
     /**
      * Obtener un usuario por su identificador.
      *
      * @param  string  $id  Identificador único del usuario
      * @return UserEntity|null Entidad de usuario o null si no existe
      */
-    public function getUser(string $id)
+    public function getUser(string $id): ?UserEntity
     {
-        $data = $this->users_repository->find($id);
-
-        return $data;
+        return $this->users_repository->find($id);
     }
 
     /**
      * Crear un nuevo usuario.
      *
-     * @param  array  $data  Datos del usuario (name, email, password, role_id, etc.)
+     * @param  UserEntity  $data  Datos del usuario (name, email, password, role_id, etc.)
      * @return UserEntity|null Entidad creada o null si falla
      */
-    public function createUser(array $data): ?UserEntity
+    public function createUser(UserEntity $data): ?UserEntity
     {
-        return $this->users_repository->create($data);
+        $data->setPassword(Hash::make(($data->getPassword())));
+        $userEntity = $this->users_repository->create($data);
+
+        return $userEntity;
     }
 
     /**
      * Actualizar un usuario existente.
      *
-     * @param  array  $data  Datos actualizados del usuario (debe incluir el id)
+     * @param  UserEntity  $data  Datos actualizados del usuario (debe incluir el id)
      * @return bool True si la actualización fue exitosa, false en caso contrario
      */
-    public function updateUser(array $data): bool
+    public function updateUser(UserEntity $data): bool
     {
+        Log::debug('Service.update.input', $data->toArray());
+        if ($data->getPassword()) {
+            $data->setPassword(Hash::make($data->getPassword()));
+        }
         return $this->users_repository->update($data);
     }
 

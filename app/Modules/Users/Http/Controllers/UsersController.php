@@ -4,9 +4,12 @@ namespace App\Modules\Users\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Users\Aplication\UseCases\ManageUserUseCase;
-use App\Modules\Users\Http\Requests\RegisterRequest;
+use App\Modules\Users\Domain\Entities\UserEntity;
+use App\Modules\Users\Http\Requests\UserRegisterRequest as RegisterRequest;
+use App\Modules\Users\Http\Requests\UserUpDateRequest as UpDateRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class UsersController
@@ -43,14 +46,51 @@ class UsersController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->all();
-        $users = $this->useCase->list($filters);
+        try {
+            $filters = $request->only(['user_id', 'type', 'created_at']); // Ejemplo de filtros
+            $perPage = (int) $request->get('per_page', 15); // Paginación, por defecto 15 por página
+            $dataUsers = $this->useCase->paginate($filters, $perPage);
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Usuarios encontrados',
-            'data' => $users,
-        ]);
+            $users = collect($dataUsers->items())->map(function ($user) {
+                if (isset($user['password'])) {
+                    $user['password'] = str_repeat('*', 8); // Máscara fija de 8 asteriscos
+                }
+
+                return $user;
+            })->toArray();
+
+            if (empty($users)) {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'No se encontraron datos de usuario',
+                    'data' => [],
+                    'meta' => [
+                        'total' => 0,
+                        'per_page' => $perPage,
+                        'current_page' => 1,
+                        'last_page' => 0,
+                    ],
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Listado de datos de usuario',
+                'data' => $users,
+                'meta' => [
+                    'total' => $dataUsers->total(),
+                    'per_page' => $dataUsers->perPage(),
+                    'current_page' => $dataUsers->currentPage(),
+                    'last_page' => $dataUsers->lastPage(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error al obtener el listado de datos de usuario',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -61,20 +101,37 @@ class UsersController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $users = $this->useCase->get($id);
+        try {
+            $dataUsers = $this->useCase->get($id);
 
-        if (! $users) {
+            $user = Collect($dataUsers ? $dataUsers->toArray() : [])->map(function ($value, $key) {
+                if ($key === 'password') {
+                    return str_repeat('*', 8); // Máscara fija de 8 asteriscos
+                }
+
+                return $value;
+            })->toArray();
+            $data = UserEntity::fromArray($user ? $user : []);
+
+            if (! $data) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Usuario no encontrado',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Usuario encontrado',
+                'data' => $data->toArray(),
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Usuario no encontrado',
-            ], 404);
+                'message' => 'Error al obtener el usuario',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Usuario encontrado',
-            'data' => $users,
-        ]);
     }
 
     /**
@@ -85,43 +142,75 @@ class UsersController extends Controller
      */
     public function store(RegisterRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $users = $this->useCase->create($data);
+        try {
+            $data = $request->validated();
+            $user = UserEntity::fromArray($data);
+            $this->useCase->create($user);
 
-        if (! $users) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Usuario creado exitosamente',
+            ], 201);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Error al crear el usuario',
+                'error' => $e->getMessage(),
             ], 500);
         }
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Usuario creado',
-        ], 201);
     }
 
     /**
      * Actualizar un usuario existente.
      *
-     * @param  RegisterRequest  $request  Objeto con validaciones previas.
+     * @param  UpDateRequest  $request  Objeto con validaciones previas.
      * @param  string  $id  Identificador del usuario a actualizar.
      * @return JsonResponse Respuesta JSON confirmando la actualización o error.
      */
-    public function update(RegisterRequest $request, string $id): JsonResponse
+    /**
+     * Actualiza un usuario.
+     *
+     * @authenticated
+     * @group Usuarios
+     * @urlParam id integer required ID del usuario.
+     * @bodyParam name string Nombre.
+     * @bodyParam email string Email.
+     * @bodyParam password string Nueva contraseña (opcional).
+     * @bodyParam role_id string Rol (opcional).
+     * @bodyParam position string Cargo (opcional).
+     * @bodyParam is_active boolean Estado (opcional).
+     */
+    public function update(UpDateRequest $request, string $id)
     {
-        $data = $request->validated();
-        $updated = $this->useCase->update($id, $data);
+        try {
+            $data = $request->validated();
+            Log::debug('UsersController.update.validated', $data);
 
-        if (! $updated) {
+            if ($data) {
+                $data = $request->all();
+                Log::debug('UsersController.update.all', $data);
+            }
+            $user = UserEntity::fromArray($data);
+            $updatedDataUser = $this->useCase->update($id, $user);
+            if (! $updatedDataUser) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Usuario no encontrado para actualizar',
+                ], 404);
+            }
+
             return response()->json([
-                'message' => 'Usuario no encontrado o no actualizado',
-            ], 404);
+                'status' => true,
+                'message' => 'Usuario actualizado exitosamente',
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('UserController: Error al actualizar usuario:', ['error' => $e]);
+            return response()->json([
+                'status' => false,
+                'message' => 'Error al actualizar el usuario',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'message' => 'ok',
-        ], 200);
     }
 
     /**
@@ -132,16 +221,25 @@ class UsersController extends Controller
      */
     public function destroy(string $id): JsonResponse
     {
-        $deleted = $this->useCase->delete($id);
+        try {
+            $deleted = $this->useCase->delete($id);
+            if (! $deleted) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Usuario no encontrado para eliminar',
+                ], 404);
+            }
 
-        if (! $deleted) {
             return response()->json([
-                'message' => 'Usuario no encontrado o no eliminado',
-            ], 404);
+                'status' => true,
+                'message' => 'Usuario eliminado exitosamente',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error al eliminar el usuario',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'message' => 'ok',
-        ], 200);
     }
 }
