@@ -82,9 +82,9 @@ class ManageDataUserUseCase
      *
      * @param  array  $data  Datos actualizados (debe incluir el id)
      */
-    public function update(array $data): bool
+    public function update(string $id, array $data): bool
     {
-        return $this->dataUserService->updateDataUser($data);
+        return $this->dataUserService->updateDataUser(array_merge($data, ['id' => $id]));
     }
 
     /**

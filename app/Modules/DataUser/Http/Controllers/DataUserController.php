@@ -4,7 +4,8 @@ namespace App\Modules\DataUser\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\DataUser\Application\UseCases\ManageDataUserUseCase;
-use App\Modules\DataUser\Http\Requests\RegisterRequest;
+use App\Modules\DataUser\Http\Requests\DataUserRegisterRequest as RegisterRequest;
+use App\Modules\DataUser\Http\Requests\DataUserUpDateRequest as UpDateRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -122,7 +123,7 @@ class DataUserController extends Controller
      */
     public function store(RegisterRequest $request): JsonResponse
     {
-        try{
+        try {
             $data = $request->validated();
             $createdDataUser = $this->useCase->create($data);
             return response()->json([
@@ -142,20 +143,13 @@ class DataUserController extends Controller
     /**
      * Actualizar datos de usuario existentes.
      *
-     * @param  RegisterRequest  $request  Objeto HTTP con los datos validados (debe incluir el id).
+     * @param  UpDateRequest  $request  Objeto HTTP con los datos validados (debe incluir el id).
      * @return JsonResponse Respuesta JSON confirmando la actualización.
      */
-    public function update(RegisterRequest $request): JsonResponse
+    public function update(UpDateRequest $request, string $id): JsonResponse
     {
-        try{
+        try {
             $data = $request->validated();
-            $id = $data['id'] ?? null;
-            if (! $id) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'El identificador de los datos de usuario es obligatorio para la actualización',
-                ], 400);
-            }
 
             $updatedDataUser = $this->useCase->update($id, $data);
             if (! $updatedDataUser) {
@@ -168,7 +162,6 @@ class DataUserController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Datos de usuario actualizados exitosamente',
-                'data' => $updatedDataUser,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
