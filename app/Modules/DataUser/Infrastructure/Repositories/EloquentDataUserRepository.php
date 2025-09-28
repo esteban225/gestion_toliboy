@@ -36,22 +36,52 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
             $query->where($key, $value);
         }
 
-        return $query->get()->map(function ($dataUser) {
+        $dataUsers = $query->get();
+
+        // Mapear los resultados a entidades
+        return $dataUsers->map(function ($item) {
             return new DataUserEntity(
-                // Mapear los campos del modelo a la entidad
-                $dataUser->id,
-                $dataUser->user_id,
-                $dataUser->num_phone,
-                $dataUser->num_phone_alt,
-                $dataUser->num_identification,
-                $dataUser->identification_type,
-                $dataUser->address,
-                $dataUser->emergency_contact,
-                $dataUser->emergency_phone,
-                $dataUser->created_at,
-                $dataUser->updated_at
+                $item->id,
+                $item->user_id,
+                $item->num_phone,
+                $item->num_phone_alt,
+                $item->num_identification,
+                $item->identification_type,
+                $item->address,
+                $item->emergency_contact,
+                $item->emergency_phone,
+                $item->created_at,
+                $item->updated_at
             );
         })->all();
+    }
+
+    public function paginate(array $filters = [], int $perPage = 15)
+    {
+        $query = DataUserModel::query();
+        foreach ($filters as $key => $value) {
+            $query->where($key, $value);
+        }
+        $paginator = $query->paginate($perPage);
+
+        // Mapear los resultados a entidades
+        $paginator->getCollection()->transform(function ($item) {
+            return new DataUserEntity(
+                $item->id,
+                $item->user_id,
+                $item->num_phone,
+                $item->num_phone_alt,
+                $item->num_identification,
+                $item->identification_type,
+                $item->address,
+                $item->emergency_contact,
+                $item->emergency_phone,
+                $item->created_at,
+                $item->updated_at
+            );
+        });
+
+        return $paginator;
     }
 
     /**

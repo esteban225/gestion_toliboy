@@ -33,6 +33,11 @@ class DataUserService
         return $data;
     }
 
+    public function paginateDataUsers(array $filters, int $perPage = 15)
+    {
+        return $this->data_user_repository->paginate($filters, $perPage);
+    }
+
     /**
      * Obtener datos de usuario por su identificador.
      *

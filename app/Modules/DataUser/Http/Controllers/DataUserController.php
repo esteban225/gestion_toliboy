@@ -43,13 +43,21 @@ class DataUserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->all();
-        $dataUsers = $this->useCase->list($filters);
+        $filters = $request->except(['page', 'per_page']);
+        $perPage = $request->input('per_page', 15);
+
+        $paginator = $this->useCase->paginate($filters, $perPage);
 
         return response()->json([
             'status' => true,
-            'message' => 'Datos de usuario encontrados',
-            'data' => $dataUsers,
+            'message' => 'Datos de usuario paginados',
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
         ]);
     }
 

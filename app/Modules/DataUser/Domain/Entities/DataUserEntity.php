@@ -21,18 +21,128 @@ namespace App\Modules\DataUser\Domain\Entities;
  */
 class DataUserEntity
 {
-    public function __construct(
-        public ?int $id,
-        public ?int $user_id,
-        public ?string $num_phone,
-        public ?string $num_phone_alt,
-        public ?string $num_identification,
-        public ?string $identification_type,
-        public ?string $address,
-        public ?string $emergency_contact,
-        public ?string $emergency_phone,
-        public ?string $createdAt = null,
-        public ?string $updatedAt = null
-    ) {}
+    private ?int $id;
 
+    private ?int $user_id;
+
+    private ?string $num_phone;
+
+    private ?string $num_phone_alt;
+
+    private ?string $num_identification;
+
+    private ?string $identification_type;
+
+    private ?string $address;
+
+    private ?string $emergency_contact;
+
+    private ?string $emergency_phone;
+
+    private ?string $createdAt;
+
+    private ?string $updatedAt;
+
+    public function __construct(
+        ?int $id,
+        ?int $user_id,
+        ?string $num_phone,
+        ?string $num_phone_alt,
+        ?string $num_identification,
+        ?string $identification_type,
+        ?string $address,
+        ?string $emergency_contact,
+        ?string $emergency_phone,
+        ?string $createdAt = null,
+        ?string $updatedAt = null
+    ) {
+        $this->id = $id;
+        $this->user_id = $user_id;
+        $this->num_phone = $num_phone;
+        $this->num_phone_alt = $num_phone_alt;
+        $this->num_identification = $num_identification;
+        $this->identification_type = $identification_type;
+        $this->address = $address;
+        $this->emergency_contact = $emergency_contact;
+        $this->emergency_phone = $emergency_phone;
+        $this->createdAt = $createdAt;
+        $this->updatedAt = $updatedAt;
+    }
+
+    // Getters
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->user_id;
+    }
+
+    public function getNumPhone(): ?string
+    {
+        return $this->num_phone;
+    }
+
+    public function getNumPhoneAlt(): ?string
+    {
+        return $this->num_phone_alt;
+    }
+
+    public function getNumIdentification(): ?string
+    {
+        return $this->num_identification;
+    }
+
+    public function getIdentificationType(): ?string
+    {
+        return $this->identification_type;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function getEmergencyContact(): ?string
+    {
+        return $this->emergency_contact;
+    }
+
+    public function getEmergencyPhone(): ?string
+    {
+        return $this->emergency_phone;
+    }
+
+    public function getCreatedAt(): ?string
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?string
+    {
+        return $this->updatedAt;
+    }
+
+    // Setters (opcional, según si necesitas modificar los valores)
+    // public function setNumPhone(?string $num_phone): void { $this->num_phone = $num_phone; }
+    // ...otros setters según necesidad...
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'user_id' => $this->getUserId(),
+            'num_phone' => $this->getNumPhone(),
+            'num_phone_alt' => $this->getNumPhoneAlt(),
+            'num_identification' => $this->getNumIdentification(),
+            'identification_type' => $this->getIdentificationType(),
+            'address' => $this->getAddress(),
+            'emergency_contact' => $this->getEmergencyContact(),
+            'emergency_phone' => $this->getEmergencyPhone(),
+            'created_at' => $this->getCreatedAt(),
+            'updated_at' => $this->getUpdatedAt(),
+        ];
+    }
 }

@@ -476,7 +476,7 @@ COLLATE = utf8mb4_general_ci;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ftoliboy_toliboy_data`.`notifications` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `user_id` BIGINT NOT NULL,
+  `user_id` BIGINT NULL,
   `title` VARCHAR(255) NOT NULL,
   `message` TEXT NOT NULL,
   `type` ENUM('info', 'warning', 'error', 'success') NOT NULL DEFAULT 'info',

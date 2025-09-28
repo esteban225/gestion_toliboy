@@ -28,6 +28,15 @@ interface DataUserRepositoryInterface
     public function all(array $filters = []): array;
 
     /**
+     * Obtiene datos de usuario paginados.
+     *
+     * @param  array  $filters  Filtros de búsqueda
+     * @param  int  $perPage  Cantidad por página
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function paginate(array $filters = [], int $perPage = 15);
+
+    /**
      * Busca datos de usuario por su identificador.
      *
      * @param  string  $id  Identificador único de los datos de usuario

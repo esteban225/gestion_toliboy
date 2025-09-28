@@ -5,7 +5,6 @@ namespace App\Modules\Auth\Infrastructure\Repositories;
 use App\Models\User as EloquentUser;
 use App\Modules\Auth\Domain\Entities\UserEntity;
 use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Este código implementa varios principios SOLID:

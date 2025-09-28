@@ -60,6 +60,30 @@ class User extends Authenticatable implements JWTSubject
         'last_login',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'last_login' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
     public function role()
     {
         return $this->belongsTo(Role::class);
@@ -127,5 +151,53 @@ class User extends Authenticatable implements JWTSubject
     public function work_logs()
     {
         return $this->hasMany(WorkLog::class);
+    }
+
+    /**
+     * Check if user has a specific role.
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->role && $this->role->name === $roleName;
+    }
+
+    /**
+     * Check if user has any of the given roles.
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        return $this->role && in_array($this->role->name, $roles);
+    }
+
+    /**
+     * Get user permissions based on role.
+     */
+    public function getPermissions(): array
+    {
+        if (! $this->role) {
+            return [];
+        }
+
+        // This method would ideally be moved to a dedicated Permission service
+        $permissions = [
+            'DEV' => ['*'], // All permissions
+            'GG' => ['dashboard.view', 'reports.read', 'reports.export'],
+            'INPL' => ['forms.manage', 'work_logs.manage', 'dashboard.view'],
+            'INPR' => ['forms.manage', 'work_logs.manage', 'dashboard.view'],
+            'TRZ' => ['forms.read', 'batches.read', 'reports.read'],
+            'OP' => ['forms.create', 'work_logs.create'],
+        ];
+
+        return $permissions[$this->role->name] ?? [];
+    }
+
+    /**
+     * Check if user has specific permission.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        $permissions = $this->getPermissions();
+
+        return in_array('*', $permissions) || in_array($permission, $permissions);
     }
 }

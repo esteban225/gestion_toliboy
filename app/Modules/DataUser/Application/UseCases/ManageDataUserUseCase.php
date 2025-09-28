@@ -31,7 +31,24 @@ class ManageDataUserUseCase
      */
     public function list(array $filters): array
     {
-        return $this->dataUserService->listDataUsers($filters);
+        $entities = $this->dataUserService->listDataUsers($filters);
+
+        // Convierte cada entidad a array usando el método toArray()
+        return array_map(fn ($entity) => method_exists($entity, 'toArray') ? $entity->toArray() : $entity, $entities);
+    }
+
+    public function paginate(array $filters, int $perPage = 15)
+    {
+        $paginator = $this->dataUserService->paginateDataUsers($filters, $perPage);
+
+        // Si $paginator->items existe y es iterable
+        if (property_exists($paginator, 'items')) {
+            $paginator->getCollection()->transform(function ($entity) {
+                return method_exists($entity, 'toArray') ? $entity->toArray() : (array) $entity;
+            });
+        }
+
+        return $paginator;
     }
 
     /**
@@ -42,7 +59,9 @@ class ManageDataUserUseCase
      */
     public function get(string $id)
     {
-        return $this->dataUserService->getDataUser($id);
+        $entity = $this->dataUserService->getDataUser($id);
+
+        return $entity && method_exists($entity, 'toArray') ? $entity->toArray() : $entity;
     }
 
     /**
@@ -53,7 +72,9 @@ class ManageDataUserUseCase
      */
     public function create(array $data)
     {
-        return $this->dataUserService->createDataUser($data);
+        $entity = $this->dataUserService->createDataUser($data);
+
+        return $entity && method_exists($entity, 'toArray') ? $entity->toArray() : $entity;
     }
 
     /**
