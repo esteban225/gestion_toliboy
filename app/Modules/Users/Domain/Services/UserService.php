@@ -4,6 +4,7 @@ namespace App\Modules\Users\Domain\Services;
 
 use App\Modules\Users\Domain\Entities\UserEntity;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -32,12 +33,9 @@ class UserService
         return $data;
     }
 
-    public function paginateUsers(array $filters, int $perPage = 15)
+    public function paginateUsers(array $filters, int $perPage = 15): LengthAwarePaginator
     {
-        $paginator = $this->users_repository->paginate($filters, $perPage);
-        Log::info('Paginador de usuarios:', ['paginator' => $paginator]);
-
-        return $paginator;
+        return $this->users_repository->paginate($filters, $perPage);
     }
 
     /**
@@ -77,6 +75,7 @@ class UserService
         if ($data->getPassword()) {
             $data->setPassword(Hash::make($data->getPassword()));
         }
+
         return $this->users_repository->update($data);
     }
 

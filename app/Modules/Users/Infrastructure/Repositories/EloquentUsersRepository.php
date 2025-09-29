@@ -5,8 +5,8 @@ namespace App\Modules\Users\Infrastructure\Repositories;
 use App\Models\User;
 use App\Modules\Users\Domain\Entities\UserEntity;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Repositorio de usuarios basado en Eloquent ORM.
@@ -41,7 +41,7 @@ class EloquentUsersRepository implements UsersRepositoryInterface
         return $query->get()->map(fn ($user) => $this->mapToEntity($user))->all();
     }
 
-    public function paginate(array $filters = [], int $perPage = 15)
+    public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = User::query();
 
@@ -66,7 +66,9 @@ class EloquentUsersRepository implements UsersRepositoryInterface
     public function find(string $id): ?UserEntity
     {
         $user = User::find($id);
-        Log::info('EloquentRepository: Usuario encontrado:', ['user' => $user]);
+        if (! $user) {
+            return null;
+        }
 
         return $this->mapToEntity($user);
     }
@@ -93,7 +95,6 @@ class EloquentUsersRepository implements UsersRepositoryInterface
      */
     public function update(UserEntity $data): bool
     {
-        Log::debug('Repository.update.input', is_array($data)? $data : (method_exists($data,'toArray')?$data->toArray():[]));
         $user = User::find($data->getId());
         if ($user) {
             return $user->update($data->toArray());

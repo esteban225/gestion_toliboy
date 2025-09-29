@@ -2,9 +2,9 @@
 
 namespace App\Modules\Users\Aplication\UseCases;
 
-use App\Models\User;
 use App\Modules\Users\Domain\Entities\UserEntity;
 use App\Modules\Users\Domain\Services\UserService;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -37,18 +37,9 @@ class ManageUserUseCase
         return $this->userService->listUsers($filters);
     }
 
-    public function paginate(array $filters, int $perPage = 15)
+    public function paginate(array $filters, int $perPage = 15): LengthAwarePaginator
     {
-        $paginator = $this->userService->paginateUsers($filters, $perPage);
-
-        // Si $paginator->items existe y es iterable
-        if (property_exists($paginator, 'items')) {
-            $paginator->getCollection()->transform(function ($entity) {
-                return method_exists($entity, 'toArray') ? $entity->toArray() : (array) $entity;
-            });
-        }
-
-        return $paginator;
+        return $this->userService->paginateUsers($filters, $perPage);
     }
 
     /**
@@ -86,6 +77,7 @@ class ManageUserUseCase
     {
         Log::debug('UseCase.update.input', $data->toArray());
         $data->setId($id);
+
         return $this->userService->updateUser($data);
     }
 

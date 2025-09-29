@@ -97,6 +97,7 @@ class UserEntity
     {
         $this->id = $id;
     }
+
     public function setName(string $name): void
     {
         $this->name = $name;
@@ -142,9 +143,9 @@ class UserEntity
     {
         return new self(
             id: $data['id'] ?? null,
-            name: $data['name'] ,
-            email: $data['email'] ,
-            password: $data['password'] ,
+            name: $data['name'],
+            email: $data['email'],
+            password: $data['password'],
             role_id: $data['role_id'] ?? null,
             position: $data['position'] ?? null,
             is_active: $data['is_active'] ?? true,

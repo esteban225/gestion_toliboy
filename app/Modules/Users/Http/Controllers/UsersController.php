@@ -104,6 +104,12 @@ class UsersController extends Controller
         try {
             $dataUsers = $this->useCase->get($id);
 
+            if (! $dataUsers) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Usuario no encontrado',
+                ], 404);
+            }
             $user = Collect($dataUsers ? $dataUsers->toArray() : [])->map(function ($value, $key) {
                 if ($key === 'password') {
                     return str_repeat('*', 8); // Máscara fija de 8 asteriscos
@@ -112,13 +118,6 @@ class UsersController extends Controller
                 return $value;
             })->toArray();
             $data = UserEntity::fromArray($user ? $user : []);
-
-            if (! $data) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Usuario no encontrado',
-                ], 404);
-            }
 
             return response()->json([
                 'status' => true,
@@ -171,8 +170,11 @@ class UsersController extends Controller
      * Actualiza un usuario.
      *
      * @authenticated
+     *
      * @group Usuarios
+     *
      * @urlParam id integer required ID del usuario.
+     *
      * @bodyParam name string Nombre.
      * @bodyParam email string Email.
      * @bodyParam password string Nueva contraseña (opcional).
@@ -205,6 +207,7 @@ class UsersController extends Controller
             ], 200);
         } catch (\Exception $e) {
             Log::error('UserController: Error al actualizar usuario:', ['error' => $e]);
+
             return response()->json([
                 'status' => false,
                 'message' => 'Error al actualizar el usuario',

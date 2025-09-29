@@ -64,7 +64,7 @@ class UserUpDateRequest extends FormRequest
             'email.email' => 'Debes ingresar un correo válido.',
             'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'role_id.exists' => 'El rol especificado no existe.',
-            'position.max' => 'La posición no puede tener más de 100 caracteres.', 
+            'position.max' => 'La posición no puede tener más de 100 caracteres.',
             'is_active.boolean' => 'El estado debe ser verdadero o falso.',
         ];
     }

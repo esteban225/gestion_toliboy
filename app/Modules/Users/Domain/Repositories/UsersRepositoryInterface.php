@@ -3,6 +3,7 @@
 namespace App\Modules\Users\Domain\Repositories;
 
 use App\Modules\Users\Domain\Entities\UserEntity;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Contrato para el repositorio de usuarios.
@@ -34,7 +35,7 @@ interface UsersRepositoryInterface
      * @param  int  $perPage  Cantidad por página
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate(array $filters = [], int $perPage = 15);
+    public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Busca un usuario por su identificador.

@@ -430,22 +430,8 @@ CREATE TABLE IF NOT EXISTS `ftoliboy_toliboy_data`.`work_logs` (
   `date` DATE NOT NULL,
   `start_time` TIME NULL DEFAULT NULL,
   `end_time` TIME NULL DEFAULT NULL,
-  `total_hours` DECIMAL(5,2) GENERATED ALWAYS AS (
-    CASE
-      WHEN start_time IS NOT NULL AND end_time IS NOT NULL THEN
-        ROUND(TIMESTAMPDIFF(MINUTE, CONCAT(date, ' ', start_time), CONCAT(date, ' ', end_time)) / 60, 2)
-      ELSE 0
-    END
-  ) STORED,
-  `overtime_hours` DECIMAL(5,2) GENERATED ALWAYS AS (
-    GREATEST(0,
-      CASE
-        WHEN start_time IS NOT NULL AND end_time IS NOT NULL THEN
-          ROUND(TIMESTAMPDIFF(MINUTE, CONCAT(date, ' ', start_time), CONCAT(date, ' ', end_time)) / 60, 2) - 8
-        ELSE 0
-      END
-    )
-  ) STORED,
+  `total_hours` TIME NULL,
+  `overtime_hours` TIME NULL,
   `batch_id` BIGINT NULL DEFAULT NULL,
   `task_description` TEXT NULL DEFAULT NULL,
   `notes` TEXT NULL DEFAULT NULL,
@@ -465,11 +451,13 @@ CREATE TABLE IF NOT EXISTS `ftoliboy_toliboy_data`.`work_logs` (
     FOREIGN KEY (`user_id`)
     REFERENCES `ftoliboy_toliboy_data`.`users` (`id`)
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
+    ON UPDATE CASCADE
+)
 ENGINE = InnoDB
 AUTO_INCREMENT = 1
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci;
+
 
 -- -----------------------------------------------------
 -- Table `ftoliboy_toliboy_data`.`notifications`

@@ -17,8 +17,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon $date
  * @property Carbon|null $start_time
  * @property Carbon|null $end_time
- * @property float|null $total_hours
- * @property float|null $overtime_hours
+ * @property Carbon|null $total_hours
+ * @property Carbon|null $overtime_hours
  * @property int|null $batch_id
  * @property string|null $task_description
  * @property string|null $notes
@@ -36,8 +36,8 @@ class WorkLog extends Model
         'date' => 'datetime',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
-        'total_hours' => 'float',
-        'overtime_hours' => 'float',
+        'total_hours' => 'datetime',
+        'overtime_hours' => 'datetime',
         'batch_id' => 'int',
     ];
 
