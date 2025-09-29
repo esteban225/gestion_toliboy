@@ -24,14 +24,15 @@ class WorkLogRepositoryE implements WorkLogRepositoryI
     public function findAll(): array
     {
         $workLogModels = WorkLog::all();
+
         return $workLogModels->map(fn ($model) => $this->mapToEntity($model))->toArray();
     }
 
     /**
      * Obtiene los registros de trabajo paginados, aplicando filtros si es necesario.
      *
-     * @param array $filters Filtros de búsqueda.
-     * @param int $perPage Cantidad de registros por página.
+     * @param  array  $filters  Filtros de búsqueda.
+     * @param  int  $perPage  Cantidad de registros por página.
      * @return LengthAwarePaginator Paginador de registros de trabajo.
      */
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
@@ -40,13 +41,14 @@ class WorkLogRepositoryE implements WorkLogRepositoryI
         foreach ($filters as $key => $value) {
             $query->where($key, $value);
         }
+
         return $query->paginate($perPage);
     }
 
     /**
      * Busca un registro de trabajo por su ID.
      *
-     * @param int $id Identificador único del registro de trabajo.
+     * @param  int  $id  Identificador único del registro de trabajo.
      * @return WorkLogEntity|null Entidad del registro o null si no se encuentra.
      */
     public function findById(int $id): ?WorkLogEntity
@@ -55,38 +57,41 @@ class WorkLogRepositoryE implements WorkLogRepositoryI
         if (! $workLogModel) {
             return null;
         }
+
         return $this->mapToEntity($workLogModel);
     }
 
     /**
      * Obtiene los registros de trabajo asociados a un usuario.
      *
-     * @param int $userId Identificador único del usuario.
+     * @param  int  $userId  Identificador único del usuario.
      * @return WorkLogEntity[] Lista de entidades de registros de trabajo.
      */
     public function findByUserId(int $userId): array
     {
         $workLogModels = WorkLog::where('user_id', $userId)->get();
+
         return $workLogModels->map(fn ($model) => $this->mapToEntity($model))->toArray();
     }
 
     /**
      * Crea un nuevo registro de trabajo en la base de datos.
      *
-     * @param WorkLogDTO $workLog DTO con los datos del registro de trabajo.
+     * @param  WorkLogDTO  $workLog  DTO con los datos del registro de trabajo.
      * @return WorkLogEntity Entidad del registro creado.
      */
     public function create(WorkLogDTO $workLog): WorkLogEntity
     {
         $workLogModel = WorkLog::create($workLog->toArray());
         $workLogModel->refresh(); // Recargar para obtener columnas generadas
+
         return $this->mapToEntity($workLogModel);
     }
 
     /**
      * Actualiza un registro de trabajo existente.
      *
-     * @param WorkLogDTO $workLog DTO con los datos actualizados.
+     * @param  WorkLogDTO  $workLog  DTO con los datos actualizados.
      * @return WorkLogEntity|null Entidad actualizada o null si no se encuentra.
      */
     public function update(WorkLogDTO $workLog): ?WorkLogEntity
@@ -96,13 +101,14 @@ class WorkLogRepositoryE implements WorkLogRepositoryI
             return null;
         }
         $workLogModel->update($workLog->toArray());
+
         return $this->mapToEntity($workLogModel);
     }
 
     /**
      * Elimina un registro de trabajo por su ID.
      *
-     * @param int $id Identificador único del registro de trabajo.
+     * @param  int  $id  Identificador único del registro de trabajo.
      * @return bool True si la eliminación fue exitosa, false en caso contrario.
      */
     public function delete(int $id): bool
@@ -111,14 +117,15 @@ class WorkLogRepositoryE implements WorkLogRepositoryI
         if (! $workLogModel) {
             return false;
         }
+
         return $workLogModel->delete();
     }
 
     /**
      * Busca un registro de trabajo por usuario y fecha.
      *
-     * @param int $userId Identificador único del usuario.
-     * @param string $date Fecha del registro (formato Y-m-d).
+     * @param  int  $userId  Identificador único del usuario.
+     * @param  string  $date  Fecha del registro (formato Y-m-d).
      * @return WorkLogEntity|null Entidad encontrada o null si no existe.
      */
     public function findByUserAndDate(int $userId, string $date): ?WorkLogEntity
@@ -129,13 +136,14 @@ class WorkLogRepositoryE implements WorkLogRepositoryI
         if (! $workLog) {
             return null;
         }
+
         return $this->mapToEntity($workLog);
     }
 
     /**
      * Mapea un modelo Eloquent a una entidad de dominio WorkLogEntity.
      *
-     * @param WorkLog $workLogModel Modelo Eloquent de WorkLog.
+     * @param  WorkLog  $workLogModel  Modelo Eloquent de WorkLog.
      * @return WorkLogEntity Entidad de dominio WorkLogEntity.
      */
     private function mapToEntity(WorkLog $workLogModel): WorkLogEntity

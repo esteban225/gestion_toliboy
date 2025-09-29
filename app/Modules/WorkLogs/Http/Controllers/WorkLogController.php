@@ -8,8 +8,8 @@ use App\Modules\WorkLogs\Application\UseCases\PaginateWorkLogUseCase;
 use App\Modules\WorkLogs\Application\UseCases\RegisterWorkLogUseCase;
 use App\Modules\WorkLogs\Application\UseCases\WorkLogUseCase;
 use App\Modules\WorkLogs\Domain\Entities\WorkLogEntity;
-use App\Modules\WorkLogs\Http\Requests\RegisterRequest;
-use App\Modules\WorkLogs\Http\Requests\UpDateRequest;
+use App\Modules\WorkLogs\Http\Requests\WorkLogRegisterRequest;
+use App\Modules\WorkLogs\Http\Requests\WorkLogUpDateRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -32,10 +32,9 @@ class WorkLogController extends Controller
 
     public function __construct(
         WorkLogUseCase $workLogUseCase,
-         PaginateWorkLogUseCase $paginateWorkLogUseCase,
+        PaginateWorkLogUseCase $paginateWorkLogUseCase,
         RegisterWorkLogUseCase $registerWorkLogUseCase
-         )
-    {
+    ) {
         $this->workLogUseCase = $workLogUseCase;
         $this->paginateWorkLogUseCase = $paginateWorkLogUseCase;
         $this->registerWorkLogUseCase = $registerWorkLogUseCase;
@@ -75,7 +74,7 @@ class WorkLogController extends Controller
      *
      * Registra un nuevo work log manualmente.
      */
-    public function store(RegisterRequest $request): JsonResponse
+    public function store(WorkLogRegisterRequest $request): JsonResponse
     {
         $data = $request->validated();
         $workLogEntity = WorkLogEntity::fromArray($data);
@@ -119,7 +118,7 @@ class WorkLogController extends Controller
      *
      * Actualiza un work log existente. start_time y end_time deben mantenerse en formato HH:MM si se envían.
      */
-    public function update(UpDateRequest $request, int $id): JsonResponse
+    public function update(WorkLogUpDateRequest $request, int $id): JsonResponse
     {
         $data = $request->validated();
         $existingWorkLog = $this->workLogUseCase->getWorkLogById($id);
@@ -184,7 +183,6 @@ class WorkLogController extends Controller
 
     /**
      * Registra automáticamente la hora de entrada o salida del trabajador.
-     *
      */
     public function registerWorkLog(int $id): JsonResponse
     {

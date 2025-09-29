@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Route;
  *
  * Agrupa las rutas relacionadas con la gestión de registros de trabajo (WorkLogs),
  * incluyendo consulta, registro, actualización, eliminación y registro automático de horas.
- *
- * @package App\Modules\WorkLogs\Http
  */
+
+// Definición de constante para evitar duplicación del string de roles
+const WORKLOG_ROLES = 'role:DEV,GG,INGPL,INGPR';
 
 // Rutas para consultar los registros de horas de un usuario específico
 Route::middleware(['api', 'jwt.auth'])->group(function () {
@@ -21,7 +22,7 @@ Route::middleware(['api', 'jwt.auth'])->group(function () {
      * Obtiene los registros de horas trabajadas de un usuario por su ID.
      * Requiere autenticación JWT.
      *
-     * @param int $userId ID del usuario
+     * @param  int  $userId  ID del usuario
      * @return JSON Lista de registros de horas
      */
     Route::get('hoursLog/users/{userId}', [WorkLogController::class, 'showUserWorkLogs']);
@@ -29,7 +30,7 @@ Route::middleware(['api', 'jwt.auth'])->group(function () {
 
 // Rutas protegidas para la gestión completa de WorkLogs
 Route::prefix('work-logs')
-    ->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])
+    ->middleware(['api', 'jwt.auth', WORKLOG_ROLES, \App\Http\Middleware\SetDbSessionUser::class])
     ->group(function () {
         /**
          * GET /work-logs
@@ -64,7 +65,8 @@ Route::prefix('work-logs')
         /**
          * POST /work-logs/register/{id}
          * Registra automáticamente la hora de entrada o salida del usuario.
-         * @param int $id ID del usuario
+         *
+         * @param  int  $id  ID del usuario
          */
         Route::post('/register/{id}', [WorkLogController::class, 'registerWorkLog']);
     });

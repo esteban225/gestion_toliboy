@@ -21,7 +21,7 @@ class RegisterWorkLogUseCase
     /**
      * Constructor del caso de uso.
      *
-     * @param WorkLogService $workLogService Servicio de registros de trabajo.
+     * @param  WorkLogService  $workLogService  Servicio de registros de trabajo.
      */
     public function __construct(WorkLogService $workLogService)
     {
@@ -31,7 +31,7 @@ class RegisterWorkLogUseCase
     /**
      * Ejecuta el registro automático de la hora de entrada o salida para el usuario indicado.
      *
-     * @param int $userId ID del usuario.
+     * @param  int  $userId  ID del usuario.
      * @return WorkLogEntity Entidad del registro de trabajo creado o actualizado.
      */
     public function execute(int $userId): WorkLogEntity

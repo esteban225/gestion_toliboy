@@ -115,7 +115,7 @@ class WorkLogService
      * - Si ya existe, actualiza la hora de salida y calcula las horas trabajadas y horas extra.
      * Las horas se guardan en formato H:i:s para compatibilidad con el tipo TIME en la base de datos.
      *
-     * @param int $id ID del usuario.
+     * @param  int  $id  ID del usuario.
      * @return WorkLogEntity La entidad del registro de trabajo creado o actualizado.
      */
     public function registerWorkLog(int $id): WorkLogEntity
@@ -123,8 +123,8 @@ class WorkLogService
         // Busca si ya existe un registro para el usuario en la fecha actual
         $workLog = $this->workLogRepository->findByUserAndDate($id, date('Y-m-d'));
 
-        Log::info("Buscando registro de trabajo para el usuario {$id} en la fecha " . date('Y-m-d'));
-        Log::info("Buscando registro de trabajo para el usuario {$id} en la fecha " . date('Y-m-d') . ($workLog ? 'Encontrado' : 'No encontrado'));
+        Log::info("Buscando registro de trabajo para el usuario {$id} en la fecha ".date('Y-m-d'));
+        Log::info("Buscando registro de trabajo para el usuario {$id} en la fecha ".date('Y-m-d').($workLog ? 'Encontrado' : 'No encontrado'));
 
         $currentTime = date('H:i');
 

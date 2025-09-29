@@ -40,7 +40,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
         $dataUsers = $query->get();
 
         // Mapear los resultados a entidades
-        return $dataUsers->map(fn($item) => $this->mapToEntity($item))->all();
+        return $dataUsers->map(fn ($item) => $this->mapToEntity($item))->all();
     }
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
