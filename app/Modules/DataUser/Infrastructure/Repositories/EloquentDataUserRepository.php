@@ -5,6 +5,7 @@ namespace App\Modules\DataUser\Infrastructure\Repositories;
 use App\Models\PersonalDatum as DataUserModel;
 use App\Modules\DataUser\Domain\Entities\DataUserEntity;
 use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Implementación del repositorio de datos de usuario utilizando Eloquent ORM.
@@ -39,24 +40,10 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
         $dataUsers = $query->get();
 
         // Mapear los resultados a entidades
-        return $dataUsers->map(function ($item) {
-            return new DataUserEntity(
-                $item->id,
-                $item->user_id,
-                $item->num_phone,
-                $item->num_phone_alt,
-                $item->num_identification,
-                $item->identification_type,
-                $item->address,
-                $item->emergency_contact,
-                $item->emergency_phone,
-                $item->created_at,
-                $item->updated_at
-            );
-        })->all();
+        return $dataUsers->map(fn($item) => $this->mapToEntity($item))->all();
     }
 
-    public function paginate(array $filters = [], int $perPage = 15)
+    public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = DataUserModel::query();
         foreach ($filters as $key => $value) {
@@ -66,19 +53,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
 
         // Mapear los resultados a entidades
         $paginator->getCollection()->transform(function ($item) {
-            return new DataUserEntity(
-                $item->id,
-                $item->user_id,
-                $item->num_phone,
-                $item->num_phone_alt,
-                $item->num_identification,
-                $item->identification_type,
-                $item->address,
-                $item->emergency_contact,
-                $item->emergency_phone,
-                $item->created_at,
-                $item->updated_at
-            );
+            return $this->mapToEntity($item);
         });
 
         return $paginator;
@@ -97,20 +72,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
             return null;
         }
 
-        return new DataUserEntity(
-            // Mapear los campos del modelo a la entidad
-            $dataUser->id,
-            $dataUser->user_id,
-            $dataUser->num_phone,
-            $dataUser->num_phone_alt,
-            $dataUser->num_identification,
-            $dataUser->identification_type,
-            $dataUser->address,
-            $dataUser->emergency_contact,
-            $dataUser->emergency_phone,
-            $dataUser->created_at,
-            $dataUser->updated_at
-        );
+        return $this->mapToEntity($dataUser);
     }
 
     /**
@@ -126,21 +88,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
             return null;
         }
 
-        return new DataUserEntity(
-            // Mapear los campos del modelo a la entidad
-            $dataUser->id,
-            $dataUser->user_id,
-            $dataUser->num_phone,
-            $dataUser->num_phone_alt,
-            $dataUser->num_identification,
-            $dataUser->identification_type,
-            $dataUser->address,
-            $dataUser->emergency_contact,
-            $dataUser->emergency_phone,
-            $dataUser->created_at,
-            $dataUser->updated_at
-
-        );
+        return $this->mapToEntity($dataUser);
     }
 
     /**
@@ -177,5 +125,22 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
         }
 
         return false;
+    }
+
+    protected function mapToEntity(DataUserModel $model): DataUserEntity
+    {
+        return new DataUserEntity(
+            $model->id,
+            $model->user_id,
+            $model->num_phone,
+            $model->num_phone_alt,
+            $model->num_identification,
+            $model->identification_type,
+            $model->address,
+            $model->emergency_contact,
+            $model->emergency_phone,
+            $model->created_at,
+            $model->updated_at
+        );
     }
 }

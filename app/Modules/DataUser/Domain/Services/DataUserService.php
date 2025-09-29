@@ -4,6 +4,7 @@ namespace App\Modules\DataUser\Domain\Services;
 
 use App\Modules\DataUser\Domain\Entities\DataUserEntity;
 use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Servicio de dominio para gestión de datos de usuario.
@@ -33,7 +34,7 @@ class DataUserService
         return $data;
     }
 
-    public function paginateDataUsers(array $filters, int $perPage = 15)
+    public function paginateDataUsers(array $filters, int $perPage = 15): LengthAwarePaginator
     {
         return $this->data_user_repository->paginate($filters, $perPage);
     }

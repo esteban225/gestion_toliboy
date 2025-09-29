@@ -3,6 +3,7 @@
 namespace App\Modules\DataUser\Domain\Repositories;
 
 use App\Modules\DataUser\Domain\Entities\DataUserEntity;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Contrato para el repositorio de datos de usuario.
@@ -34,7 +35,7 @@ interface DataUserRepositoryInterface
      * @param  int  $perPage  Cantidad por página
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate(array $filters = [], int $perPage = 15);
+    public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Busca datos de usuario por su identificador.

@@ -3,6 +3,7 @@
 namespace App\Modules\DataUser\Application\UseCases;
 
 use App\Modules\DataUser\Domain\Services\DataUserService;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Caso de uso para la gestión de datos adicionales de usuarios.
@@ -31,24 +32,14 @@ class ManageDataUserUseCase
      */
     public function list(array $filters): array
     {
-        $entities = $this->dataUserService->listDataUsers($filters);
-
         // Convierte cada entidad a array usando el método toArray()
-        return array_map(fn ($entity) => method_exists($entity, 'toArray') ? $entity->toArray() : $entity, $entities);
+        return $this->dataUserService->listDataUsers($filters);
     }
 
-    public function paginate(array $filters, int $perPage = 15)
+    public function paginate(array $filters, int $perPage = 15): LengthAwarePaginator
     {
-        $paginator = $this->dataUserService->paginateDataUsers($filters, $perPage);
+        return $this->dataUserService->paginateDataUsers($filters, $perPage);
 
-        // Si $paginator->items existe y es iterable
-        if (property_exists($paginator, 'items')) {
-            $paginator->getCollection()->transform(function ($entity) {
-                return method_exists($entity, 'toArray') ? $entity->toArray() : (array) $entity;
-            });
-        }
-
-        return $paginator;
     }
 
     /**
