@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Controlador para la gestión y exportación de reportes.
  * Permite generar reportes dinámicos y personalizados a partir de datos recibidos.
@@ -9,9 +8,8 @@
  * - report: Genera un reporte en base al nombre y parámetros recibidos.
  * - export: Exporta el reporte en el formato solicitado.
  * - exportReport: Exporta un reporte a partir de datos validados (pueden venir en JSON).
- *
- * @package App\Modules\Reports\Http\Controllers
  */
+
 namespace App\Modules\Reports\Http\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -23,14 +21,11 @@ class ReportsController extends Controller
 {
     /**
      * Caso de uso para la exportación de reportes.
-     * @var ExportReportUseCase
      */
     private ExportReportUseCase $useCase;
 
     /**
      * Constructor.
-     *
-     * @param ExportReportUseCase $useCase
      */
     public function __construct(ExportReportUseCase $useCase)
     {
@@ -39,7 +34,6 @@ class ReportsController extends Controller
 
     /**
      * Genera un reporte en base al nombre y parámetros recibidos.
-     *
      */
     public function report(Request $request, string $reportName)
     {
@@ -56,7 +50,6 @@ class ReportsController extends Controller
 
     /**
      * Exporta un reporte a partir de datos validados (pueden venir en JSON).
-     *
      */
     public function exportReport(ReportsRequest $request)
     {

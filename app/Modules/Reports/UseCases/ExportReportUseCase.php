@@ -34,7 +34,6 @@ class ExportReportUseCase
         return $this->repo->export($reportName, $format, $request->query());
     }
 
-
     public function exportReport(ReportsRequest $request)
     {
         $validated = $request->validated();

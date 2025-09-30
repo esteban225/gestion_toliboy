@@ -10,6 +10,10 @@ class EventServiceProvider extends ServiceProvider
         \App\Modules\InventoryMovements\Domain\Events\InventoryLowStock::class => [
             \App\Modules\Notifications\Application\Listeners\SendLowStockNotification::class,
         ],
+        // Notificación de ausencia de usuario
+        \App\Modules\WorkLogs\Domain\Events\UserAbsenceDetected::class => [
+            \App\Modules\WorkLogs\Application\Listeners\SendAbsenceNotification::class,
+        ],
     ];
 
     public function boot(): void
