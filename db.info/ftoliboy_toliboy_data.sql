@@ -527,7 +527,7 @@ BEGIN
        UNIX_TIMESTAMP(), NOW(), TIMESTAMPADD(HOUR, 1, CURRENT_TIMESTAMP));
 END$$
 
-DELIMITER ;
+
 
 
 -- Funciones usadas por los triggers para saber el usuario/IP/UA actual
@@ -941,26 +941,6 @@ WHERE cs.current_stock < cs.min_stock;
 -- -----------------------------------------------------
 
 DELIMITER $$
-
--- (ELIMINADO: duplicado de set_current_user)
--- -- -----------------------------------------------------
--- -- Procedure `ftoliboy_toliboy_data`.`set_current_user`
--- -- -----------------------------------------------------
--- CREATE PROCEDURE `set_current_user`(
---     IN p_user_id BIGINT,
---     IN p_ip_address VARCHAR(45),
---     IN p_user_agent TEXT
--- )
--- BEGIN
---     DECLARE v_connection_id INT;
---     IF p_ip_address IS NULL THEN SET p_ip_address = '0.0.0.0'; END IF;
---     IF p_user_agent IS NULL THEN SET p_user_agent = 'Desconocido'; END IF;
---     SET v_connection_id = CONNECTION_ID();
---     DELETE FROM current_user_sessions
---     WHERE connection_id = v_connection_id OR expires_at <= NOW();
---     INSERT INTO current_user_sessions (connection_id, user_id, ip_address, user_agent, expires_at)
---     VALUES (v_connection_id, p_user_id, p_ip_address, p_user_agent, TIMESTAMPADD(HOUR, 1, CURRENT_TIMESTAMP));
--- END$$
 
 -- -----------------------------------------------------
 -- Procedure `ftoliboy_toliboy_data`.`clean_expired_sessions`

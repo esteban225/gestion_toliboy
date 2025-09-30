@@ -2,6 +2,7 @@
 
 namespace App\Modules\Reports\UseCases;
 
+use App\Modules\Reports\Http\Requests\ReportsRequest;
 use App\Modules\Reports\Infrastructure\Repositories\ReportsRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,5 +32,24 @@ class ExportReportUseCase
         $format = strtolower($request->query('format', 'csv'));
 
         return $this->repo->export($reportName, $format, $request->query());
+    }
+
+
+    public function exportReport(ReportsRequest $request)
+    {
+        $validated = $request->validated();
+
+        if (! $validated) {
+            return response()->json(['message' => 'Invalid data provided'], 400);
+        }
+
+        $rows = $validated['rows'];
+        $headings = $validated['headings'];
+        $title = $validated['title'];
+
+        // Puedes obtener el formato desde la request si lo deseas
+        $format = $request->get('format');
+
+        return $this->repo->exportBlade($rows, $headings, $title, $format);
     }
 }

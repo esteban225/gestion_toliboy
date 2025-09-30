@@ -1,102 +1,71 @@
 <?php
 
+
+/**
+ * Controlador para la gestión y exportación de reportes.
+ * Permite generar reportes dinámicos y personalizados a partir de datos recibidos.
+ *
+ * Métodos:
+ * - report: Genera un reporte en base al nombre y parámetros recibidos.
+ * - export: Exporta el reporte en el formato solicitado.
+ * - exportReport: Exporta un reporte a partir de datos validados (pueden venir en JSON).
+ *
+ * @package App\Modules\Reports\Http\Controllers
+ */
 namespace App\Modules\Reports\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Reports\Application\UseCases\GenerateReportUseCase;
+use App\Modules\Reports\Http\Requests\ReportsRequest;
+use App\Modules\Reports\UseCases\ExportReportUseCase;
 use Illuminate\Http\Request;
 
-/**
- * Controlador centralizado de reportes.
- *
- * Expone endpoints unificados para todos los reportes del sistema.
- *
- * @group Reports
- *
- * @description Endpoints para generar y exportar reportes del sistema.
- */
 class ReportsController extends Controller
 {
-    public function __construct(
-        private GenerateReportUseCase $generateReport
-    ) {}
+    /**
+     * Caso de uso para la exportación de reportes.
+     * @var ExportReportUseCase
+     */
+    private ExportReportUseCase $useCase;
 
     /**
-     * Listar reportes disponibles.
+     * Constructor.
      *
-     * @response 200 {
-     *   "success": true,
-     *   "reports": {
-     *     "raw_materials": "Reporte de Materias Primas",
-     *     "inventory": "Reporte de Inventario"
-     *   }
-     * }
+     * @param ExportReportUseCase $useCase
      */
-    public function index()
+    public function __construct(ExportReportUseCase $useCase)
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Reportes disponibles',
-            'reports' => [
-                'raw_materials' => 'Reporte de Materias Primas',
-                'raw_materials_low_stock' => 'Materiales con Stock Bajo',
-                'inventory' => 'Reporte de Inventario',
-                'dashboard' => 'Dashboard Ejecutivo',
-            ],
-        ]);
+        $this->useCase = $useCase;
     }
 
     /**
-     * Generar reporte de materias primas.
+     * Genera un reporte en base al nombre y parámetros recibidos.
      *
-     * @queryParam format string Formato de exportación: json, pdf, excel
-     * @queryParam status string Filtrar por estado
-     * @queryParam low_stock_only boolean Solo materiales con stock bajo
-     *
-     * @response 200 {
-     *   "success": true,
-     *   "data": {
-     *     "title": "Reporte de Materias Primas",
-     *     "total_items": 10
-     *   }
-     * }
      */
-    public function rawMaterials(Request $request)
+    public function report(Request $request, string $reportName)
     {
-        return $this->generateReport->handle('raw_materials', $request->all());
+        return $this->useCase->handle($request, $reportName);
     }
 
     /**
-     * Generar reporte de stock bajo.
-     *
-     * @queryParam format string Formato de exportación
+     * Exporta el reporte en el formato solicitado.
      */
-    public function rawMaterialsLowStock(Request $request)
+    public function export(Request $request, string $reportName)
     {
-        return $this->generateReport->handle('raw_materials_low_stock', $request->all());
+        return $this->useCase->export($request, $reportName);
     }
 
     /**
-     * Generar reporte de inventario.
-     */
-    public function inventory(Request $request)
-    {
-        return $this->generateReport->handle('inventory', $request->all());
-    }
-
-    /**
-     * Generar dashboard ejecutivo.
+     * Exporta un reporte a partir de datos validados (pueden venir en JSON).
      *
-     * @response 200 {
-     *   "success": true,
-     *   "data": {
-     *     "title": "Dashboard Ejecutivo",
-     *     "sections": {}
-     *   }
-     * }
      */
-    public function dashboard(Request $request)
+    public function exportReport(ReportsRequest $request)
     {
-        return $this->generateReport->handle('dashboard', $request->all());
+        $validated = $request->validated();
+
+        if (! $validated) {
+            return response()->json(['message' => 'Invalid data provided'], 400);
+        }
+
+        return $this->useCase->exportReport($request);
     }
 }
