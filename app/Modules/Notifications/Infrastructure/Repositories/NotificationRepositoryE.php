@@ -11,126 +11,129 @@ use Illuminate\Support\Collection;
 
 class NotificationRepositoryE implements NotificationRepositoryI
 {
-    public function create(NotificationEntity $notification): NotificationEntity
+    public function create(NotificationEntity $entity, array $userIds = []): NotificationEntity
     {
-        $notificacion = Notification::create([
-            'user_id' => $notification->getUserId(),
-            'title' => $notification->getTitle(),
-            'message' => $notification->getMessage(),
-            'type' => $notification->getType(),
-            'is_read' => $notification->isRead(),
-            'related_table' => $notification->getRelatedTable(),
-            'related_id' => $notification->getRelatedId(),
-            'expires_at' => $notification->getExpiresAt(),
-        ]);
+        $notification = Notification::create($entity->toArray());
 
-        return new NotificationEntity(
-            $notificacion->id,
-            $notificacion->user_id,
-            $notificacion->title,
-            $notificacion->message,
-            $notificacion->type,
-            $notificacion->is_read,
-            $notificacion->related_table,
-            $notificacion->related_id,
-            $notificacion->expires_at
-        );
+        // Si es individual o grupal, asociamos usuarios
+        if (! empty($userIds) && ! $notification->isGlobal()) {
+            $pivotData = collect($userIds)->mapWithKeys(fn ($id) => [
+                $id => ['is_read' => false, 'read_at' => null],
+            ])->toArray();
+
+            $notification->users()->syncWithoutDetaching($pivotData);
+        }
+
+        return NotificationEntity::fromArray($notification->toArray());
     }
 
     public function findById(int $id): ?NotificationEntity
     {
-        $notificacion = Notification::find($id);
-        if (! $notificacion) {
+        $notification = Notification::find($id);
+        if (! $notification) {
             return null;
         }
 
         return new NotificationEntity(
-            $notificacion->id,
-            $notificacion->user_id,
-            $notificacion->title,
-            $notificacion->message,
-            $notificacion->type,
-            $notificacion->is_read,
-            $notificacion->related_table,
-            $notificacion->related_id,
-            $notificacion->expires_at
+            $notification->id,
+            $notification->title,
+            $notification->message,
+            $notification->type,
+            $notification->scope,
+            false, // is_read lo defines al consultar para un usuario
+            $notification->related_table,
+            $notification->related_id,
+            $notification->expires_at
         );
     }
 
-    public function update(NotificationEntity $notification): NotificationEntity
+    public function update(NotificationEntity $entity): NotificationEntity
     {
-        $notificacion = Notification::findOrFail($notification->getId());
-        $notificacion->update([
-            'user_id' => $notification->getUserId(),
-            'title' => $notification->getTitle(),
-            'message' => $notification->getMessage(),
-            'type' => $notification->getType(),
-            'is_read' => $notification->isRead(),
-            'related_table' => $notification->getRelatedTable(),
-            'related_id' => $notification->getRelatedId(),
-            'expires_at' => $notification->getExpiresAt(),
+        $notification = Notification::findOrFail($entity->getId());
+        $notification->update([
+            'title' => $entity->getTitle(),
+            'message' => $entity->getMessage(),
+            'type' => $entity->getType(),
+            'scope' => $entity->getScope(),
+            'related_table' => $entity->getRelatedTable(),
+            'related_id' => $entity->getRelatedId(),
+            'expires_at' => $entity->getExpiresAt(),
         ]);
 
         return new NotificationEntity(
-            $notificacion->id,
-            $notificacion->user_id,
-            $notificacion->title,
-            $notificacion->message,
-            $notificacion->type,
-            $notificacion->is_read,
-            $notificacion->related_table,
-            $notificacion->related_id,
-            $notificacion->expires_at
+            $notification->id,
+            $notification->title,
+            $notification->message,
+            $notification->type,
+            $notification->scope,
+            false,
+            $notification->related_table,
+            $notification->related_id,
+            $notification->expires_at
         );
     }
 
     public function delete(int $id): bool
     {
-        $notificacion = Notification::find($id);
-        if (! $notificacion) {
+        $notification = Notification::find($id);
+        if (! $notification) {
             return false;
         }
 
-        return $notificacion->delete();
+        return $notification->delete();
     }
 
-    public function markAsRead(int $id): bool
+    public function markAsRead(int $entityId, int $userId): bool
     {
-        $notificacion = Notification::find($id);
-        if (! $notificacion) {
+        $entity = Notification::find($entityId);
+
+        if (! $entity) {
             return false;
         }
-        $notificacion->is_read = true;
 
-        return $notificacion->save();
+        if ($entity->isGlobal()) {
+            $entity->users()->syncWithoutDetaching([
+                $userId => ['is_read' => true, 'read_at' => now()],
+            ]);
+
+            return true;
+        }
+
+        $entity->users()->updateExistingPivot($userId, [
+            'is_read' => true,
+            'read_at' => now(),
+        ]);
+
+        return true;
     }
 
     public function getUserNotifications(int $userId, int $perPage = 15): LengthAwarePaginator
     {
-        return Notification::where('user_id', $userId)
-            ->orderBy('created_at', 'desc')
+        return Notification::query()
+            ->forUser($userId)
+            ->notExpired()
+            ->orderByDesc('created_at')
             ->paginate($perPage);
     }
 
     public function getUnreadNotifications(int $userId): Collection
     {
-        return Notification::where('user_id', $userId)
-            ->where('is_read', false)
-            ->orderBy('created_at', 'desc')
+        return Notification::query()
+            ->unreadForUser($userId)
+            ->orderByDesc('created_at')
             ->get()
-            ->map(function ($notificacion) {
-                return new NotificationEntity(
-                    $notificacion->id,
-                    $notificacion->user_id,
-                    $notificacion->title,
-                    $notificacion->message,
-                    $notificacion->type,
-                    $notificacion->is_read,
-                    $notificacion->related_table,
-                    $notificacion->related_id !== null ? (int) $notificacion->related_id : null,
-                    $notificacion->expires_at
-                );
-            });
+            ->map(fn ($notification) => new NotificationEntity(
+                $notification->id,
+                $notification->title,
+                $notification->message,
+                $notification->type,
+                $notification->scope,
+                false,
+                $notification->user_id,
+                $notification->related_table,
+                $notification->related_id,
+                $notification->expires_at
+            ));
     }
 
     public function deleteExpiredNotifications($currentDate): int
@@ -138,27 +141,19 @@ class NotificationRepositoryE implements NotificationRepositoryI
         return Notification::where('expires_at', '<', $currentDate)->delete();
     }
 
-    /**
-     * Implementación genérica de notify.
-     * Acepta NotificationEntity (si existe -> toArray()) o array payload.
-     */
-    public function notify(array $data): NotificationEntity
+    public function notify(array $data, array $userIds = []): NotificationEntity
     {
-        $notification = new NotificationEntity(
-            null,                      // id
-            (int) $data['user_id'] ?? null, // user_id
-            $data['title'],           // title
-            $data['message'],         // message
-            $data['type'] ?? 'info',  // type
-            false,                    // is_read
-            $data['related_table'] ?? null, // related_table
-            isset($data['related_id']) ? (int) $data['related_id'] : null, // related_id
-            isset($data['expires_at']) ? Carbon::parse($data['expires_at']) : Carbon::now()->addDays((int) config('notifications.ttl_days', 2)) // expires_at
+        $entity = new NotificationEntity(
+            null,
+            $data['title'],
+            $data['message'],
+            $data['type'] ?? 'info',
+            $data['scope'] ?? Notification::SCOPE_INDIVIDUAL,
+            $data['related_table'] ?? null,
+            isset($data['related_id']) ? (int) $data['related_id'] : null,
+            isset($data['expires_at']) ? Carbon::parse($data['expires_at'])->timestamp : Carbon::now()->addDays((int) config('entitys.ttl_days', 2))->timestamp
         );
 
-        // Usa setters si los atributos son privados
-        $notification->setIsRead(false);
-
-        return $this->create($notification);
+        return $this->create($entity, $userIds);
     }
 }

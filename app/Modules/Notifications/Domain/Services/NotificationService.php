@@ -2,6 +2,7 @@
 
 namespace App\Modules\Notifications\Domain\Services;
 
+use App\Models\Notification;
 use App\Modules\Notifications\Domain\Entities\NotificationEntity;
 use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
 use Carbon\Carbon;
@@ -17,13 +18,59 @@ class NotificationService
         $this->notificationRepository = $notificationRepository;
     }
 
-    public function createNotification(NotificationEntity $notification): NotificationEntity
+    public function createNotification(NotificationEntity $notification, array $extra = []): NotificationEntity
     {
+        // Si no trae scope, por defecto individual
+        if ($notification->getScope() === null) {
+            $notification->setScope('individual');
+        }
+
+        // Si no trae fecha de expiración, asignamos 2 días por defecto
         if ($notification->getExpiresAt() === null) {
             $notification->setExpiresAt(Carbon::now()->addDays(2));
         }
 
-        return $this->notificationRepository->create($notification);
+        // Crear notificación en BD
+        $createdNotification = $this->notificationRepository->create($notification);
+
+        // Lógica según scope
+        switch ($notification->getScope()) {
+            case 'individual':
+                if (! isset($extra['user_id'])) {
+                    throw new \InvalidArgumentException('El campo user_id es obligatorio para notificaciones individuales');
+                }
+
+                $notificationModel = Notification::find($createdNotification->getId());
+                $notificationModel->users()->attach($extra['user_id']);
+                break;
+
+            case 'group':
+                if (! isset($extra['role'])) {
+                    throw new \InvalidArgumentException('El campo role es obligatorio para notificaciones grupales');
+                }
+
+                // 1. Encuentra el Modelo de Rol que te interesa
+                $role = \App\Models\Role::where('name', $extra['role'])->first();
+
+                if ($role) {
+                    // 2. Consulta la relación 'users' en ese modelo de Rol y extrae los IDs
+                    $userIds = $role->users()->pluck('id');
+
+                    // 3. Continúa con tu lógica original
+                    $notificationModel = Notification::find($createdNotification->getId());
+                    $notificationModel->users()->attach($userIds);
+                }
+                break;
+
+            case 'global':
+                // Global no requiere usuarios, todos la verán
+                break;
+
+            default:
+                throw new \InvalidArgumentException('Scope inválido: '.$notification->getScope());
+        }
+
+        return $createdNotification;
     }
 
     public function getNotificationById(int $id): ?NotificationEntity
@@ -41,9 +88,9 @@ class NotificationService
         return $this->notificationRepository->delete($id);
     }
 
-    public function markAsRead(int $id): bool
+    public function markAsRead(int $notificationId, int $userId): bool
     {
-        return $this->notificationRepository->markAsRead($id);
+        return $this->notificationRepository->markAsRead($notificationId, $userId);
     }
 
     public function getUserNotifications(int $userId, int $perPage = 15): LengthAwarePaginator
@@ -63,26 +110,10 @@ class NotificationService
 
     public function notify(array $payload)
     {
-        // Normalizar user_id a int|null para cumplir la firma ?int del constructor
-        $userId = null;
-        if (array_key_exists('user_id', $payload) && $payload['user_id'] !== '' && $payload['user_id'] !== null) {
-            $userId = is_int($payload['user_id']) ? $payload['user_id'] : (int) $payload['user_id'];
-        }
+        $userIds = $payload['user_ids'] ?? [];
+        $userId = $payload['user_id'] ?? null;
 
-        // Normalizar related_id a int|null
-        $relatedId = null;
-        if (array_key_exists('related_id', $payload) && $payload['related_id'] !== '' && $payload['related_id'] !== null) {
-            $relatedId = is_int($payload['related_id']) ? $payload['related_id'] : (int) $payload['related_id'];
-        }
-
-        $expiresAt = $payload['expires_at'] ?? null;
-        if ($expiresAt !== null && $expiresAt !== '') {
-            $expiresAt = \Carbon\Carbon::parse($expiresAt);
-        } else {
-            $expiresAt = Carbon::now()->addDays((int) config('notifications.ttl_days', 2));
-        }
-
-        $entity = new \App\Modules\Notifications\Domain\Entities\NotificationEntity(
+        $entity = new NotificationEntity(
             $payload['id'] ?? null,
             $userId,
             $payload['title'] ?? '',
@@ -90,10 +121,18 @@ class NotificationService
             $payload['type'] ?? null,
             $payload['is_read'] ?? false,
             $payload['related_table'] ?? null,
-            $relatedId,
-            $expiresAt
+            $payload['related_id'] ?? null,
+            $payload['expires_at'] ?? null
         );
 
-        return $this->notificationRepository->create($entity);
+        $notification = $this->notificationRepository->create($entity);
+
+        // Si mandan varios user_ids, los añadimos en la pivote
+        if (! empty($userIds)) {
+            $notificationModel = Notification::find($notification->getId());
+            $notificationModel->users()->attach($userIds, ['is_read' => false]);
+        }
+
+        return $notification;
     }
 }

@@ -130,7 +130,25 @@ class User extends Authenticatable implements JWTSubject
 
     public function notifications()
     {
-        return $this->hasMany(Notification::class);
+        return $this->belongsToMany(Notification::class, 'notification_user')
+            ->withPivot(['is_read', 'read_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Obtener todas las notificaciones del usuario (asignadas + globales)
+     */
+    public function allNotifications()
+    {
+        return Notification::forUser($this->id);
+    }
+
+    /**
+     * Obtener notificaciones no leídas del usuario
+     */
+    public function unreadNotifications()
+    {
+        return Notification::unreadForUser($this->id);
     }
 
     public function personal_datum()

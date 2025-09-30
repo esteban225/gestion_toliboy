@@ -17,9 +17,9 @@ class NotificationUseCase
         $this->notificationService = $notificationService;
     }
 
-    public function createNotification(NotificationEntity $notification): NotificationEntity
+    public function createNotification(NotificationEntity $notification, array $data): NotificationEntity
     {
-        return $this->notificationService->createNotification($notification);
+        return $this->notificationService->createNotification($notification, $data);
     }
 
     public function getNotificationById(int $id): ?NotificationEntity
@@ -37,9 +37,9 @@ class NotificationUseCase
         return $this->notificationService->deleteNotification($id);
     }
 
-    public function markAsRead(int $id): bool
+    public function markAsRead(int $notificationId, int $userId): bool
     {
-        return $this->notificationService->markAsRead($id);
+        return $this->notificationService->markAsRead($notificationId, $userId);
     }
 
     public function getUserNotifications(int $userId, int $perPage = 15): LengthAwarePaginator

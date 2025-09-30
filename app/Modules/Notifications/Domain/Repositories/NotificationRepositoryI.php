@@ -17,7 +17,7 @@ interface NotificationRepositoryI
 
     public function delete(int $id): bool;
 
-    public function markAsRead(int $id): bool;
+    public function markAsRead(int $notificationId, int $userId): bool;
 
     public function getUserNotifications(int $userId, int $perPage = 15): LengthAwarePaginator;
 

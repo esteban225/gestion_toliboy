@@ -9,15 +9,17 @@ class NotificationEntity
 {
     private ?int $id;
 
-    private ?int $user_id;
-
     private string $title;
 
     private string $message;
 
     private ?string $type;
 
+    private ?string $scope;
+
     private bool $is_read;
+
+    private ?string $user_id;
 
     private ?string $related_table;
 
@@ -27,21 +29,23 @@ class NotificationEntity
 
     public function __construct(
         ?int $id,
-        ?int $user_id,
         string $title,
         string $message,
         ?string $type = null,
+        ?string $scope = null,
         bool $is_read = false,
+        ?string $user_id = null,
         ?string $related_table = null,
         ?int $related_id = null,
         DateTimeInterface|string|null $expires_at = null
     ) {
         $this->id = $id;
-        $this->user_id = $user_id;
         $this->title = $title;
         $this->message = $message;
         $this->type = $type;
+        $this->scope = $scope;
         $this->is_read = $is_read;
+        $this->user_id = $user_id;
         $this->related_table = $related_table;
         $this->related_id = $related_id;
         $this->expires_at = $this->normalizeExpiresAt($expires_at);
@@ -66,11 +70,6 @@ class NotificationEntity
         return $this->id;
     }
 
-    public function getUserId(): ?int
-    {
-        return $this->user_id;
-    }
-
     public function getTitle(): string
     {
         return $this->title;
@@ -84,6 +83,11 @@ class NotificationEntity
     public function getType(): ?string
     {
         return $this->type;
+    }
+
+    public function getScope(): ?string
+    {
+        return $this->scope;
     }
 
     public function isRead(): bool
@@ -101,6 +105,11 @@ class NotificationEntity
         return $this->related_id;
     }
 
+    public function getUserId(): ?string
+    {
+        return $this->user_id;
+    }
+
     public function getExpiresAt(): ?DateTimeInterface
     {
         return $this->expires_at;
@@ -110,6 +119,11 @@ class NotificationEntity
     public function markAsRead(): void
     {
         $this->is_read = true;
+    }
+
+    public function setScope(?string $scope): void
+    {
+        $this->scope = $scope;
     }
 
     public function setIsRead(bool $v): void
@@ -141,14 +155,31 @@ class NotificationEntity
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
             'title' => $this->title,
             'message' => $this->message,
             'type' => $this->type,
+            'scope' => $this->scope,
             'is_read' => $this->is_read,
+            'user_id' => $this->user_id,
             'related_table' => $this->related_table,
             'related_id' => $this->related_id,
             'expires_at' => $this->expires_at ? $this->expires_at->format('Y-m-d H:i:s') : null,
         ];
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            $data['id'] ?? null,
+            $data['title'],
+            $data['message'],
+            $data['type'] ?? null,
+            $data['scope'] ?? null,
+            $data['is_read'] ?? false,
+            $data['user_id'] ?? null,
+            $data['related_table'] ?? null,
+            $data['related_id'] ?? null,
+            $data['expires_at'] ?? null
+        );
     }
 }

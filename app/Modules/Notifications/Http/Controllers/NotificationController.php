@@ -31,17 +31,18 @@ class NotificationController extends Controller
 
         $notification = new NotificationEntity(
             null,
-            $data['user_id'],
             $data['title'],
             $data['message'],
             $data['type'],
+            $data['scope'] ?? 'individual',
             false,
+            $data['user_id'] ?? null,
             $data['related_table'] ?? null,
             $data['related_id'] ?? null,
             isset($data['expires_at']) ? Carbon::parse($data['expires_at']) : null
         );
 
-        $createdNotification = $this->notificationUseCase->createNotification($notification);
+        $createdNotification = $this->notificationUseCase->createNotification($notification, $data);
 
         return response()->json(new NotificationResource($createdNotification), 201);
     }
@@ -75,7 +76,6 @@ class NotificationController extends Controller
         // Clonar datos existentes y aplicar solo los cambios
         $notification = new NotificationEntity(
             $notification->getId(),
-            $data['user_id'] ?? $notification->getUserId(),
             $data['title'] ?? $notification->getTitle(),
             $data['message'] ?? $notification->getMessage(),
             $data['type'] ?? $notification->getType(),
@@ -109,7 +109,8 @@ class NotificationController extends Controller
      */
     public function markAsRead(int $id): JsonResponse
     {
-        $marked = $this->notificationUseCase->markAsRead($id);
+        $userId = Auth::id();
+        $marked = $this->notificationUseCase->markAsRead($id, $userId);
 
         if (! $marked) {
             return response()->json(['message' => 'Notification not found'], 404);

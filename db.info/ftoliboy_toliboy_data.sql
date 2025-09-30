@@ -459,34 +459,44 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci;
 
 
--- -----------------------------------------------------
--- Table `ftoliboy_toliboy_data`.`notifications`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ftoliboy_toliboy_data`.`notifications` (
+-- Notificaciones base (igual a la tuya, solo añadimos `scope`)
+CREATE TABLE IF NOT EXISTS `notifications` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `user_id` BIGINT NULL,
   `title` VARCHAR(255) NOT NULL,
   `message` TEXT NOT NULL,
   `type` ENUM('info', 'warning', 'error', 'success') NOT NULL DEFAULT 'info',
-  `is_read` TINYINT(1) NOT NULL DEFAULT 0,
+  `scope` ENUM('individual','group','global') NOT NULL DEFAULT 'individual',
   `related_table` VARCHAR(100) NULL DEFAULT NULL,
   `related_id` BIGINT NULL DEFAULT NULL,
+  `user_id` BIGINT NULL DEFAULT NULL,
   `expires_at` TIMESTAMP NULL DEFAULT NULL,
   `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  INDEX `fk_notifications_users_idx` (`user_id` ASC) VISIBLE,
-  INDEX `idx_notification_read` (`is_read` ASC) VISIBLE,
   INDEX `idx_notification_type` (`type` ASC) VISIBLE,
-  INDEX `idx_notification_related` (`related_table` ASC, `related_id` ASC) VISIBLE,
-  CONSTRAINT `fk_notifications_users`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `ftoliboy_toliboy_data`.`users` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-AUTO_INCREMENT = 1
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_general_ci;
+  INDEX `idx_notification_related` (`related_table` ASC, `related_id` ASC) VISIBLE
+) ENGINE=InnoDB
+  AUTO_INCREMENT=1
+  DEFAULT CHARACTER SET=utf8mb4
+  COLLATE=utf8mb4_general_ci;
+
+
+-- Tabla pivote usuarios <-> notificaciones
+CREATE TABLE IF NOT EXISTS `notification_user` (
+  `notification_id` BIGINT NOT NULL,
+  `user_id` BIGINT NOT NULL,
+  `is_read` TINYINT(1) NOT NULL DEFAULT 0,
+  `read_at` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`notification_id`, `user_id`),
+  FOREIGN KEY (`notification_id`) REFERENCES `notifications` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  INDEX `idx_notification_user` (`user_id` ASC, `is_read` ASC)
+) ENGINE=InnoDB
+  DEFAULT CHARACTER SET=utf8mb4
+  COLLATE=utf8mb4_general_ci;
+
 
 
 -- -----------------------------------------------------
