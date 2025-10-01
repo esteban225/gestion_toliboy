@@ -1,21 +1,16 @@
 <?php
 
-namespace App\Modules\Products\Http\Requests;
+namespace App\Modules\RawMaterials\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
- * UpdateRequest gestiona la validación de datos para la actualización de productos.
+ * RawMaterialRegisterRequest gestiona la validación de datos para el registro de materias primas.
  *
- * Principio SOLID aplicado:
- * - SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validación y autorización
- *   de la solicitud de actualización, manteniendo su responsabilidad clara y única.
- *
- * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
  */
-class UpdateRequest extends FormRequest
+class RawMaterialRegisterRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -25,15 +20,14 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'string|max:255',
-            'code' => 'string|max:100',
+            'name' => 'required|string|max:255|unique:raw_materials,name,except,id',
+            'code' => 'required|string|max:100|unique:raw_materials,code,except,id',
             'description' => 'nullable|string',
-            'price' => 'numeric|min:0',
-            'stock' => 'numeric|min:0',
+            'unit_of_measure' => 'required|string|max:50',
+            'stock' => 'required|numeric|min:0',
             'min_stock' => 'nullable|numeric|min:0',
-            'is_active' => 'boolean',
+            'is_active' => 'required|boolean',
             'created_by' => 'nullable|integer|exists:users,id',
-
         ];
     }
 
@@ -53,13 +47,17 @@ class UpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser una cadena de texto.',
             'code.unique' => 'Este código ya está registrado.',
-            'price.numeric' => 'El precio debe ser un valor numérico.',
+            'unit_of_measure.required' => 'La unidad de medida es obligatoria.',
+            'stock.required' => 'El stock es obligatorio.',
             'stock.numeric' => 'El stock debe ser un valor numérico.',
+            'stock.min' => 'El stock no puede ser negativo.',
+            'min_stock.numeric' => 'El stock mínimo debe ser un valor numérico.',
+            'min_stock.min' => 'El stock mínimo no puede ser negativo.',
             'is_active.boolean' => 'El estado debe ser verdadero o falso.',
-            'created_by.integer' => 'El ID del creador debe ser un número entero.',
-            'created_by.exists' => 'El usuario creador no existe.',
+            'created_by.exists' => 'El usuario creador especificado no existe.',
         ];
     }
 }

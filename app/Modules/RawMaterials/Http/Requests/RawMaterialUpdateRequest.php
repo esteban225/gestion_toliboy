@@ -7,15 +7,10 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
- * RegisterRequest gestiona la validación de datos para el registro de usuarios.
+ * RawMaterialUpdateRequest gestiona la validación de datos para la actualización de materias primas.
  *
- * Principio SOLID aplicado:
- * - SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validación y autorización
- *   de la solicitud de registro, manteniendo su responsabilidad clara y única.
- *
- * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
  */
-class RegisterRequest extends FormRequest
+class RawMaterialUpdateRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -25,13 +20,13 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:100',
+            'name' => 'nullable|string|max:255',
+            'code' => 'nullable|string|max:100',
             'description' => 'nullable|string',
-            'unit_of_measure' => 'required|string|max:50',
-            'stock' => 'required|numeric|min:0',
+            'unit_of_measure' => 'nullable|string|max:50',
+            'stock' => 'nullable|numeric|min:0',
             'min_stock' => 'nullable|numeric|min:0',
-            'is_active' => 'required|boolean',
+            'is_active' => 'nullable|boolean',
             'created_by' => 'nullable|integer|exists:users,id',
         ];
     }
@@ -52,11 +47,11 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'El nombre es obligatorio.',
+            'name.nullable' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser una cadena de texto.',
             'code.unique' => 'Este código ya está registrado.',
-            'unit_of_measure.required' => 'La unidad de medida es obligatoria.',
-            'stock.required' => 'El stock es obligatorio.',
+            'unit_of_measure.nullable' => 'La unidad de medida es obligatoria.',
+            'stock.nullable' => 'El stock es obligatorio.',
             'stock.numeric' => 'El stock debe ser un valor numérico.',
             'stock.min' => 'El stock no puede ser negativo.',
             'min_stock.numeric' => 'El stock mínimo debe ser un valor numérico.',

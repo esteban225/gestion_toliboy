@@ -4,7 +4,10 @@ namespace App\Modules\RawMaterials\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\RawMaterials\Application\UseCases\RawMaterialUseCase;
-use App\Modules\RawMaterials\Http\Requests\RegisterRequest;
+use App\Modules\RawMaterials\Domain\Entities\RawMaterialEntity;
+use App\Modules\RawMaterials\Http\Requests\FilterRawMaterialRequest;
+use App\Modules\RawMaterials\Http\Requests\RawMaterialRegisterRequest;
+use App\Modules\RawMaterials\Http\Requests\RawMaterialUpdateRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -34,12 +37,31 @@ class RawMaterialsController extends Controller
      * @param  Request  $request  Filtros opcionales enviados en la petición
      * @return JsonResponse Lista de materias primas
      */
-    public function index(Request $request): JsonResponse
+    public function index(FilterRawMaterialRequest $request): JsonResponse
     {
-        $filters = $request->all();
-        $rawMaterials = $this->useCase->list($filters);
+        try {
+            $filters = $request->except(['page', 'per_page']);
+            $perPage = $request->input('per_page', 15);
 
-        return response()->json($rawMaterials);
+            $paginator = $this->useCase->list($filters, $perPage);
+            if (! $paginator) {
+                return response()->json(['message' => 'No se encontraron materias primas'], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Materias primas recuperadas con éxito',
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al recuperar las materias primas', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -50,12 +72,21 @@ class RawMaterialsController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $rawMaterial = $this->useCase->find($id);
-        if ($rawMaterial) {
-            return response()->json($rawMaterial);
-        }
+        try {
+            $rawMaterial = $this->useCase->find($id);
 
-        return response()->json(['message' => 'Raw Material not found'], 404);
+            if (! $rawMaterial) {
+                return response()->json(['message' => 'Materia prima no encontrada'], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Materia Prima obtenida con éxito',
+                'data' => $rawMaterial->toArray(),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al recuperar la materia prima', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -64,12 +95,24 @@ class RawMaterialsController extends Controller
      * @param  RegisterRequest  $request  Datos validados para la creación
      * @return JsonResponse Datos de la materia prima creada
      */
-    public function store(RegisterRequest $request): JsonResponse
+    public function store(RawMaterialRegisterRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $rawMaterial = $this->useCase->create($data);
+        try {
+            $data = $request->validated();
+            $request = RawMaterialEntity::fromArray($data);
+            $rawMaterial = $this->useCase->create($request);
 
-        return response()->json($rawMaterial, 201);
+            if (! $rawMaterial) {
+                return response()->json(['message' => 'Error al crear la materia prima'], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Materia Prima creada con éxito',
+            ], 201);
+        } catch (\TypeError $e) {
+            return response()->json(['message' => 'Datos inválidos proporcionados', 'error' => $e->getMessage()], 400);
+        }
     }
 
     /**
@@ -79,15 +122,30 @@ class RawMaterialsController extends Controller
      * @param  string  $id  Identificador de la materia prima a actualizar
      * @return JsonResponse Mensaje de éxito o error 404 si no existe
      */
-    public function update(RegisterRequest $request, string $id): JsonResponse
+    public function update(RawMaterialUpdateRequest $request, string $id): JsonResponse
     {
-        $data = array_merge(['id' => $id], $request->all());
-        $updated = $this->useCase->update($data);
-        if ($updated) {
-            return response()->json(['message' => 'Raw Material updated successfully']);
-        }
+        try {
+            $data = $request->validated();
+            $data['id'] = $id; // Asegurar que el ID esté en los datos
+            $updated = $this->useCase->update(new RawMaterialEntity(...$data));
+            if (! $updated) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Materia Prima con id {$id} no encontrada o no actualizada",
+                ], 404);
+            }
 
-        return response()->json(['message' => 'Raw Material not found or not updated'], 404);
+            return response()->json([
+                'success' => true,
+                'message' => 'Materia Prima actualizada con éxito',
+            ], 200);
+        } catch (\TypeError $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos inválidos proporcionados',
+                'error' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     /**
@@ -103,6 +161,6 @@ class RawMaterialsController extends Controller
             return response()->json(['message' => 'Raw Material deleted successfully']);
         }
 
-        return response()->json(['message' => 'Raw Material not found or not deleted'], 404);
+        return response()->json(['message' => 'Materia Prima no encontrada o no eliminada'], 404);
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Modules\Products\Application\UseCases;
 
+use App\Modules\Products\Domain\Entities\ProductEntity;
 use App\Modules\Products\Domain\Services\ProductService;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductUseCase
 {
@@ -13,9 +15,9 @@ class ProductUseCase
         $this->service = $service;
     }
 
-    public function list(array $filters = []): array
+    public function list(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return $this->service->list($filters);
+        return $this->service->list($filters, $perPage);
     }
 
     public function find(string $id)
@@ -23,14 +25,16 @@ class ProductUseCase
         return $this->service->find($id);
     }
 
-    public function create(array $data)
+    public function create(ProductEntity $entity): ?ProductEntity
     {
-        return $this->service->create($data);
+        return $this->service->create($entity);
     }
 
-    public function update(array $data): bool
+    public function update(ProductEntity $entity, int $id): bool
     {
-        return $this->service->update($data);
+        $entity->setId($id);
+
+        return $this->service->update($entity);
     }
 
     public function delete(string $id): bool

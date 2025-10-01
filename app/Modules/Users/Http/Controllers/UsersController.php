@@ -166,28 +166,10 @@ class UsersController extends Controller
      * @param  string  $id  Identificador del usuario a actualizar.
      * @return JsonResponse Respuesta JSON confirmando la actualización o error.
      */
-    /**
-     * Actualiza un usuario.
-     *
-     * @authenticated
-     *
-     * @group Usuarios
-     *
-     * @urlParam id integer required ID del usuario.
-     *
-     * @bodyParam name string Nombre.
-     * @bodyParam email string Email.
-     * @bodyParam password string Nueva contraseña (opcional).
-     * @bodyParam role_id string Rol (opcional).
-     * @bodyParam position string Cargo (opcional).
-     * @bodyParam is_active boolean Estado (opcional).
-     */
     public function update(UpDateRequest $request, string $id)
     {
         try {
             $data = $request->validated();
-            Log::debug('UsersController.update.validated', $data);
-
             if ($data) {
                 $data = $request->all();
                 Log::debug('UsersController.update.all', $data);
@@ -206,7 +188,6 @@ class UsersController extends Controller
                 'message' => 'Usuario actualizado exitosamente',
             ], 200);
         } catch (\Exception $e) {
-            Log::error('UserController: Error al actualizar usuario:', ['error' => $e]);
 
             return response()->json([
                 'status' => false,

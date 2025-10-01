@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\ProductsController;
+use App\Modules\Products\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['api', 'jwt.auth', 'role:DEV', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
-    Route::get('/products', [ProductsController::class, 'index']);
-    Route::get('/products/{id}', [ProductsController::class, 'show']);
-    Route::post('/products', [ProductsController::class, 'store']);
-    Route::put('/products/{id}', [ProductsController::class, 'update']);
-    Route::delete('/products/{id}', [ProductsController::class, 'destroy']);
+Route::prefix('products')->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/{id}', [ProductController::class, 'show']);
+    Route::post('/', [ProductController::class, 'store']);
+    Route::put('//{id}', [ProductController::class, 'update']);
+    Route::delete('/{id}', [ProductController::class, 'destroy']);
 
 });

@@ -5,6 +5,7 @@ namespace App\Modules\RawMaterials\Infrastructure\Repositories;
 use App\Models\RawMaterial;
 use App\Modules\RawMaterials\Domain\Entities\RawMaterialEntity;
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RawMaterialRepositoryE implements RawMaterialRepositoryI
 {
@@ -14,29 +15,17 @@ class RawMaterialRepositoryE implements RawMaterialRepositoryI
      * @param  array  $filters  Filtros de búsqueda (ej: ['role_id' => 2])
      * @return RawMaterialEntity[]|array Lista de entidades de usuario
      */
-    public function all(array $filters = []): array
+    public function all(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
 
         $query = RawMaterial::query();
-
         // Aplicar filtros si existen
         foreach ($filters as $key => $value) {
             $query->where($key, $value);
         }
 
-        return $query->get()->map(function ($RawMaterial) {
-            return new RawMaterialEntity(
-                $RawMaterial->id,
-                $RawMaterial->name,
-                $RawMaterial->code,
-                $RawMaterial->description,
-                $RawMaterial->unit_of_measure,
-                $RawMaterial->stock,
-                $RawMaterial->min_stock,
-                $RawMaterial->is_active,
-                $RawMaterial->created_by
-            );
-        })->all();
+        return $query->paginate($perPage);
+
     }
 
     /**
@@ -49,55 +38,33 @@ class RawMaterialRepositoryE implements RawMaterialRepositoryI
     {
         $RawMaterial = RawMaterial::find($id);
 
-        return $RawMaterial
-            ? new RawMaterialEntity(
-                $RawMaterial->id,
-                $RawMaterial->name,
-                $RawMaterial->code,
-                $RawMaterial->description,
-                $RawMaterial->unit_of_measure,
-                $RawMaterial->stock,
-                $RawMaterial->min_stock,
-                $RawMaterial->is_active,
-                $RawMaterial->created_by
-            )
-            : null;
+        return RawMaterialEntity::fromModel($RawMaterial);
     }
 
     /**
      * Crea un nuevo usuario.
      *
-     * @param  array  $data  Datos del usuario (name, email, password, role_id, etc.)
+     * @param  RawMaterialEntity  $data  Datos del usuario (name, email, password, role_id, etc.)
      * @return RawMaterialEntity|null Entidad creada o null si falla
      */
-    public function create(array $data): ?RawMaterialEntity
+    public function create(RawMaterialEntity $data): ?RawMaterialEntity
     {
-        $RawMaterial = RawMaterial::create($data);
+        $RawMaterial = RawMaterial::create($data->toArray());
 
-        return new RawMaterialEntity(
-            $RawMaterial->id,
-            $RawMaterial->name,
-            $RawMaterial->code,
-            $RawMaterial->description,
-            $RawMaterial->unit_of_measure,
-            $RawMaterial->stock,
-            $RawMaterial->min_stock,
-            $RawMaterial->is_active,
-            $RawMaterial->created_by
-        );
+        return RawMaterialEntity::fromModel($RawMaterial);
     }
 
     /**
      * Actualiza un usuario existente.
      *
-     * @param  array  $data  Datos actualizados del usuario (debe incluir el id)
+     * @param  RawMaterialEntity  $data  Datos actualizados del usuario (debe incluir el id)
      * @return bool True si la actualización fue exitosa, false en caso contrario
      */
-    public function update(array $data): bool
+    public function update(RawMaterialEntity $data): bool
     {
-        $RawMaterial = RawMaterial::find($data['id']);
+        $RawMaterial = RawMaterial::find($data->getId());
         if ($RawMaterial) {
-            return $RawMaterial->update($data);
+            return $RawMaterial->update($data->toArray());
         }
 
         return false;
@@ -117,18 +84,5 @@ class RawMaterialRepositoryE implements RawMaterialRepositoryI
         }
 
         return false;
-    }
-
-    public function getMaterialsReport(array $filters = []): array
-    {
-        // Aquí la lógica para generar el reporte de materiales
-        // Ejemplo: retornar un array vacío para cumplir la interfaz
-        return [];
-    }
-
-    public function getLowStockMaterials(): array
-    {
-        // Aquí la lógica para obtener materiales con bajo stock
-        return [];
     }
 }

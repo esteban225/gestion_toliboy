@@ -5,41 +5,19 @@ namespace App\Modules\Products\Infrastructure\Repositories;
 use App\Models\Product;
 use App\Modules\Products\Domain\Entities\ProductEntity;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryI;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class ProductRepositoryE implements ProductRepositoryI
 {
-    public function all(array $filters = []): array
+    public function all(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = Product::query();
-
-        if (isset($filters['name'])) {
-            $query->where('name', 'like', '%'.$filters['name'].'%');
+        foreach ($filters as $key => $value) {
+            $query->where($key, $value);
         }
 
-        if (isset($filters['code'])) {
-            $query->where('code', 'like', '%'.$filters['code'].'%');
-        }
-
-        if (isset($filters['is_active'])) {
-            $query->where('is_active', $filters['is_active']);
-        }
-
-        $products = $query->get();
-
-        return $products->map(function ($product) {
-            return new ProductEntity(
-                id: $product->id,
-                name: $product->name,
-                code: $product->code,
-                description: $product->description,
-                price: (float) $product->price,
-                image: $product->image,
-                stock: (int) $product->stock,
-                min_stock: (int) $product->min_stock,
-                is_active: (bool) $product->is_active,
-                created_by: $product->created_by
-            );
-        })->toArray();
+        return $query->paginate($perPage);
     }
 
     public function find(string $id): ?ProductEntity
@@ -50,66 +28,28 @@ class ProductRepositoryE implements ProductRepositoryI
             return null;
         }
 
-        return new ProductEntity(
-            id: $product->id,
-            name: $product->name,
-            code: $product->code,
-            description: $product->description,
-            price: (float) $product->price,
-            image: $product->image,
-            stock: (int) $product->stock,
-            min_stock: (int) $product->min_stock,
-            is_active: (bool) $product->is_active,
-            created_by: $product->created_by
-        );
+        return $this->mapToEntity($product);
     }
 
-    public function create(array $data): ?ProductEntity
+    public function create(ProductEntity $entity): ?ProductEntity
     {
-        $product = new Product;
-        $product->name = $data['name'];
-        $product->code = $data['code'];
-        $product->description = $data['description'] ?? null;
-        $product->price = $data['price'];
-        $product->image = $data['image'] ?? null;
-        $product->stock = $data['stock'] ?? 0;
-        $product->min_stock = $data['min_stock'] ?? 0;
-        $product->is_active = $data['is_active'] ?? true;
-        $product->created_by = $data['created_by'];
-        $product->save();
+        $productModel = Product::create($entity->toArray());
+        $productModel->refresh();
 
-        return new ProductEntity(
-            id: $product->id,
-            name: $product->name,
-            code: $product->code,
-            description: $product->description,
-            price: (float) $product->price,
-            image: $product->image,
-            stock: (int) $product->stock,
-            min_stock: (int) $product->min_stock,
-            is_active: (bool) $product->is_active,
-            created_by: $product->created_by
-        );
+        return $this->mapToEntity($productModel);
     }
 
-    public function update(array $data): bool
+    public function update(ProductEntity $entity): bool
     {
-        $product = Product::find($data['id']);
+        Log::info('Updating product with ID: '.$entity->getId());
+        $product = Product::find($entity->getId());
 
-        if (! $product) {
-            return false;
+        if ($product) {
+            return $product->update($entity->toArray());
         }
 
-        $product->name = $data['name'] ?? $product->name;
-        $product->code = $data['code'] ?? $product->code;
-        $product->description = $data['description'] ?? $product->description;
-        $product->price = $data['price'] ?? $product->price;
-        $product->image = $data['image'] ?? $product->image;
-        $product->stock = $data['stock'] ?? $product->stock;
-        $product->min_stock = $data['min_stock'] ?? $product->min_stock;
-        $product->is_active = $data['is_active'] ?? $product->is_active;
+        return false;
 
-        return $product->save();
     }
 
     public function delete(string $id): bool
@@ -121,5 +61,20 @@ class ProductRepositoryE implements ProductRepositoryI
         }
 
         return $product->delete();
+    }
+
+    private function mapToEntity(Product $product): ProductEntity
+    {
+        return new ProductEntity(
+            $product->id,
+            $product->name,
+            $product->code,
+            $product->category,
+            $product->description,
+            $product->specifications,
+            $product->unit_price,
+            $product->is_active,
+            $product->created_by
+        );
     }
 }

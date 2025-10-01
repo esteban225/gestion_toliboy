@@ -4,6 +4,7 @@ namespace App\Modules\RawMaterials\Domain\Services;
 
 use App\Modules\RawMaterials\Domain\Entities\RawMaterialEntity;
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RawMaterialService
 {
@@ -14,9 +15,9 @@ class RawMaterialService
         $this->repository = $repository;
     }
 
-    public function list(array $filters = []): array
+    public function list(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return $this->repository->all($filters);
+        return $this->repository->all($filters, $perPage);
     }
 
     public function find(string $id): ?RawMaterialEntity
@@ -24,14 +25,14 @@ class RawMaterialService
         return $this->repository->find($id);
     }
 
-    public function create(array $data): ?RawMaterialEntity
+    public function create(RawMaterialEntity $entity): ?RawMaterialEntity
     {
-        return $this->repository->create($data);
+        return $this->repository->create($entity);
     }
 
-    public function update(array $data): bool
+    public function update(RawMaterialEntity $entity): bool
     {
-        return $this->repository->update($data);
+        return $this->repository->update($entity);
     }
 
     public function delete(string $id): bool

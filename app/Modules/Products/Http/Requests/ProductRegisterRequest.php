@@ -15,7 +15,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
  *
  * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
  */
-class RegisterRequest extends FormRequest
+class ProductRegisterRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -27,10 +27,10 @@ class RegisterRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:100|unique:products,code',
+            'category' => 'nullable|string|max:100',
             'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|numeric|min:0',
-            'min_stock' => 'nullable|numeric|min:0',
+            'specifications' => 'nullable|array',
+            'unit_price' => 'required|numeric|min:0',
             'is_active' => 'required|boolean',
             'created_by' => 'nullable|integer|exists:users,id',
 
@@ -55,15 +55,29 @@ class RegisterRequest extends FormRequest
         return [
             'name.required' => 'El nombre es obligatorio.',
             'name.string' => 'El nombre debe ser una cadena de texto.',
+            'name.max' => 'El nombre no debe exceder los 255 caracteres.',
+
+            'code.required' => 'El código es obligatorio.',
+            'code.string' => 'El código debe ser una cadena de texto.',
+            'code.max' => 'El código no debe exceder los 100 caracteres.',
             'code.unique' => 'Este código ya está registrado.',
-            'price.required' => 'El precio es obligatorio.',
-            'price.numeric' => 'El precio debe ser un valor numérico.',
-            'stock.required' => 'El stock es obligatorio.',
-            'stock.numeric' => 'El stock debe ser un valor numérico.',
+
+            'category.string' => 'La categoría debe ser una cadena de texto.',
+            'category.max' => 'La categoría no debe exceder los 100 caracteres.',
+
+            'description.string' => 'La descripción debe ser una cadena de texto.',
+
+            'unit_price.required' => 'El precio unitario es obligatorio.',
+            'unit_price.numeric' => 'El precio unitario debe ser un valor numérico.',
+            'unit_price.min' => 'El precio unitario no puede ser negativo.',
+
+            'specifications.string' => 'Las especificaciones deben ser una cadena de texto.',
+
             'is_active.required' => 'El estado es obligatorio.',
             'is_active.boolean' => 'El estado debe ser verdadero o falso.',
+
             'created_by.integer' => 'El ID del creador debe ser un número entero.',
-            'created_by.exists' => 'El usuario creador no existe.',
+            'created_by.exists' => 'El usuario creador especificado no existe en el sistema.',
         ];
     }
 }

@@ -17,58 +17,215 @@ namespace App\Modules\RawMaterials\Domain\Entities;
  */
 class RawMaterialEntity
 {
-    /**
-     * Crea una nueva instancia de materia prima.
-     *
-     * @param  int|null  $id  Identificador único de la materia prima
-     * @param  string  $name  Nombre de la materia prima
-     * @param  string  $code  Código único de identificación
-     * @param  string|null  $description  Descripción detallada (opcional)
-     * @param  string  $unit_of_measure  Unidad de medida (kg, gr, litros, etc.)
-     * @param  float  $stock  Cantidad actual en inventario
-     * @param  float  $min_stock  Cantidad mínima requerida en stock
-     * @param  float  $is_active  Estado activo/inactivo (1.0 = activo, 0.0 = inactivo)
-     * @param  int|null  $created_by  ID del usuario que creó el registro
-     */
-    public function __construct(
-        public ?int $id,
-        public string $name,
-        public string $code,
-        public ?string $description,
-        public string $unit_of_measure,
-        public float $stock,
-        public float $min_stock,
-        public float $is_active,
-        public ?int $created_by,
-    ) {}
+    private ?int $id;
+
+    private string $name;
+
+    private string $code;
+
+    private ?string $description;
+
+    private string $unit_of_measure;
+
+    private float $stock;
+
+    private float $min_stock;
+
+    private float $is_active; // 1.0 activo, 0.0 inactivo
+
+    private ?int $created_by;
 
     /**
-     * Indica si la materia prima está activa en el sistema.
-     *
-     * @return bool True si está activa, false en caso contrario
+     * Crea una nueva instancia de materia prima.
      */
+    public function __construct(
+        ?int $id,
+        string $name,
+        string $code,
+        ?string $description,
+        string $unit_of_measure,
+        float $stock,
+        float $min_stock,
+        float $is_active,
+        ?int $created_by
+    ) {
+        $this->id = $id;
+        $this->name = $name;
+        $this->code = $code;
+        $this->description = $description;
+        $this->unit_of_measure = $unit_of_measure;
+        $this->stock = $stock;
+        $this->min_stock = $min_stock;
+        $this->is_active = $is_active;
+        $this->created_by = $created_by;
+    }
+
+    // ========= GETTERS =========
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function getUnitOfMeasure(): string
+    {
+        return $this->unit_of_measure;
+    }
+
+    public function getStock(): float
+    {
+        return $this->stock;
+    }
+
+    public function getMinStock(): float
+    {
+        return $this->min_stock;
+    }
+
+    public function getIsActive(): float
+    {
+        return $this->is_active;
+    }
+
+    public function getCreatedBy(): ?int
+    {
+        return $this->created_by;
+    }
+
+    // ========= SETTERS =========
+    public function setId(?int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function setCode(string $code): void
+    {
+        $this->code = $code;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function setUnitOfMeasure(string $unit_of_measure): void
+    {
+        $this->unit_of_measure = $unit_of_measure;
+    }
+
+    public function setStock(float $stock): void
+    {
+        $this->stock = $stock;
+    }
+
+    public function setMinStock(float $min_stock): void
+    {
+        $this->min_stock = $min_stock;
+    }
+
+    public function setIsActive(float $is_active): void
+    {
+        $this->is_active = $is_active;
+    }
+
+    public function setCreatedBy(?int $created_by): void
+    {
+        $this->created_by = $created_by;
+    }
+
+    // ========= REGLAS DE NEGOCIO =========
     public function isActive(): bool
     {
         return $this->is_active === 1.0;
     }
 
-    /**
-     * Verifica si el stock actual está por debajo del mínimo requerido.
-     *
-     * @return bool True si requiere reposición, false si el stock es suficiente
-     */
     public function requiresRestock(): bool
     {
         return $this->stock <= $this->min_stock;
     }
 
-    /**
-     * Calcula la cantidad necesaria para alcanzar el stock mínimo.
-     *
-     * @return float Cantidad necesaria para reposición (0 si no necesita)
-     */
     public function getRestockQuantity(): float
     {
         return $this->requiresRestock() ? ($this->min_stock - $this->stock) : 0.0;
+    }
+
+    // ========= CONVERSIÓN =========
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'code' => $this->code,
+            'description' => $this->description,
+            'unit_of_measure' => $this->unit_of_measure,
+            'stock' => $this->stock,
+            'min_stock' => $this->min_stock,
+            'is_active' => $this->is_active,
+            'created_by' => $this->created_by,
+        ];
+    }
+
+    /**
+     * Crea una nueva instancia de RawMaterialEntity a partir de un arreglo asociativo.
+     *
+     * Este método de fábrica estático asigna los datos proporcionados en el arreglo a las propiedades de la entidad.
+     * Espera claves como 'id', 'name', 'code', 'description', 'unit_of_measure',
+     * 'stock', 'min_stock', 'is_active' y 'created_by'. Los campos opcionales ('id', 'description',
+     * 'created_by') tendrán el valor null si no están presentes en el arreglo.
+     *
+     * @param  array  $data  Arreglo asociativo que contiene los datos de la materia prima.
+     * @return self Retorna una nueva instancia de RawMaterialEntity poblada con los datos proporcionados.
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            $data['id'] ?? null,
+            $data['name'],
+            $data['code'],
+            $data['description'] ?? null,
+            $data['unit_of_measure'],
+            $data['stock'],
+            $data['min_stock'],
+            $data['is_active'],
+            $data['created_by'] ?? null
+        );
+    }
+
+    public static function fromModel($model): ?self
+    {
+        if (! $model) {
+            return null;
+        }
+
+        return new self(
+            $model->id,
+            $model->name,
+            $model->code,
+            $model->description,
+            $model->unit_of_measure,
+            (float) $model->stock,
+            (float) $model->min_stock,
+            (float) $model->is_active,
+            $model->created_by
+        );
     }
 }

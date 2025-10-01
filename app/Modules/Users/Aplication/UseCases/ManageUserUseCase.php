@@ -5,7 +5,6 @@ namespace App\Modules\Users\Aplication\UseCases;
 use App\Modules\Users\Domain\Entities\UserEntity;
 use App\Modules\Users\Domain\Services\UserService;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Caso de uso para la gestión de usuarios.
@@ -50,10 +49,9 @@ class ManageUserUseCase
      */
     public function get(string $id)
     {
-        $data = $this->userService->getUser($id);
-        Log::info("USECASE: Obteniendo usuario con ID: $id", ['data' => $data]);
 
-        return $data;
+        return $this->userService->getUser($id);
+
     }
 
     /**
@@ -75,7 +73,6 @@ class ManageUserUseCase
      */
     public function update(string $id, UserEntity $data): bool
     {
-        Log::debug('UseCase.update.input', $data->toArray());
         $data->setId($id);
 
         return $this->userService->updateUser($data);

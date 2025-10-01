@@ -2,7 +2,9 @@
 
 namespace App\Modules\RawMaterials\Application\UseCases;
 
+use App\Modules\RawMaterials\Domain\Entities\RawMaterialEntity;
 use App\Modules\RawMaterials\Domain\Services\RawMaterialService;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RawMaterialUseCase
 {
@@ -13,24 +15,24 @@ class RawMaterialUseCase
         $this->service = $service;
     }
 
-    public function list(array $filters = []): array
+    public function list(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return $this->service->list($filters);
+        return $this->service->list($filters, $perPage);
     }
 
-    public function find(string $id)
+    public function find(string $id) : ?RawMaterialEntity
     {
         return $this->service->find($id);
     }
 
-    public function create(array $data)
+    public function create(RawMaterialEntity $entity)
     {
-        return $this->service->create($data);
+        return $this->service->create($entity);
     }
 
-    public function update(array $data): bool
+    public function update(RawMaterialEntity $entity): bool
     {
-        return $this->service->update($data);
+        return $this->service->update($entity);
     }
 
     public function delete(string $id): bool
