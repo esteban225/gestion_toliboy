@@ -1,0 +1,19 @@
+# .railway/railpack.toml
+
+[extensions]
+php = [
+  "ctype",
+  "curl",
+  "dom",
+  "fileinfo",
+  "filter",
+  "hash",
+  "mbstring",
+  "openssl",
+  "pcre",
+  "pdo",
+  "session",
+  "tokenizer",
+  "xml",
+  "gd"   # 👈 añadimos gd
+]
