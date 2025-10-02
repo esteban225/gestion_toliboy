@@ -1,8 +1,7 @@
-# Usa una imagen base de PHP 8.2 con FrankenPHP, que es moderna y eficiente.
+# Usa una imagen base con FrankenPHP + PHP 8.2
 FROM dunglas/frankenphp:1.1.2-php8.2-bookworm
 
-# Instala dependencias del sistema necesarias para las extensiones de PHP.
-# Incluimos las librerías para gd, zip y bcmath.
+# Instala dependencias del sistema necesarias
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     unzip \
@@ -11,35 +10,28 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Instala las extensiones de PHP que tu proyecto necesita.
-# Aquí es donde añadimos gd, bcmath, pdo_mysql y zip.
+# Instala extensiones de PHP (gd, zip, bcmath, pdo_mysql)
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-install pdo_mysql zip bcmath
 
-# Copia Composer desde su imagen oficial para poder usarlo.
+# Copia Composer desde su imagen oficial
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Establece el directorio de trabajo dentro del contenedor.
+# Establece directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos de tu proyecto al contenedor.
-# Usamos .dockerignore para excluir archivos innecesarios como node_modules.
+# Copia archivos del proyecto (usando .dockerignore)
 COPY . .
 
-# Instala las dependencias de Composer.
-# El --ignore-platform-reqs es una medida de seguridad extra.
+# Instala dependencias de Composer (producción)
 RUN composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-reqs
 
-# Ejecuta las migraciones de la base de datos para preparar las tablas.
-# El --force es necesario para que se ejecute en un entorno de producción.
-RUN php artisan migrate --force
-
-# Establece los permisos correctos para las carpetas de Laravel.
+# Permisos correctos para Laravel
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
-# Expone el puerto que usará la aplicación.
-EXPOSE 80
+# Expone el puerto asignado dinámicamente por Railway
+EXPOSE ${PORT}
 
-# Comando para iniciar el servidor de FrankenPHP.
-CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+# Comando de inicio (Caddy/FrankenPHP)
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
