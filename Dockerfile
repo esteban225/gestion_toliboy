@@ -1,79 +1,40 @@
-# ============================
-# Etapa 1: Build de assets con Node.js (Vite)
-# ============================
-FROM node:20-alpine AS builder
+# Etapa 1: Construcción
+FROM composer:2 AS build
 
-WORKDIR /var/www/html
+WORKDIR /app
 
-# Copiar archivos de configuración de Node
-COPY package.json package-lock.json vite.config.js ./
-
-# Instalar dependencias de Node
-RUN npm install
-
-# Copiar el resto de los archivos de frontend
-COPY resources/ resources/
-
-# Compilar assets para producción
-RUN npm run build
-
-# ============================
-# Etapa 2: Imagen final de PHP + Composer
-# ============================
-FROM php:8.2-cli
-
-# Instalar dependencias del sistema necesarias para compilar extensiones PHP
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    unzip \
-    libfreetype6-dev \
-    libjpeg-dev \
-    libonig-dev \
-    libpng-dev \
-    libxml2-dev \
-    libzip-dev \
-    libwebp-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install \
-       bcmath \
-       exif \
-       gd \
-       mbstring \
-       pcntl \
-       pdo_mysql \
-       xml \
-       zip \
-    && rm -rf /var/lib/apt/lists/*
-
-# Instalar Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
-
-# Crear directorio de la aplicación
-WORKDIR /var/www/html
-
-# Copiar composer files primero para aprovechar la cache de Docker
+# Copiar archivos composer primero (para aprovechar la cache)
 COPY composer.json composer.lock ./
 
-# Instalar dependencias de PHP
+# Instalar dependencias
 RUN composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
 
-# Copiar el resto de la aplicación
+# Copiar el resto del código Laravel
 COPY . .
 
-# Copiar los assets compilados desde la etapa 'builder'
-COPY --from=builder /var/www/html/public/build ./public/build
+# Etapa 2: Producción
+FROM php:8.2-fpm
 
-# Generar clave de app y cachear config/rutas/vistas
-RUN php artisan key:generate --force \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache \
-    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+WORKDIR /var/www/html
 
-# Exponer puerto (Railway usa PORT)
+# Instalar extensiones necesarias
+RUN apt-get update && apt-get install -y \
+    unzip git curl libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev zip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+
+# Copiar dependencias de vendor desde la etapa de build
+COPY --from=build /app/vendor ./vendor
+
+# Copiar código de la app
+COPY . .
+
+# Dar permisos de escritura al storage y bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# Exponer puerto
 EXPOSE 8000
-ENV PORT=8000
 
-# Comando de arranque
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
+# Comando de inicio
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
