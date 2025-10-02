@@ -31,6 +31,10 @@ COPY . .
 # El --ignore-platform-reqs es una medida de seguridad extra.
 RUN composer install --optimize-autoloader --no-dev --no-interaction --ignore-platform-reqs
 
+# Ejecuta las migraciones de la base de datos para preparar las tablas.
+# El --force es necesario para que se ejecute en un entorno de producción.
+RUN php artisan migrate --force
+
 # Establece los permisos correctos para las carpetas de Laravel.
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
