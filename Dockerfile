@@ -17,6 +17,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-install pdo_mysql zip bcmath
 
+# Copia Composer desde su imagen oficial para poder usarlo.
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 # Establece el directorio de trabajo dentro del contenedor.
 WORKDIR /app
 
