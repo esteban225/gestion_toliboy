@@ -3,6 +3,7 @@
 namespace App\Modules\Batches\Application\UseCases;
 
 use App\Modules\Batches\Domain\Services\BatcheService;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class BatcheUseCase
 {
@@ -13,9 +14,9 @@ class BatcheUseCase
         $this->service = $service;
     }
 
-    public function list(array $filters = []): array
+    public function list(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        return $this->service->list($filters);
+        return $this->service->list($filters, $perPage);
     }
 
     public function find(string $id)
@@ -33,7 +34,7 @@ class BatcheUseCase
         return $this->service->update($data);
     }
 
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         return $this->service->delete($id);
     }

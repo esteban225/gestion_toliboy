@@ -12,7 +12,7 @@ class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
         InventoryLowStock::class => [
-          SendLowStockNotification::class,
+            SendLowStockNotification::class,
         ],
         // Notificación de ausencia de usuario
         UserAbsenceDetected::class => [

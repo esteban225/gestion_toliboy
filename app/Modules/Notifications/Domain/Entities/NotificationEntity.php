@@ -167,7 +167,6 @@ class NotificationEntity
         ];
     }
 
-
     public static function fromArray(array $data): self
     {
         return new self(

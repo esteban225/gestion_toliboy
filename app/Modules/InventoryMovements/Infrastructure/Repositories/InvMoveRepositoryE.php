@@ -4,7 +4,6 @@ namespace App\Modules\InventoryMovements\Infrastructure\Repositories;
 
 use App\Models\InventoryMovement;
 use App\Models\RawMaterial;
-use App\Modules\InventoryMovements\Application\Events\InventoryLowStock;
 use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
 use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositoryI;
 use Illuminate\Pagination\LengthAwarePaginator;

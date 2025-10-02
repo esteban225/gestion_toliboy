@@ -4,10 +4,10 @@ namespace App\Modules\Batches\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Batches\Application\UseCases\BatcheUseCase;
-use App\Modules\Batches\Http\Requests\RegisterRequest;
-use App\Modules\Batches\Http\Requests\UpdateRequest;
+use App\Modules\Batches\Http\Requests\BatchRegisterRequest;
+use App\Modules\Batches\Http\Requests\BatchUpdateRequest;
+use App\Modules\Batches\Http\Requests\FilterBatchRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 /**
  * @group Batches
@@ -30,138 +30,122 @@ class BatcheController extends Controller
      * Listar lotes
      *
      * Obtiene una lista de lotes con filtros opcionales.
-     *
-     * @queryParam product_id int Opcional. Filtra por ID de producto. Example: 12
-     * @queryParam status string Opcional. Filtra por estado del lote. Example: "processing"
-     *
-     * @response 200 {
-     *   "success": true,
-     *   "data": [
-     *     { "id": "1", "product_id": 12, "quantity": 100, "status": "processing" }
-     *   ]
-     * }
      */
-    public function index(Request $request): JsonResponse
+    public function index(FilterBatchRequest $request): JsonResponse
     {
-        $filters = $request->all();
-        $batches = $this->useCase->list($filters);
+        try {
+            $filters = $request->except(['page', 'per_page']);
+            $perPage = $request->input('per_page', 15);
 
-        return response()->json([
-            'success' => true,
-            'data' => $batches,
-        ]);
+            $paginator = $this->useCase->list($filters, $perPage);
+            if (! $paginator) {
+                return response()->json(['message' => 'No se encontraron lotes'], 404);
+            }
+
+            $data = $paginator->toArray();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lotes recuperados con éxito',
+                'data' => $data,
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error al recuperar los lotes', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
      * Mostrar lote
      *
      * Obtiene los detalles de un lote por su ID.
-     *
-     * @urlParam id string required ID del lote. Example: "1"
-     *
-     * @response 200 {
-     *   "success": true,
-     *   "data": { "id": "1", "product_id": 12, "quantity": 100, "status": "processing" }
-     * }
-     * @response 404 {
-     *   "success": false,
-     *   "message": "Batche not found"
-     * }
      */
-    public function show(string $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
-        $batche = $this->useCase->find($id);
-        if (! $batche) {
-            return response()->json(['success' => false, 'message' => 'Batche not found'], 404);
-        }
+        try {
+            $batche = $this->useCase->find($id);
+            if (! $batche) {
+                return response()->json(['success' => false, 'message' => 'Lote no encontrado'], 404);
+            }
+            $data = $batche->toArray();
 
-        return response()->json([
-            'success' => true,
-            'data' => $batche,
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Lote recuperado con éxito',
+                'data' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error al recuperar el lote', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
      * Crear lote
      *
      * Registra un nuevo lote en el sistema.
-     *
-     * @bodyParam product_id int required ID del producto. Example: 12
-     * @bodyParam quantity number required Cantidad del lote. Example: 100
-     * @bodyParam production_date date Opcional. Fecha de producción. Example: "2025-09-24"
-     *
-     * @response 201 {
-     *   "success": true,
-     *   "data": { "id": "2", "product_id": 12, "quantity": 100, "status": "created" },
-     *   "message": "Batche created"
-     * }
      */
-    public function store(RegisterRequest $request): JsonResponse
+    public function store(BatchRegisterRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $batche = $this->useCase->create($data);
+        try {
+            $data = $request->validated();
+            $batche = $this->useCase->create($data);
 
-        return response()->json([
-            'success' => true,
-            'data' => $batche,
-            'message' => 'Batche created',
-        ], 201);
+            if (! $batche) {
+                return response()->json(['success' => false, 'message' => 'Lote no creado'], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lote creado con éxito',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error al crear el lote', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
      * Actualizar lote
      *
      * Actualiza los datos de un lote existente.
-     *
-     * @urlParam id string required ID del lote. Example: "1"
-     *
-     * @bodyParam status string Opcional. Nuevo estado del lote. Example: "finished"
-     *
-     * @response 200 {
-     *   "success": true,
-     *   "message": "Batche updated successfully"
-     * }
-     * @response 404 {
-     *   "success": false,
-     *   "message": "Batche not found or not updated"
-     * }
      */
-    public function update(UpdateRequest $request, string $id): JsonResponse
+    public function update(BatchUpdateRequest $request, string $id): JsonResponse
     {
-        $data = array_merge(['id' => $id], $request->all());
-        $updated = $this->useCase->update($data);
+        try {
+            $data = array_merge(['id' => $id], $request->all());
+            $updated = $this->useCase->update($data);
 
-        if (! $updated) {
-            return response()->json(['success' => false, 'message' => 'Batche not found or not updated'], 404);
+            if (! $updated) {
+                return response()->json(['success' => false, 'message' => 'Lote no encontrado o no actualizado'], 404);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Lote actualizado con éxito'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error al actualizar el lote', 'error' => $e->getMessage()], 500);
         }
-
-        return response()->json(['success' => true, 'message' => 'Batche updated successfully']);
     }
 
     /**
      * Eliminar lote
      *
      * Elimina un lote por su ID.
-     *
-     * @urlParam id string required ID del lote. Example: "1"
-     *
-     * @response 200 {
-     *   "success": true,
-     *   "message": "Batche deleted successfully"
-     * }
-     * @response 404 {
-     *   "success": false,
-     *   "message": "Batche not found or not deleted"
-     * }
      */
     public function destroy(string $id): JsonResponse
     {
-        $deleted = $this->useCase->delete($id);
+        try {
+            $deleted = $this->useCase->delete($id);
 
-        if (! $deleted) {
-            return response()->json(['success' => false, 'message' => 'Batche not found or not deleted'], 404);
+            if (! $deleted) {
+                return response()->json(['success' => false, 'message' => 'Lote no encontrado o no eliminado'], 404);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Lote eliminado con éxito'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error al eliminar el lote', 'error' => $e->getMessage()], 500);
         }
-
-        return response()->json(['success' => true, 'message' => 'Batche deleted successfully']);
     }
 }

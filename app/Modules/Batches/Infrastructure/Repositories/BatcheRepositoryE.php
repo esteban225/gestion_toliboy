@@ -5,51 +5,66 @@ namespace App\Modules\Batches\Infrastructure\Repositories;
 use App\Models\Batch;
 use App\Modules\Batches\Domain\Entities\BatcheEntity;
 use App\Modules\Batches\Domain\Repositories\BatcheRepositoryI;
+use Illuminate\Pagination\LengthAwarePaginator;
 
+/**
+ * Repositorio para la gestión de lotes (Batch) en la infraestructura.
+ *
+ * Implementa la interfaz BatcheRepositoryI para proporcionar métodos de acceso y manipulación
+ * de entidades de lote utilizando Eloquent ORM.
+ *
+ * Métodos:
+ * - all(array $filters = [], int $perpage = 15): Obtiene una lista paginada de lotes, permitiendo aplicar filtros.
+ * - find(int $id): Busca un lote por su ID y lo retorna como entidad de dominio.
+ * - create(BatcheEntity $data): Crea un nuevo lote a partir de una entidad y retorna la entidad creada.
+ * - update(BatcheEntity $data): Actualiza un lote existente con los datos proporcionados en la entidad.
+ * - delete(int $id): Elimina un lote por su ID.
+ */
 class BatcheRepositoryE implements BatcheRepositoryI
 {
-    public function all(array $filters = []): array
+    public function all(array $filters = [], int $perpage = 15): LengthAwarePaginator
     {
         $query = Batch::query();
-
-        if (isset($filters['status'])) {
-            $query->where('status', $filters['status']);
+        foreach ($filters as $field => $value) {
+            if (! empty($value)) {
+                $query->where($field, $value);
+            }
         }
 
-        if (isset($filters['product_id'])) {
-            $query->where('product_id', $filters['product_id']);
-        }
-
-        $batches = $query->get();
-
-        return array_map(fn ($batch) => $this->toEntity($batch), $batches->all());
+        return $query->paginate($perpage);
     }
 
-    public function find(string $id): ?BatcheEntity
+    public function find(int $id): ?BatcheEntity
     {
         $batch = Batch::find($id);
-
-        return $batch ? $this->toEntity($batch) : null;
-    }
-
-    public function create(array $data): ?BatcheEntity
-    {
-        $batch = Batch::create($data);
-
-        return $this->toEntity($batch);
-    }
-
-    public function update(array $data): bool
-    {
-        $batch = Batch::find($data['id']);
         if (! $batch) {
-            return false;
+            return null;
+        }
+        $model = BatcheEntity::fromModel($batch);
+
+        return $model ?: null;
+    }
+
+    public function create(BatcheEntity $data): bool
+    {
+        $dataArray = $data->toArray();
+        $batch = Batch::create($dataArray);
+        $model = BatcheEntity::fromModel($batch);
+
+        return (bool) $model;
+    }
+
+    public function update(BatcheEntity $data): bool
+    {
+        $batch = Batch::find($data->getId());
+        if ($batch) {
+            return $batch->update($data->toArray());
         }
 
-        return $batch->update($data);
+        return false;
     }
 
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         $batch = Batch::find($id);
         if (! $batch) {
@@ -57,23 +72,5 @@ class BatcheRepositoryE implements BatcheRepositoryI
         }
 
         return $batch->delete();
-    }
-
-    private function toEntity(Batch $batch): BatcheEntity
-    {
-        return new BatcheEntity(
-            id: $batch->id,
-            name: $batch->name,
-            code: $batch->code,
-            product_id: $batch->product_id,
-            start_date: $batch->start_date,
-            expected_end_date: $batch->expected_end_date,
-            actual_end_date: $batch->actual_end_date,
-            status: $batch->status,
-            quantity: $batch->quantity,
-            defect_quantity: $batch->defect_quantity,
-            notes: $batch->notes,
-            created_by: $batch->created_by
-        );
     }
 }

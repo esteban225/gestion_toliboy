@@ -172,7 +172,7 @@ class NotificationService
         $userIds = Role::whereIn('name', $roles)
             ->with(['users:id,role_id'])
             ->get()
-            ->flatMap(fn($role) => $role->users->pluck('id'))
+            ->flatMap(fn ($role) => $role->users->pluck('id'))
             ->unique()
             ->values()
             ->all();

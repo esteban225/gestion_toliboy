@@ -12,7 +12,7 @@ class SendAbsenceNotification
      */
     public function handle(UserAbsenceDetected $event): void
     {
-        $roles = ['DEV','INGPL'];
+        $roles = ['DEV', 'INGPL'];
         $payload = [
             'id' => null,
             'title' => 'Ausencia detectada',

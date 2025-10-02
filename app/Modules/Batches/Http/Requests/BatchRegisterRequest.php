@@ -15,7 +15,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
  *
  * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
  */
-class RegisterRequest extends FormRequest
+class BatchRegisterRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -31,7 +31,7 @@ class RegisterRequest extends FormRequest
             'start_date' => 'required|date',
             'expected_end_date' => 'nullable|date|after_or_equal:start_date',
             'actual_end_date' => 'nullable|date|after_or_equal:start_date',
-            'status' => 'required|string|max:50',
+            'status' => 'required|bool|max:50',
             'quantity' => 'required|integer|min:1',
             'defect_quantity' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
