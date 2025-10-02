@@ -1,0 +1,4 @@
+# nixpacks.toml
+
+[providers.php]
+extensions = ["gd", "bcmath", "pdo_mysql"]
