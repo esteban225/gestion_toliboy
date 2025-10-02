@@ -79,9 +79,11 @@ class NotificationController extends Controller
             $data['title'] ?? $notification->getTitle(),
             $data['message'] ?? $notification->getMessage(),
             $data['type'] ?? $notification->getType(),
+            $data['scope'] ?? $notification->getScope(),
             $data['is_read'] ?? $notification->isRead(),
             $data['related_table'] ?? $notification->getRelatedTable(),
             $data['related_id'] ?? $notification->getRelatedId(),
+            $data['user_id'] ?? $notification->getUserId(),
             isset($data['expires_at']) ? Carbon::parse($data['expires_at']) : $notification->getExpiresAt()
         );
 

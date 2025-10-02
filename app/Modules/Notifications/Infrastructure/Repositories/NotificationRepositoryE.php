@@ -17,7 +17,7 @@ class NotificationRepositoryE implements NotificationRepositoryI
 
         // Si es individual o grupal, asociamos usuarios
         if (! empty($userIds) && ! $notification->isGlobal()) {
-            $pivotData = collect($userIds)->mapWithKeys(fn ($id) => [
+            $pivotData = collect($userIds)->mapWithKeys(fn($id) => [
                 $id => ['is_read' => false, 'read_at' => null],
             ])->toArray();
 
@@ -34,43 +34,15 @@ class NotificationRepositoryE implements NotificationRepositoryI
             return null;
         }
 
-        return new NotificationEntity(
-            $notification->id,
-            $notification->title,
-            $notification->message,
-            $notification->type,
-            $notification->scope,
-            false, // is_read lo defines al consultar para un usuario
-            $notification->related_table,
-            $notification->related_id,
-            $notification->expires_at
-        );
+        return  NotificationEntity::fromArray($notification->toArray());
     }
 
     public function update(NotificationEntity $entity): NotificationEntity
     {
         $notification = Notification::findOrFail($entity->getId());
-        $notification->update([
-            'title' => $entity->getTitle(),
-            'message' => $entity->getMessage(),
-            'type' => $entity->getType(),
-            'scope' => $entity->getScope(),
-            'related_table' => $entity->getRelatedTable(),
-            'related_id' => $entity->getRelatedId(),
-            'expires_at' => $entity->getExpiresAt(),
-        ]);
+        $notification->update($entity->toArray());
 
-        return new NotificationEntity(
-            $notification->id,
-            $notification->title,
-            $notification->message,
-            $notification->type,
-            $notification->scope,
-            false,
-            $notification->related_table,
-            $notification->related_id,
-            $notification->expires_at
-        );
+        return NotificationEntity::fromArray($notification->toArray());
     }
 
     public function delete(int $id): bool
@@ -122,16 +94,16 @@ class NotificationRepositoryE implements NotificationRepositoryI
             ->unreadForUser($userId)
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn ($notification) => new NotificationEntity(
+            ->map(fn($notification) => new NotificationEntity(
                 $notification->id,
                 $notification->title,
                 $notification->message,
                 $notification->type,
                 $notification->scope,
                 false,
-                $notification->user_id,
                 $notification->related_table,
                 $notification->related_id,
+                $notification->user_id,
                 $notification->expires_at
             ));
     }

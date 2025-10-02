@@ -12,15 +12,18 @@ class SendAbsenceNotification
      */
     public function handle(UserAbsenceDetected $event): void
     {
-        /** @var NotificationService $ns */
-        $ns = app(NotificationService::class);
-        $ns->notify([
-            'user_id' => $event->userId,
+        $roles = ['DEV','INGPL'];
+        $payload = [
+            'id' => null,
             'title' => 'Ausencia detectada',
             'message' => "El usuario {$event->userName} no asistió el día {$event->date->format('d/m/Y')}.",
             'type' => 'warning',
             'related_table' => 'users',
             'related_id' => $event->userId,
-        ]);
+        ];
+
+        /** @var NotificationService $ns */
+        $ns = app(NotificationService::class);
+        $ns->notifyGroupByRoles($roles, $payload);
     }
 }

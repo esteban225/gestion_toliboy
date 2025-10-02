@@ -19,11 +19,11 @@ class NotificationEntity
 
     private bool $is_read;
 
-    private ?string $user_id;
-
     private ?string $related_table;
 
     private ?int $related_id;
+
+    private ?string $user_id;
 
     private ?DateTimeInterface $expires_at;
 
@@ -34,9 +34,9 @@ class NotificationEntity
         ?string $type = null,
         ?string $scope = null,
         bool $is_read = false,
-        ?string $user_id = null,
         ?string $related_table = null,
         ?int $related_id = null,
+        ?string $user_id = null,
         DateTimeInterface|string|null $expires_at = null
     ) {
         $this->id = $id;
@@ -45,9 +45,9 @@ class NotificationEntity
         $this->type = $type;
         $this->scope = $scope;
         $this->is_read = $is_read;
-        $this->user_id = $user_id;
         $this->related_table = $related_table;
         $this->related_id = $related_id;
+        $this->user_id = $user_id;
         $this->expires_at = $this->normalizeExpiresAt($expires_at);
     }
 
@@ -160,12 +160,13 @@ class NotificationEntity
             'type' => $this->type,
             'scope' => $this->scope,
             'is_read' => $this->is_read,
-            'user_id' => $this->user_id,
             'related_table' => $this->related_table,
             'related_id' => $this->related_id,
+            'user_id' => $this->user_id,
             'expires_at' => $this->expires_at ? $this->expires_at->format('Y-m-d H:i:s') : null,
         ];
     }
+
 
     public static function fromArray(array $data): self
     {
@@ -176,9 +177,9 @@ class NotificationEntity
             $data['type'] ?? null,
             $data['scope'] ?? null,
             $data['is_read'] ?? false,
-            $data['user_id'] ?? null,
-            $data['related_table'] ?? null,
-            $data['related_id'] ?? null,
+            $data['related_table'] ?? null, // ahora va en la posición correcta
+            $data['related_id'] ?? null,    // posición correcta
+            $data['user_id'] ?? null,       // posición correcta
             $data['expires_at'] ?? null
         );
     }

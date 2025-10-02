@@ -11,5 +11,7 @@ Artisan::command('inspire', function () {
 
 // 📅 Programación de tareas
 Schedule::command('worklogs:notify-absences')->dailyAt('08:00');
+
+Schedule::command('InventoryMovements:check-low-stock')->dailyAt('09:00');
 Schedule::command('inspire')->everyMinute();
 Schedule::command('worklogs:send-business-day')->weekdays('monday')->at('09:00');

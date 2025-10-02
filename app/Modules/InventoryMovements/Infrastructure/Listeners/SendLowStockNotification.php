@@ -1,45 +1,53 @@
 <?php
 
-namespace App\Modules\Notifications\Application\Listeners;
+namespace App\Modules\InventoryMovements\Infrastructure\Listeners;
 
 use App\Models\Product;
 use App\Models\RawMaterial;
-use App\Modules\InventoryMovements\Infrastructure\Events\InventoryLowStock ;
+use App\Modules\InventoryMovements\Application\Events\InventoryLowStock; // Corregido 'Application' con mayúscula
 use App\Modules\Notifications\Domain\Services\NotificationService;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 
-class SendLowStockNotification
+class SendLowStockNotification implements ShouldQueue
 {
-    /**
-     * Maneja el evento y crea una notificación usando NotificationService.
-     */
     public function handle(InventoryLowStock $event): void
     {
-        // Intentar resolver nombre del recurso (RawMaterial o Product)
-        $name = null;
+        $name = "ID {$event->itemId}";
         $relatedTable = 'items';
 
         if ($res = RawMaterial::find($event->itemId)) {
-            $name = $res->name ?? "ID {$event->itemId}";
+            $name = $res->name ?? $name;
             $relatedTable = 'raw_materials';
         } elseif ($res = Product::find($event->itemId)) {
-            $name = $res->name ?? "ID {$event->itemId}";
+            $name = $res->name ?? $name;
             $relatedTable = 'products';
-        } else {
-            $name = "ID {$event->itemId}";
         }
 
-        $message = "El artículo {$name} tiene stock bajo ({$event->currentStock} unidades).";
+        $message = "El artículo {$name} tiene stock bajo ({$event->currentStock}) (umbral: {$event->threshold}).";
 
-        // Notificar (user_id null = notificación genérica; puedes pasar id del responsable)
-        /** @var NotificationService $ns */
-        $ns = app(NotificationService::class);
-        $ns->notify([
-            'user_id' => null,
+        // Roles destino para la notificación grupal. Puedes mover esto a un config:
+        // config('notifications.low_stock_roles', ['supervisor', 'logistica'])
+        $roles = ['DEV'];
+
+        $payload = [
             'title' => "Stock bajo: {$name}",
             'message' => $message,
             'type' => 'warning',
             'related_table' => $relatedTable,
             'related_id' => $event->itemId,
-        ]);
+        ];
+
+        $service = app(NotificationService::class);
+        try {
+            // Usa el helper agregado para notificación grupal por múltiples roles
+            $service->notifyGroupByRoles($roles, $payload);
+        } catch (\RuntimeException|\InvalidArgumentException $e) {
+            // Evita que el listener falle la cola completa; loguea para revisar
+            Log::warning('[SendLowStockNotification] No se pudo enviar notificación grupal', [
+                'roles' => $roles,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

@@ -171,6 +171,8 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(WorkLog::class);
     }
 
+    
+
     /**
      * Check if user has a specific role.
      */

@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Modules\InventoryMovements\Infrastructure\Events;
+namespace App\Modules\InventoryMovements\Application\Events;
 
 class InventoryLowStock
 {
     public int $itemId; // raw_material_id or product_id depending your model
 
-    public int $currentStock;
+    public float $currentStock;
 
-    public ?int $threshold;
+    public ?float $threshold;
 
-    public function __construct(int $itemId, int $currentStock, ?int $threshold = null)
+    public function __construct(int $itemId, float $currentStock, ?float $threshold = null)
     {
         $this->itemId = $itemId;
         $this->currentStock = $currentStock;

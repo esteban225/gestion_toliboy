@@ -16,13 +16,14 @@ class NotificationResource extends JsonResource
         // o usar getters
         return [
             'id' => $this->resource->getId(),
-            'user_id' => $this->resource->getUserId(),
             'title' => $this->resource->getTitle(),
             'message' => $this->resource->getMessage(),
             'type' => $this->resource->getType(),
+            'scope' => $this->resource->getScope(),
             'is_read' => $this->resource->isRead(),
             'related_table' => $this->resource->getRelatedTable(),
             'related_id' => $this->resource->getRelatedId(),
+            'user_id' => $this->resource->getUserId(),
             'expires_at' => $this->resource->getExpiresAt()?->format('Y-m-d H:i:s'),
         ];
     }

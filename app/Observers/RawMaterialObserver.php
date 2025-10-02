@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\RawMaterial;
-use App\Modules\InventoryMovements\Domain\Events\InventoryLowStock;
+use App\Modules\InventoryMovements\Application\Events\InventoryLowStock;
 use Illuminate\Support\Facades\DB;
 
 class RawMaterialObserver
@@ -44,13 +44,14 @@ class RawMaterialObserver
                 return;
             }
 
-            // Después de commit (si hay transacción)
+            $dispatch = function () use ($rawMaterial, $stock, $threshold) {
+                event(new InventoryLowStock($rawMaterial->id, $stock, $threshold));
+            };
+
             if (DB::transactionLevel() > 0) {
-                DB::afterCommit(function () use ($rawMaterial, $stock, $threshold) {
-                    event(new InventoryLowStock($rawMaterial->id, (int) $stock, (int) $threshold));
-                });
+                DB::afterCommit($dispatch);
             } else {
-                event(new InventoryLowStock($rawMaterial->id, (int) $stock, (int) $threshold));
+                $dispatch();
             }
         }
     }

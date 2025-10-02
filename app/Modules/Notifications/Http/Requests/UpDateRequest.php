@@ -25,13 +25,20 @@ class UpDateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'sometimes|required|integer|exists:users,id',
             'title' => 'sometimes|required|string|max:255',
             'message' => 'sometimes|required|string',
             'type' => 'sometimes|required|string|in:info,warning,error,success',
+            'scope' => 'sometimes|required|string|in:individual,group,global',
+
             'related_table' => 'sometimes|nullable|string|max:255',
             'related_id' => 'sometimes|nullable|integer',
-            'expires_at' => 'nullable|date_format:Y-m-d H:i:s|after:now',
+            'expires_at' => 'sometimes|nullable|date_format:Y-m-d H:i:s|after:now',
+
+            // 🔹 Individual -> exige user_id
+            'user_id' => 'required_if:scope,individual|integer|exists:users,id',
+
+            // 🔹 Group -> exige role
+            'role' => 'required_if:scope,group|string|in:DEV,INGPL,INGPR,GG,TRZ,OP',
         ];
     }
 
