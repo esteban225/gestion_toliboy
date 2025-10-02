@@ -5,10 +5,10 @@ namespace App\Modules\InventoryMovements\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\InventoryMovements\Application\UseCases\InvMoveUseCase;
 use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
-use App\Modules\InventoryMovements\Http\Requests\RegisterRequest;
-use App\Modules\InventoryMovements\Http\Requests\UpDateRequest;
+use App\Modules\InventoryMovements\Http\Requests\FilterInvMovementRequest;
+use App\Modules\InventoryMovements\Http\Requests\RegisterInvMovementRequest;
+use App\Modules\InventoryMovements\Http\Requests\UpdateInvMovementRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 /**
  * @class InvMoveController
@@ -33,15 +33,34 @@ class InvMoveController extends Controller
     /**
      * Listar todos los movimientos de inventario
      *
-     * @param  Request  $request  Filtros opcionales enviados en la petición
+     * @param  FilterInvMovementRequest  $request  Filtros opcionales enviados en la petición
      * @return JsonResponse Lista de movimientos de inventario
      */
-    public function index(Request $request): JsonResponse
+    public function index(FilterInvMovementRequest $request): JsonResponse
     {
-        $filters = $request->all();
-        $invMoves = $this->useCase->list($filters);
+        try {
+            $filters = $request->except(['page', 'per_page']);
+            $perPage = $request->input('per_page', 15);
 
-        return response()->json($invMoves);
+            $paginator = $this->useCase->list($filters, $perPage);
+            if (! $paginator) {
+                return response()->json(['message' => 'No se encontraron movimientos de inventario'], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Movimientos de inventario recuperados con éxito',
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al recuperar los movimientos de inventario', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -52,54 +71,85 @@ class InvMoveController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $invMove = $this->useCase->find($id);
-        if ($invMove) {
-            return response()->json($invMove);
-        }
+        try {
+            $invMove = $this->useCase->find($id);
+            if (! $invMove) {
+                return response()->json(['message' => 'Movimiento de inventario no encontrado'], 404);
+            }
 
-        return response()->json(['message' => 'Inventory Movement not found'], 404);
+            return response()->json([
+                'success' => true,
+                'message' => 'Movimiento de inventario recuperado con éxito',
+                'data' => $invMove->toArray(),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al recuperar el movimiento de inventario', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
      * Registrar un nuevo movimiento de inventario
      *
-     * @param  RegisterRequest  $request  Datos del nuevo movimiento de inventario validados
+     * @param  RegisterInvMovementRequest  $request  Datos del nuevo movimiento de inventario validados
      * @return JsonResponse Datos del movimiento de inventario creado o error 400 si falla
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(RegisterRequest $request): JsonResponse
+    public function store(RegisterInvMovementRequest $request): JsonResponse
     {
-        $data = InvMoveEntity::fromArray($request->validated());
-        $invMove = $this->useCase->create($data);
-        if ($invMove) {
-            return response()->json($invMove, 201);
-        }
+        try {
+            $data = InvMoveEntity::fromArray($request->validated());
+            $invMove = $this->useCase->create($data);
+            if ($invMove) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Movimiento de inventario creado con éxito',
+                ], 201);
+            }
 
-        return response()->json(['message' => 'Failed to create Inventory Movement'], 400);
+            return response()->json([
+                'success' => false,
+                'message' => 'Falla al crear el movimiento de inventario',
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el movimiento de inventario',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
      * Actualizar un movimiento de inventario existente
      *
-     * @param  UpDateRequest  $request  Datos actualizados del movimiento de inventario validados
+     * @param  UpdateInvMovementRequest  $request  Datos actualizados del movimiento de inventario validados
      * @param  string  $id  Identificador del movimiento de inventario a actualizar
      * @return JsonResponse Datos del movimiento de inventario actualizado o error 400/404 si falla
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function update(UpDateRequest $request, string $id): JsonResponse
+    public function update(UpdateInvMovementRequest $request, string $id): JsonResponse
     {
-        $data = InvMoveEntity::fromArray($request->validated());
-        $data->id = $id;
-        $updated = $this->useCase->update($data);
-        if ($updated) {
-            $invMove = $this->useCase->find($id);
+        try {
+            $data = InvMoveEntity::fromArray($request->validated());
+            $data->setId($id);
+            $updated = $this->useCase->update($data);
 
-            return response()->json($invMove);
+            if (! $updated) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Movimiento de inventario con id {$id} no encontrado o no actualizado",
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Movimiento de inventario actualizado con éxito',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error updating Inventory Movement', 'error' => $e->getMessage()], 500);
         }
-
-        return response()->json(['message' => 'Failed to update Inventory Movement'], 400);
     }
 
     /**
@@ -110,11 +160,15 @@ class InvMoveController extends Controller
      */
     public function destroy(string $id): JsonResponse
     {
-        $deleted = $this->useCase->delete($id);
-        if ($deleted) {
-            return response()->json(['message' => 'Inventory Movement deleted successfully']);
-        }
+        try {
+            $deleted = $this->useCase->delete($id);
+            if (! $deleted) {
+                return response()->json(['message' => 'Movimiento de inventario no encontrado'], 404);
+            }
 
-        return response()->json(['message' => 'Inventory Movement not found'], 404);
+            return response()->json(['message' => 'Movimiento de inventario eliminado con éxito'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al eliminar el movimiento de inventario', 'error' => $e->getMessage()], 500);
+        }
     }
 }

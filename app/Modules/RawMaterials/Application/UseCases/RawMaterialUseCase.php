@@ -20,7 +20,7 @@ class RawMaterialUseCase
         return $this->service->list($filters, $perPage);
     }
 
-    public function find(string $id) : ?RawMaterialEntity
+    public function find(string $id): ?RawMaterialEntity
     {
         return $this->service->find($id);
     }

@@ -8,7 +8,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
  * RawMaterialRegisterRequest gestiona la validación de datos para el registro de materias primas.
- *
  */
 class RawMaterialRegisterRequest extends FormRequest
 {

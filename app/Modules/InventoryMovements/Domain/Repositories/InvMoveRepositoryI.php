@@ -3,6 +3,7 @@
 namespace App\Modules\InventoryMovements\Domain\Repositories;
 
 use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /*
 
@@ -21,13 +22,15 @@ Este es mi contrato el cual dice que se puede hacer más no como hacerlo
 */
 interface InvMoveRepositoryI
 {
-    public function create(InvMoveEntity $entity): InvMoveEntity;
+    public function list(array $filters = [], int $perpage = 15): LengthAwarePaginator;
+
+    public function create(InvMoveEntity $entity): ?InvMoveEntity;
 
     public function find(int $id): ?InvMoveEntity;
-
-    public function list(array $filters = []): array;
 
     public function update(InvMoveEntity $entity): bool;
 
     public function delete(int $id): bool;
+
+    public function reduceStock(int $itemId, float $qty): void;
 }

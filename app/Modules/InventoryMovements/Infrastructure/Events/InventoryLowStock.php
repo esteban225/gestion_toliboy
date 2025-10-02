@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\InventoryMovements\Domain\Events;
+namespace App\Modules\InventoryMovements\Infrastructure\Events;
 
 class InventoryLowStock
 {

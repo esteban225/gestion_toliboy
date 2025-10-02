@@ -4,6 +4,7 @@ namespace App\Modules\InventoryMovements\Domain\Services;
 
 use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
 use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositoryI;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /*
 está clase cumple dos pricipios SOLID:
@@ -35,9 +36,9 @@ class InvMoveService
         $this->repositoy = $repositoy;
     }
 
-    public function list(array $filters = []): array
+    public function list(array $filters = [], int $perpage = 15): LengthAwarePaginator
     {
-        return $this->repositoy->list($filters);
+        return $this->repositoy->list($filters, $perpage);
     }
 
     public function find(string $id): ?InvMoveEntity
@@ -59,5 +60,10 @@ class InvMoveService
     public function delete(int $id): bool
     {
         return $this->repositoy->delete($id);
+    }
+
+    public function reduceStock(int $itemId, float $qty): void
+    {
+        $this->repositoy->reduceStock($itemId, $qty);
     }
 }

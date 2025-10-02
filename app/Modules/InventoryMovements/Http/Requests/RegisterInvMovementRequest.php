@@ -15,7 +15,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
  *
  * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
  */
-class UpDateRequest extends FormRequest
+class RegisterInvMovementRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -25,13 +25,13 @@ class UpDateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'raw_material_id' => 'sometimes|required|integer|exists:raw_materials,id',
-            'batch_id' => 'sometimes|nullable|integer|exists:batches,id',
-            'movement_type' => 'sometimes|required|string|in:IN,OUT,ADJUSTMENT',
-            'quantity' => 'sometimes|required|numeric|min:0.01',
-            'unit_cost' => 'sometimes|required|numeric|min:0',
-            'notes' => 'sometimes|nullable|string',
-            'created_by' => 'sometimes|nullable|integer|exists:users,id',
+            'raw_material_id' => 'required|integer|exists:raw_materials,id',
+            'batch_id' => 'nullable|integer|exists:batches,id',
+            'movement_type' => 'required|string|in:in,out,adjustment',
+            'quantity' => 'required|numeric|min:0.01',
+            'unit_cost' => 'required|numeric|min:0',
+            'notes' => 'nullable|string',
+            'created_by' => 'nullable|integer|exists:users,id',
         ];
     }
 

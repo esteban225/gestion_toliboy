@@ -3,44 +3,130 @@
 namespace App\Modules\InventoryMovements\Domain\Entities;
 
 /**
- * Entidad de dominio: Movimiento de Inventario (InvMoveEntitye).
- *
- * Representa un registro de movimiento de materia prima dentro del sistema.
- * - Responsabilidad: modelar los datos y reglas simples relacionados a un movimiento.
- * - No contiene lógica de persistencia ni dependencias de framework.
- *
- * Propiedades:
- *
- * @property int|null $id Identificador único del movimiento.
- * @property int $raw_material_id ID de la materia prima afectada.
- * @property int|null $batch_id ID del lote asociado (si aplica).
- * @property string $movement_type Tipo de movimiento (ej: "in", "out", "adjustment").
- * @property float $quantity Cantidad movida (positivo para entradas, negativo para salidas según convención).
- * @property float|null $unit_cost Costo unitario asociado al movimiento (opcional).
- * @property string|null $notes Notas adicionales del movimiento.
- * @property int|null $created_by ID del usuario que registró el movimiento.
- *
- * Ejemplos de uso:
- * - Validaciones y cálculos simples en servicios de dominio.
- * - Conversión a array para serialización en respuestas HTTP o exportación.
+ * Entidad de dominio: Movimiento de Inventario (InvMoveEntity).
  */
 class InvMoveEntity
 {
+    private ?int $id;
+
+    private int $raw_material_id;
+
+    private ?int $batch_id;
+
+    private string $movement_type;
+
+    private float $quantity;
+
+    private ?float $unit_cost;
+
+    private ?string $notes;
+
+    private ?int $created_by;
+
     public function __construct(
-        public ?int $id,
-        public int $raw_material_id,
-        public ?int $batch_id,
-        public string $movement_type,
-        public float $quantity,
-        public ?float $unit_cost,
-        public ?string $notes,
-        public ?int $created_by,
-    ) {}
+        ?int $id,
+        int $raw_material_id,
+        ?int $batch_id,
+        string $movement_type,
+        float $quantity,
+        ?float $unit_cost,
+        ?string $notes,
+        ?int $created_by,
+    ) {
+        $this->id = $id;
+        $this->raw_material_id = $raw_material_id;
+        $this->batch_id = $batch_id;
+        $this->movement_type = $movement_type;
+        $this->quantity = $quantity;
+        $this->unit_cost = $unit_cost;
+        $this->notes = $notes;
+        $this->created_by = $created_by;
+    }
+
+    // -------- Getters --------
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getRawMaterialId(): int
+    {
+        return $this->raw_material_id;
+    }
+
+    public function getBatchId(): ?int
+    {
+        return $this->batch_id;
+    }
+
+    public function getMovementType(): string
+    {
+        return $this->movement_type;
+    }
+
+    public function getQuantity(): float
+    {
+        return $this->quantity;
+    }
+
+    public function getUnitCost(): ?float
+    {
+        return $this->unit_cost;
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function getCreatedBy(): ?int
+    {
+        return $this->created_by;
+    }
+
+    // -------- Setters --------
+    public function setId(?int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function setRawMaterialId(int $raw_material_id): void
+    {
+        $this->raw_material_id = $raw_material_id;
+    }
+
+    public function setBatchId(?int $batch_id): void
+    {
+        $this->batch_id = $batch_id;
+    }
+
+    public function setMovementType(string $movement_type): void
+    {
+        $this->movement_type = $movement_type;
+    }
+
+    public function setQuantity(float $quantity): void
+    {
+        $this->quantity = $quantity;
+    }
+
+    public function setUnitCost(?float $unit_cost): void
+    {
+        $this->unit_cost = $unit_cost;
+    }
+
+    public function setNotes(?string $notes): void
+    {
+        $this->notes = $notes;
+    }
+
+    public function setCreatedBy(?int $created_by): void
+    {
+        $this->created_by = $created_by;
+    }
 
     /**
-     * Devuelve una representación en array de la entidad para serializar.
-     *
-     * @return array<string, mixed>
+     * Devuelve una representación en array de la entidad.
      */
     public function toArray(): array
     {
@@ -57,9 +143,7 @@ class InvMoveEntity
     }
 
     /**
-     * Crea una instancia de InvMoveEntity a partir de un array asociativo.
-     *
-     * @param  array<string, mixed>  $data
+     * Crea una instancia desde un array.
      */
     public static function fromArray(array $data): self
     {
@@ -68,10 +152,28 @@ class InvMoveEntity
             $data['raw_material_id'],
             $data['batch_id'] ?? null,
             $data['movement_type'],
-            $data['quantity'],
-            $data['unit_cost'] ?? null,
+            (float) $data['quantity'],
+            isset($data['unit_cost']) ? (float) $data['unit_cost'] : null,
             $data['notes'] ?? null,
             $data['created_by'] ?? null,
+        );
+    }
+
+    public static function fromModel($model): ?self
+    {
+        if (! $model) {
+            return null;
+        }
+
+        return new self(
+            $model->id,
+            $model->raw_material_id,
+            $model->batch_id,
+            $model->movement_type,
+            (float) $model->quantity,
+            isset($model->unit_cost) ? (float) $model->unit_cost : null,
+            $model->notes,
+            $model->created_by,
         );
     }
 
