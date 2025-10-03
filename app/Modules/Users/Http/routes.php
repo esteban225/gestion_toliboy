@@ -10,9 +10,6 @@
 use App\Modules\Users\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
-// Definición de constante para evitar duplicación de la ruta de usuario por ID
-const USER_ID_ROUTE = '/users/{id}';
-
 // Rutas protegidas para la gestión de usuarios
 Route::middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
     /**
@@ -21,7 +18,7 @@ Route::middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::cla
      *
      * @param  int  $id  ID del usuario
      */
-    Route::get(USER_ID_ROUTE, [UsersController::class, 'show']);
+    Route::get('/users/{id}', [UsersController::class, 'show']);
 
     /**
      * PUT /users/{id}
@@ -29,7 +26,7 @@ Route::middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::cla
      *
      * @param  int  $id  ID del usuario
      */
-    Route::put(USER_ID_ROUTE, [UsersController::class, 'update']);
+    Route::put('/users/{id}', [UsersController::class, 'update']);
 });
 
 Route::prefix('accesData')->group(function () {
@@ -45,7 +42,7 @@ Route::prefix('accesData')->group(function () {
      *
      * @param  int  $id  ID del usuario
      */
-    Route::delete(USER_ID_ROUTE, [UsersController::class, 'destroy'])->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class]);
+    Route::delete('/users/{id}', [UsersController::class, 'destroy'])->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class]);
 
     /**
      * POST /users
