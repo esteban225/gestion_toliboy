@@ -80,7 +80,7 @@ return [
      */
     'middleware' => [
         'web',
-        RestrictedDocsAccess::class, // solo usuarios autenticados pueden ver docs
+        //RestrictedDocsAccess::class, 
         // 'auth', // puedes descomentar esto si quieres exigir login
         // 'can:viewDocs', // o usar permisos personalizados
     ],
