@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Route;
  * incluyendo consulta, registro, actualización, eliminación y registro automático de horas.
  */
 
-// Definición de constante para evitar duplicación del string de roles
-const WORKLOG_ROLES = 'role:DEV,GG,INGPL,INGPR';
 
 // Rutas para consultar los registros de horas de un usuario específico
 Route::middleware(['api', 'jwt.auth'])->group(function () {
@@ -30,7 +28,7 @@ Route::middleware(['api', 'jwt.auth'])->group(function () {
 
 // Rutas protegidas para la gestión completa de WorkLogs
 Route::prefix('work-logs')
-    ->middleware(['api', 'jwt.auth', WORKLOG_ROLES, \App\Http\Middleware\SetDbSessionUser::class])
+    ->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])
     ->group(function () {
         /**
          * GET /work-logs
