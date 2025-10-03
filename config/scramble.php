@@ -66,6 +66,7 @@ return [
         'Local' => 'http://127.0.0.1:8000/api',
         'Staging' => 'https://staging.toliboy.com/api',
         'Producción' => 'https://toliboy.com/api',
+        'docker' => 'http://localhost/api', // si usas docker y quieres probar desde otro contenedor
     ],
 
     /*
