@@ -1,0 +1,708 @@
+<?php
+
+namespace App\Modules\Forms\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Models\FormResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+/**
+ * Controlador para la gestión de respuestas de formularios.
+ * Permite listar, crear, mostrar, actualizar y eliminar respuestas de formularios.
+ */
+class FormResponseController extends Controller
+{
+    /**
+     * Muestra una lista de todas las respuestas de formularios con filtros y paginación.
+     *
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con todas las respuestas o mensaje de error.
+     */
+    public function index(Request $request)
+    {
+        try {
+            $query = FormResponse::with(['user:id,name', 'form:id,name,code']);
+
+            // Filtrar por formulario si se proporciona
+            if ($request->has('form_id')) {
+                $query->where('form_id', $request->form_id);
+            }
+
+            // Filtrar por estado si se proporciona
+            if ($request->has('status')) {
+                $query->where('status', $request->status);
+            }
+
+            // Filtrar por usuario si se proporciona
+            if ($request->has('user_id')) {
+                $query->where('user_id', $request->user_id);
+            }
+
+            // Filtrar por lote si se proporciona
+            if ($request->has('batch_id')) {
+                $query->where('batch_id', $request->batch_id);
+            }
+
+            // Obtener resultados paginados
+            $formResponses = $query->orderBy('created_at', 'desc')
+                ->paginate($request->get('per_page', 15));
+
+            if ($formResponses->isEmpty() && $formResponses->currentPage() > 1) {
+                return response()->json(['message' => 'No se encuentran respuestas de formularios para esta página'], 404);
+            } else {
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Respuestas de formularios encontradas',
+                    'data' => $formResponses,
+                ], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Ocurrió un error al procesar la solicitud.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Muestra el formulario para crear una nueva respuesta.
+     * (No implementado, normalmente usado en aplicaciones web con vistas)
+     *
+     * @return void
+     */
+    public function create() {}
+
+    /**
+     * Almacena una nueva respuesta de formulario en la base de datos.
+     *
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
+     */
+    public function store(Request $request)
+    {
+        try {
+            // Validación básica
+            $request->validate([
+                'form_id' => 'required|exists:forms,id',
+                'batch_id' => 'nullable|exists:batches,id',
+                'values' => 'required|array'
+            ]);
+
+            // Obtenemos el formulario y sus campos
+            $form = \App\Models\Form::with('form_fields')->findOrFail($request->form_id);
+
+            // Verificamos que el formulario esté activo
+            if (!$form->is_active) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'El formulario no está activo',
+                ], 400);
+            }
+
+            // Validamos los valores del formulario
+            $this->validateFormValues($form, $request->values);
+
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            try {
+                // Crear la respuesta del formulario
+                $formResponse = new FormResponse([
+                    'form_id' => $request->form_id,
+                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                    'batch_id' => $request->batch_id,
+                    'status' => $request->input('status', 'in_progress') // 'pending', 'in_progress', 'completed'
+                ]);
+
+                // Si el estado es completado, establecemos la fecha de envío
+                if ($formResponse->status === 'completed') {
+                    $formResponse->submitted_at = now();
+                }
+
+                $formResponse->save();
+
+                // Guardar los valores de los campos
+                foreach ($request->values as $fieldCode => $value) {
+                    // Encontrar el campo por su código
+                    $field = $form->form_fields->firstWhere('field_code', $fieldCode);
+
+                    if (!$field) continue;
+
+                    // Si es un archivo, lo procesamos
+                    if ($field->type === 'file' && $request->hasFile("values.{$fieldCode}")) {
+                        $file = $request->file("values.{$fieldCode}");
+                        $path = $file->store('form_responses/' . $formResponse->id, 'public');
+
+                        $formResponse->form_response_values()->create([
+                            'field_id' => $field->id,
+                            'value' => $file->getClientOriginalName(),
+                            'file_path' => $path
+                        ]);
+                    } else {
+                        // Para otros tipos de campos
+                        $formResponse->form_response_values()->create([
+                            'field_id' => $field->id,
+                            'value' => is_array($value) ? json_encode($value) : $value
+                        ]);
+                    }
+                }
+
+                \Illuminate\Support\Facades\DB::commit();
+
+                // Cargamos las relaciones necesarias
+                $formResponse->load(['user:id,name', 'form:id,name,code', 'form_response_values.form_field']);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Respuesta de formulario enviada exitosamente',
+                    'data' => $formResponse,
+                ], 201);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\DB::rollback();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Error al enviar la respuesta del formulario',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Ocurrió un error al procesar la solicitud.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Muestra la información de una respuesta de formulario específica.
+     *
+     * @param  string  $id  Identificador de la respuesta.
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con los datos o mensaje de error.
+     */
+    public function show(string $id)
+    {
+        try {
+            $formResponse = FormResponse::with([
+                'user:id,name',
+                'form:id,name,code',
+                'form_response_values.form_field',
+                'batch:id,batch_number'
+            ])->find($id);
+
+            if (! $formResponse) {
+                return response()->json(['message' => 'Respuesta de formulario no encontrada'], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Respuesta de formulario encontrada',
+                'data' => $formResponse,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Ocurrió un error al procesar la solicitud.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Muestra el formulario para editar una respuesta específica.
+     * (No implementado)
+     *
+     * @param  string  $id  Identificador de la respuesta.
+     * @return void
+     */
+    public function edit(string $id)
+    {
+        //
+    }
+
+    /**
+     * Actualiza la información de una respuesta de formulario específica en la base de datos.
+     *
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @param  string  $id  Identificador de la respuesta.
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
+     */
+    public function update(Request $request, string $id)
+    {
+        try {
+            // Validación básica
+            $request->validate([
+                'batch_id' => 'nullable|exists:batches,id',
+                'values' => 'required|array',
+                'status' => 'nullable|in:pending,in_progress,completed'
+            ]);
+
+            // Obtener la respuesta existente
+            $formResponse = FormResponse::findOrFail($id);
+
+            // Solo permitir actualizar si está en progreso o pendiente
+            if (!in_array($formResponse->status, ['pending', 'in_progress'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No se puede actualizar una respuesta que ya está completada o revisada',
+                ], 400);
+            }
+
+            // Obtener el formulario con sus campos
+            $form = \App\Models\Form::with('form_fields')->findOrFail($formResponse->form_id);
+
+            // Validar los valores del formulario
+            $this->validateFormValues($form, $request->values);
+
+            \Illuminate\Support\Facades\DB::beginTransaction();
+            try {
+                // Actualizar la respuesta del formulario
+                if ($request->has('batch_id')) {
+                    $formResponse->batch_id = $request->batch_id;
+                }
+
+                if ($request->has('status')) {
+                    $formResponse->status = $request->status;
+
+                    // Si el estado es completado, establecemos la fecha de envío
+                    if ($request->status === 'completed' && !$formResponse->submitted_at) {
+                        $formResponse->submitted_at = now();
+                    }
+                }
+
+                $formResponse->save();
+
+                // Actualizar los valores de los campos
+                foreach ($request->values as $fieldCode => $value) {
+                    // Encontrar el campo por su código
+                    $field = $form->form_fields->firstWhere('field_code', $fieldCode);
+
+                    if (!$field) continue;
+
+                    // Buscar si ya existe un valor para este campo
+                    $responseValue = $formResponse->form_response_values()
+                        ->where('field_id', $field->id)
+                        ->first();
+
+                    // Si es un archivo, lo procesamos
+                    if ($field->type === 'file' && $request->hasFile("values.{$fieldCode}")) {
+                        $file = $request->file("values.{$fieldCode}");
+                        $path = $file->store('form_responses/' . $formResponse->id, 'public');
+
+                        // Si ya existe un valor para este campo, eliminar el archivo anterior y actualizar
+                        if ($responseValue) {
+                            if ($responseValue->file_path) {
+                                \Illuminate\Support\Facades\Storage::disk('public')->delete($responseValue->file_path);
+                            }
+
+                            $responseValue->update([
+                                'value' => $file->getClientOriginalName(),
+                                'file_path' => $path
+                            ]);
+                        } else {
+                            // Si no existe, crear un nuevo valor
+                            $formResponse->form_response_values()->create([
+                                'field_id' => $field->id,
+                                'value' => $file->getClientOriginalName(),
+                                'file_path' => $path
+                            ]);
+                        }
+                    } else {
+                        // Para otros tipos de campos
+                        $fieldValue = is_array($value) ? json_encode($value) : $value;
+
+                        if ($responseValue) {
+                            $responseValue->update([
+                                'value' => $fieldValue
+                            ]);
+                        } else {
+                            $formResponse->form_response_values()->create([
+                                'field_id' => $field->id,
+                                'value' => $fieldValue
+                            ]);
+                        }
+                    }
+                }
+
+                \Illuminate\Support\Facades\DB::commit();
+
+                // Cargamos las relaciones necesarias
+                $formResponse->load(['user:id,name', 'form:id,name,code', 'form_response_values.form_field']);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Respuesta de formulario actualizada exitosamente',
+                    'data' => $formResponse,
+                ], 200);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\DB::rollback();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Error al actualizar la respuesta del formulario',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Ocurrió un error al procesar la solicitud.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Elimina una respuesta de formulario específica de la base de datos.
+     *
+     * @param  string  $id  Identificador de la respuesta.
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
+     */
+    public function destroy(string $id)
+    {
+        try {
+            $formResponse = FormResponse::find($id);
+            if (! $formResponse) {
+                // Si no existe, retorna mensaje de error
+                return response()->json(['message' => 'Respuesta de formulario no encontrada'], 404);
+            }
+
+            // Elimina la respuesta
+            $formResponse->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Respuesta de formulario eliminada exitosamente',
+            ], 200);
+        } catch (\Exception $e) {
+            // Si ocurre una excepción, retorna el error
+            return response()->json([
+                'status' => false,
+                'message' => 'Ocurrió un error al procesar la solicitud.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Review a submitted form response.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function review(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|in:approved,rejected',
+                'review_notes' => 'nullable|string|max:1000'
+            ]);
+
+            $formResponse = FormResponse::findOrFail($id);
+
+            // Solo se pueden revisar respuestas completadas
+            if ($formResponse->status !== 'completed') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'No se puede revisar una respuesta que no está completada',
+                ], 400);
+            }
+
+            $formResponse->update([
+                'status' => $request->status,
+                'reviewed_by' => \Illuminate\Support\Facades\Auth::id(),
+                'reviewed_at' => now(),
+                'review_notes' => $request->review_notes
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Respuesta de formulario revisada exitosamente',
+                'data' => $formResponse->load(['user:id,name', 'form:id,name,code']),
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Ocurrió un error al procesar la solicitud.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Validate form values based on form fields rules.
+     *
+     * @param \App\Models\Form $form
+     * @param array $values
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function validateFormValues(\App\Models\Form $form, array $values)
+    {
+        $validationRules = [];
+        $messages = [];
+
+        // Construir reglas de validación basadas en los campos del formulario
+        foreach ($form->form_fields as $field) {
+            // Solo validamos campos activos
+            if (!$field->is_active) continue;
+
+            $rules = [];
+
+            // Si el campo es requerido
+            if ($field->required) {
+                if ($field->type === 'file') {
+                    $rules[] = 'required_without:id';
+                } else {
+                    $rules[] = 'required';
+                }
+            } else {
+                $rules[] = 'nullable';
+            }
+
+            // Reglas basadas en el tipo de campo
+            switch ($field->type) {
+                case 'text':
+                case 'textarea':
+                    $rules[] = 'string';
+                    break;
+
+                case 'number':
+                    $rules[] = 'numeric';
+                    break;
+
+                case 'date':
+                    $rules[] = 'date';
+                    break;
+
+                case 'time':
+                    $rules[] = 'date_format:H:i';
+                    break;
+
+                case 'datetime':
+                    $rules[] = 'date_format:Y-m-d H:i:s';
+                    break;
+
+                case 'select':
+                case 'radio':
+                    if (!empty($field->options)) {
+                        $options = is_array($field->options)
+                            ? $field->options
+                            : json_decode($field->options, true);
+
+                        if (is_array($options)) {
+                            $allowed = array_map(function ($item) {
+                                return is_array($item) && isset($item['value'])
+                                    ? $item['value']
+                                    : $item;
+                            }, $options);
+
+                            $rules[] = 'in:' . implode(',', $allowed);
+                        }
+                    }
+                    break;
+
+                case 'checkbox':
+                case 'multiselect':
+                    // El campo debe ser un array (puede tener varios valores)
+                    $rules[] = 'array';
+
+                    if (!empty($field->options)) {
+                        $options = is_array($field->options)
+                            ? $field->options
+                            : json_decode($field->options, true);
+
+                        if (is_array($options)) {
+                            // Extraer los valores permitidos correctamente
+                            $allowed = array_map(function ($item) {
+                                // Si es un objeto o array con 'value', úsalo
+                                if (is_array($item) && isset($item['value'])) {
+                                    return $item['value'];
+                                }
+
+                                // Si solo es un string (ej: "Huecos"), úsalo tal cual
+                                return $item;
+                            }, $options);
+
+                            // Agregamos regla para cada elemento del array (campo.*)
+                            // Nota: debes conocer el nombre del campo (por ejemplo $field->name)
+                            $fieldName = 'values.' . $field->name; // ajusta si tu estructura difiere
+
+                            $validationRules[$fieldName] = ['array'];
+                            $validationRules[$fieldName . '.*'] = ['in:' . implode(',', $allowed)];
+                        }
+                    }
+                    break;
+
+                case 'file':
+                    if (request()->hasFile("values.{$field->field_code}")) {
+                        $rules[] = 'file';
+                        $rules[] = 'mimes:jpeg,png,jpg,pdf,doc,docx,xls,xlsx';
+                        $rules[] = 'max:10240'; // 10MB
+                    }
+                    break;
+            }
+
+            // Agregar reglas de validación personalizadas si existen
+            if (!empty($field->validation_rules)) {
+                $customRules = is_array($field->validation_rules) ? $field->validation_rules : json_decode($field->validation_rules, true);
+                if (is_array($customRules)) {
+                    $rules = array_merge($rules, $customRules);
+                }
+            }
+
+            if (!empty($rules)) {
+                $validationRules["values.{$field->field_code}"] = implode('|', $rules);
+
+                // Agregar mensajes personalizados para este campo
+                $messages["values.{$field->field_code}.required"] = "El campo '{$field->label}' es obligatorio.";
+                $messages["values.{$field->field_code}.in"] = "El valor seleccionado para '{$field->label}' es inválido.";
+                $messages["values.{$field->field_code}.numeric"] = "El campo '{$field->label}' debe ser un número.";
+                $messages["values.{$field->field_code}.date"] = "El campo '{$field->label}' debe ser una fecha válida.";
+                $messages["values.{$field->field_code}.file"] = "El campo '{$field->label}' debe ser un archivo.";
+                $messages["values.{$field->field_code}.mimes"] = "El archivo '{$field->label}' debe ser de tipo: jpeg, png, jpg, pdf, doc, docx, xls, xlsx.";
+                $messages["values.{$field->field_code}.max"] = "El archivo '{$field->label}' no debe ser mayor a 10MB.";
+            }
+        }
+
+        // Realizar la validación
+        $validator = Validator::make(['values' => $values], $validationRules, $messages);
+
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
+    }
+
+    /**
+     * Get validation rules for a specific form.
+     *
+     * @param int $formId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getValidationRules($formId)
+    {
+        try {
+            $form = \App\Models\Form::with(['form_fields' => function ($query) {
+                $query->where('is_active', true)->orderBy('field_order');
+            }])->findOrFail($formId);
+
+            $validationRules = [];
+
+            foreach ($form->form_fields as $field) {
+                $rules = [];
+
+                // Regla requerido
+                if ($field->required) {
+                    $rules[] = 'required';
+                } else {
+                    $rules[] = 'nullable';
+                }
+
+                // Reglas basadas en el tipo de campo
+                switch ($field->type) {
+                    case 'text':
+                    case 'textarea':
+                        $rules[] = 'string';
+                        break;
+
+                    case 'number':
+                        $rules[] = 'numeric';
+                        break;
+
+                    case 'date':
+                        $rules[] = 'date';
+                        break;
+
+                    case 'time':
+                        $rules[] = 'date_format:H:i';
+                        break;
+
+                    case 'datetime':
+                        $rules[] = 'date_format:Y-m-d H:i:s';
+                        break;
+
+                    case 'select':
+                    case 'radio':
+                        if (!empty($field->options)) {
+                            $options = is_array($field->options) ? $field->options : json_decode($field->options, true);
+                            if (is_array($options)) {
+                                $rules[] = 'in:' . implode(',', array_column($options, 'value'));
+                            }
+                        }
+                        break;
+
+                    case 'checkbox':
+                    case 'multiselect':
+                        $rules[] = 'array';
+                        if (!empty($field->options)) {
+                            $options = is_array($field->options) ? $field->options : json_decode($field->options, true);
+                            if (is_array($options)) {
+                                $rules[] = 'in:' . implode(',', array_column($options, 'value')) . '*';
+                            }
+                        }
+                        break;
+
+                    case 'file':
+                        $rules[] = 'file';
+                        $rules[] = 'mimes:jpeg,png,jpg,pdf,doc,docx,xls,xlsx';
+                        $rules[] = 'max:10240'; // 10MB
+                        break;
+                }
+
+                // Agregar reglas de validación personalizadas si existen
+                if (!empty($field->validation_rules)) {
+                    $customRules = is_array($field->validation_rules) ? $field->validation_rules : json_decode($field->validation_rules, true);
+                    if (is_array($customRules)) {
+                        $rules = array_merge($rules, $customRules);
+                    }
+                }
+
+                $validationRules[$field->field_code] = [
+                    'rules' => $rules,
+                    'label' => $field->label,
+                    'type' => $field->type,
+                    'required' => $field->required,
+                    'options' => $field->options
+                ];
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Reglas de validación obtenidas exitosamente',
+                'data' => [
+                    'form' => [
+                        'id' => $form->id,
+                        'name' => $form->name,
+                        'code' => $form->code,
+                        'description' => $form->description,
+                        'version' => $form->version
+                    ],
+                    'validation_rules' => $validationRules
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Ocurrió un error al procesar la solicitud.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+}

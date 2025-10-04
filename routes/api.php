@@ -1,11 +1,13 @@
 <?php
 
-// use App\Http\Controllers\AuthController;
-// use App\Http\Controllers\BatchesController;
-// use App\Http\Controllers\FormsController;
-// use App\Http\Controllers\FormsFilesController;
-// use App\Http\Controllers\FormResponseController;
-// use App\Http\Controllers\FormResponseValueController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BatchesController;
+use App\Http\Controllers\FormsController;
+use App\Http\Controllers\FormsFilesController;
+use App\Http\Controllers\FormResponseController;
+use App\Http\Controllers\FormResponseValueController;
+use App\Http\Controllers\NotificationsController;
+use Illuminate\Support\Facades\Route;
 // use App\Http\Controllers\InventoryMovementsController;
 // use App\Http\Controllers\NotificationsController;
 // use App\Http\Controllers\ProductsController;
@@ -34,6 +36,11 @@
 // | Authenticated common routes (any authenticated user)
 // |--------------------------------------------------------------------------
 // */
+// /*
+// |--------------------------------------------------------------------------
+// | Authenticated common routes (any authenticated user)
+// |--------------------------------------------------------------------------
+// */
 // Route::middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
 //     Route::get('/me',      [AuthController::class, 'me']);
 //     Route::post('/logout', [AuthController::class, 'logout']);
@@ -41,6 +48,11 @@
 
 //     // Notificaciones básicas
 //     Route::get('notifications', [NotificationsController::class, 'index']);
+    
+//     // Form Responses
+//     Route::apiResource('form-responses', FormResponseController::class);
+//     Route::post('form-responses/{id}/review', [FormResponseController::class, 'review']);
+//     Route::get('forms/{formId}/validation-rules', [FormResponseController::class, 'getValidationRules']);
 // });
 
 // /*
