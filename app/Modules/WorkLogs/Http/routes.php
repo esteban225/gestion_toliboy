@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Route;
  * incluyendo consulta, registro, actualización, eliminación y registro automático de horas.
  */
 
-
 // Rutas para consultar los registros de horas de un usuario específico
 Route::middleware(['api', 'jwt.auth'])->group(function () {
     /**

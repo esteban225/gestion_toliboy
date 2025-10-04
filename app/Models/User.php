@@ -46,7 +46,7 @@ class User extends Authenticatable implements JWTSubject
     protected $table = 'users';
 
     /**
-     * The attributes that are mass assignable.
+     * Los atributos que pueden ser asignados masivamente.
      *
      * @var array<int, string>
      */
@@ -61,7 +61,14 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Carga siempre la relación 'role' para incluirla en los claims del JWT.
+     *
+     * @var array<string>
+     */
+    protected $with = ['role'];
+
+    /**
+     * Los atributos que deben ocultarse para serialización.
      *
      * @var array<int, string>
      */
@@ -99,8 +106,10 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array<string, mixed> Claims personalizados: rol y permisos.
      */
-    public function getJWTCustomClaims()
+    public function getJWTCustomClaims(): array
     {
         return [
             'role' => $this->role?->name,

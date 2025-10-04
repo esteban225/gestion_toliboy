@@ -9,6 +9,10 @@ use App\Modules\Batches\Domain\Repositories\BatcheRepositoryI;
 use App\Modules\Batches\Infrastructure\Repositories\BatcheRepositoryE;
 use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
 use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository;
+use App\Modules\Forms\Domain\Repository\FormFieldRepositoryI;
+use App\Modules\Forms\Domain\Repository\FormRepositoryI;
+use App\Modules\Forms\Infrastructure\Repositories\FormFieldRepositoryE;
+use App\Modules\Forms\Infrastructure\Repositories\FormRepositoryE;
 use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositoryI;
 use App\Modules\InventoryMovements\Infrastructure\Repositories\InvMoveRepositoryE;
 use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
@@ -90,6 +94,15 @@ class AppServiceProvider extends ServiceProvider
             ProductRepositoryE::class
         );
 
+        $this->app->bind(
+            FormRepositoryI::class,
+            FormRepositoryE::class
+        );
+
+        $this->app->bind(
+            FormFieldRepositoryI::class,
+            FormFieldRepositoryE::class
+        );
         // Servicios específicos por módulo
         $this->app->bind(RawMaterialReportService::class);
     }
