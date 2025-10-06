@@ -252,9 +252,9 @@ return [
      */
     'middleware' => [
         'web',
-        // RestrictedDocsAccess::class,
-        // 'auth', // puedes descomentar esto si quieres exigir login
-        // 'can:viewDocs', // o usar permisos personalizados
+        RestrictedDocsAccess::class,
+        'auth', // puedes descomentar esto si quieres exigir login
+        'can:viewApiDocs', // o usar permisos personalizados
     ],
 
     'extensions' => [],

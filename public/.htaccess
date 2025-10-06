@@ -4,6 +4,9 @@
     </IfModule>
 
     RewriteEngine On
+    Header always unset X-Frame-Options
+    Header always unset Content-Security-Policy
+    Header always set X-Frame-Options "ALLOWALL"
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

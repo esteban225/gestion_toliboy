@@ -11,8 +11,8 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $email = 'dev@example.com';
-        $password = 'password'; // ⚠️ Cambiar en producción
+        $email = 'desarrollo@toliboy.com';
+        $password = 'DevPassword'; // ⚠️ Cambiar en producción
 
         // Crear usuario si no existe
         $userId = DB::table('users')->where('email', $email)->value('id');

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\RawMaterial;
+use App\Models\User;
 use App\Modules\Auth\Domain\Repositories\UserRepositoryInterface;
 use App\Modules\Auth\Infrastructure\Repositories\EloquentUserRepository;
 use App\Modules\Batches\Domain\Repositories\BatcheRepositoryI;
@@ -35,6 +36,7 @@ use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 
@@ -122,17 +124,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 👀 Observador del modelo RawMaterial
         RawMaterial::observe(RawMaterialObserver::class);
 
+        // 🚪 Definir gate para autorización de /docs/api
+        Gate::define('viewApiDocs', function (User $user) {
+            // Solo permite el acceso al correo de desarrollo
+            return in_array($user->email, ['desarrollo@toliboy.com']);
+        });
+
+        // 🚫 Evita ejecutar Scramble en comandos artisan
         if ($this->app->runningInConsole()) {
-            return; // 👈 Evita ejecutar Scramble en comandos artisan
+            return;
         }
 
+        // ⚙️ Configuración de Scramble para documentación API
         Scramble::configure()
-            ->routes(function (Route $route) {
+            ->routes(function ($route) {
+                // Solo incluir rutas que empiecen con "api/"
                 return Str::startsWith($route->uri, 'api/');
             })
             ->withDocumentTransformers(function (OpenApi $openApi) {
+                // Añadir esquema de seguridad JWT (Bearer Token)
                 $openApi->secure(
                     SecurityScheme::http('bearer', 'JWT')
                 );
