@@ -4,8 +4,13 @@ namespace App\Modules\Forms\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\FormResponse;
+use App\Modules\Forms\Application\UseCases\ManageFormResponseUseCase;
+use App\Modules\Forms\Application\UseCases\SubmitFormResponseUseCase;
+use App\Modules\Forms\Http\Requests\FormResponseFilterRequest;
+use App\Modules\Forms\Http\Requests\FormResponseStoreRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Controlador para la gestión de respuestas de formularios.
@@ -13,50 +18,40 @@ use Illuminate\Support\Facades\Validator;
  */
 class FormResponseController extends Controller
 {
+
+    public function __construct(
+        private ManageFormResponseUseCase $useCase,
+        private SubmitFormResponseUseCase $submitFormResponseUseCase
+    ) {
+        $this->useCase = $useCase;
+        $this->submitFormResponseUseCase = $submitFormResponseUseCase;
+    }
     /**
      * Muestra una lista de todas las respuestas de formularios con filtros y paginación.
      *
-     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @param  \App\Modules\Forms\Http\Requests\FormResponseFilterRequest  $request  Datos de la solicitud HTTP.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con todas las respuestas o mensaje de error.
      */
-    public function index(Request $request)
+    public function index(FormResponseFilterRequest $request)
     {
         try {
-            $query = FormResponse::with(['user:id,name', 'form:id,name,code']);
-
-            // Filtrar por formulario si se proporciona
-            if ($request->has('form_id')) {
-                $query->where('form_id', $request->form_id);
+            $filters = $request->except(['page', 'per_page']);
+            $perpage = $request->input('per_page', 15);
+            $paginator = $this->useCase->all($filters, $perpage);
+            if (! $paginator) {
+                return response()->json(['message' => 'No se encontraron respuestas de formularios'], 404);
             }
-
-            // Filtrar por estado si se proporciona
-            if ($request->has('status')) {
-                $query->where('status', $request->status);
-            }
-
-            // Filtrar por usuario si se proporciona
-            if ($request->has('user_id')) {
-                $query->where('user_id', $request->user_id);
-            }
-
-            // Filtrar por lote si se proporciona
-            if ($request->has('batch_id')) {
-                $query->where('batch_id', $request->batch_id);
-            }
-
-            // Obtener resultados paginados
-            $formResponses = $query->orderBy('created_at', 'desc')
-                ->paginate($request->get('per_page', 15));
-
-            if ($formResponses->isEmpty() && $formResponses->currentPage() > 1) {
-                return response()->json(['message' => 'No se encuentran respuestas de formularios para esta página'], 404);
-            } else {
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Respuestas de formularios encontradas',
-                    'data' => $formResponses,
-                ], 200);
-            }
+            return response()->json([
+                'success' => true,
+                'message' => 'Respuestas de formularios recuperadas con éxito',
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                ],
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -77,95 +72,31 @@ class FormResponseController extends Controller
     /**
      * Almacena una nueva respuesta de formulario en la base de datos.
      *
-     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
+     * @param  App\Modules\Forms\Http\Requests\FormResponseStoreRequest  $request  Datos de la solicitud HTTP.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
      */
-    public function store(Request $request)
+    public function store(FormResponseStoreRequest $request)
     {
         try {
-            // Validación básica
-            $request->validate([
-                'form_id' => 'required|exists:forms,id',
-                'batch_id' => 'nullable|exists:batches,id',
-                'values' => 'required|array'
-            ]);
 
-            // Obtenemos el formulario y sus campos
-            $form = \App\Models\Form::with('form_fields')->findOrFail($request->form_id);
+            $form = $this->submitFormResponseUseCase->execute($request->validated());
 
             // Verificamos que el formulario esté activo
-            if (!$form->is_active) {
+            if (! $form) {
                 return response()->json([
                     'status' => false,
                     'message' => 'El formulario no está activo',
                 ], 400);
             }
-
-            // Validamos los valores del formulario
-            $this->validateFormValues($form, $request->values);
-
-            \Illuminate\Support\Facades\DB::beginTransaction();
-            try {
-                // Crear la respuesta del formulario
-                $formResponse = new FormResponse([
-                    'form_id' => $request->form_id,
-                    'user_id' => \Illuminate\Support\Facades\Auth::id(),
-                    'batch_id' => $request->batch_id,
-                    'status' => $request->input('status', 'in_progress') // 'pending', 'in_progress', 'completed'
-                ]);
-
-                // Si el estado es completado, establecemos la fecha de envío
-                if ($formResponse->status === 'completed') {
-                    $formResponse->submitted_at = now();
-                }
-
-                $formResponse->save();
-
-                // Guardar los valores de los campos
-                foreach ($request->values as $fieldCode => $value) {
-                    // Encontrar el campo por su código
-                    $field = $form->form_fields->firstWhere('field_code', $fieldCode);
-
-                    if (!$field) continue;
-
-                    // Si es un archivo, lo procesamos
-                    if ($field->type === 'file' && $request->hasFile("values.{$fieldCode}")) {
-                        $file = $request->file("values.{$fieldCode}");
-                        $path = $file->store('form_responses/' . $formResponse->id, 'public');
-
-                        $formResponse->form_response_values()->create([
-                            'field_id' => $field->id,
-                            'value' => $file->getClientOriginalName(),
-                            'file_path' => $path
-                        ]);
-                    } else {
-                        // Para otros tipos de campos
-                        $formResponse->form_response_values()->create([
-                            'field_id' => $field->id,
-                            'value' => is_array($value) ? json_encode($value) : $value
-                        ]);
-                    }
-                }
-
-                \Illuminate\Support\Facades\DB::commit();
-
-                // Cargamos las relaciones necesarias
-                $formResponse->load(['user:id,name', 'form:id,name,code', 'form_response_values.form_field']);
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Respuesta de formulario enviada exitosamente',
-                    'data' => $formResponse,
-                ], 201);
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\DB::rollback();
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Error al enviar la respuesta del formulario',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(
+                [
+                    'status' => $form['status'],
+                    'message' => $form['message'],
+                    'data' => $form['data'],
+                ]
+            );
+ 
+        } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Error de validación',
@@ -193,7 +124,7 @@ class FormResponseController extends Controller
                 'user:id,name',
                 'form:id,name,code',
                 'form_response_values.form_field',
-                'batch:id,batch_number'
+                'batch:id,batch_number',
             ])->find($id);
 
             if (! $formResponse) {
@@ -240,14 +171,14 @@ class FormResponseController extends Controller
             $request->validate([
                 'batch_id' => 'nullable|exists:batches,id',
                 'values' => 'required|array',
-                'status' => 'nullable|in:pending,in_progress,completed'
+                'status' => 'nullable|in:pending,in_progress,completed',
             ]);
 
             // Obtener la respuesta existente
             $formResponse = FormResponse::findOrFail($id);
 
             // Solo permitir actualizar si está en progreso o pendiente
-            if (!in_array($formResponse->status, ['pending', 'in_progress'])) {
+            if (! in_array($formResponse->status, ['pending', 'in_progress'])) {
                 return response()->json([
                     'status' => false,
                     'message' => 'No se puede actualizar una respuesta que ya está completada o revisada',
@@ -271,7 +202,7 @@ class FormResponseController extends Controller
                     $formResponse->status = $request->status;
 
                     // Si el estado es completado, establecemos la fecha de envío
-                    if ($request->status === 'completed' && !$formResponse->submitted_at) {
+                    if ($request->status === 'completed' && ! $formResponse->submitted_at) {
                         $formResponse->submitted_at = now();
                     }
                 }
@@ -283,7 +214,9 @@ class FormResponseController extends Controller
                     // Encontrar el campo por su código
                     $field = $form->form_fields->firstWhere('field_code', $fieldCode);
 
-                    if (!$field) continue;
+                    if (! $field) {
+                        continue;
+                    }
 
                     // Buscar si ya existe un valor para este campo
                     $responseValue = $formResponse->form_response_values()
@@ -303,14 +236,14 @@ class FormResponseController extends Controller
 
                             $responseValue->update([
                                 'value' => $file->getClientOriginalName(),
-                                'file_path' => $path
+                                'file_path' => $path,
                             ]);
                         } else {
                             // Si no existe, crear un nuevo valor
                             $formResponse->form_response_values()->create([
                                 'field_id' => $field->id,
                                 'value' => $file->getClientOriginalName(),
-                                'file_path' => $path
+                                'file_path' => $path,
                             ]);
                         }
                     } else {
@@ -319,12 +252,12 @@ class FormResponseController extends Controller
 
                         if ($responseValue) {
                             $responseValue->update([
-                                'value' => $fieldValue
+                                'value' => $fieldValue,
                             ]);
                         } else {
                             $formResponse->form_response_values()->create([
                                 'field_id' => $field->id,
-                                'value' => $fieldValue
+                                'value' => $fieldValue,
                             ]);
                         }
                     }
@@ -342,6 +275,7 @@ class FormResponseController extends Controller
                 ], 200);
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\DB::rollback();
+
                 return response()->json([
                     'status' => false,
                     'message' => 'Error al actualizar la respuesta del formulario',
@@ -398,8 +332,7 @@ class FormResponseController extends Controller
     /**
      * Review a submitted form response.
      *
-     * @param Request $request
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function review(Request $request, $id)
@@ -407,7 +340,7 @@ class FormResponseController extends Controller
         try {
             $request->validate([
                 'status' => 'required|in:approved,rejected',
-                'review_notes' => 'nullable|string|max:1000'
+                'review_notes' => 'nullable|string|max:1000',
             ]);
 
             $formResponse = FormResponse::findOrFail($id);
@@ -424,7 +357,7 @@ class FormResponseController extends Controller
                 'status' => $request->status,
                 'reviewed_by' => \Illuminate\Support\Facades\Auth::id(),
                 'reviewed_at' => now(),
-                'review_notes' => $request->review_notes
+                'review_notes' => $request->review_notes,
             ]);
 
             return response()->json([
@@ -450,8 +383,6 @@ class FormResponseController extends Controller
     /**
      * Validate form values based on form fields rules.
      *
-     * @param \App\Models\Form $form
-     * @param array $values
      * @throws \Illuminate\Validation\ValidationException
      */
     protected function validateFormValues(\App\Models\Form $form, array $values)
@@ -462,7 +393,9 @@ class FormResponseController extends Controller
         // Construir reglas de validación basadas en los campos del formulario
         foreach ($form->form_fields as $field) {
             // Solo validamos campos activos
-            if (!$field->is_active) continue;
+            if (! $field->is_active) {
+                continue;
+            }
 
             $rules = [];
 
@@ -502,7 +435,7 @@ class FormResponseController extends Controller
 
                 case 'select':
                 case 'radio':
-                    if (!empty($field->options)) {
+                    if (! empty($field->options)) {
                         $options = is_array($field->options)
                             ? $field->options
                             : json_decode($field->options, true);
@@ -524,7 +457,7 @@ class FormResponseController extends Controller
                     // El campo debe ser un array (puede tener varios valores)
                     $rules[] = 'array';
 
-                    if (!empty($field->options)) {
+                    if (! empty($field->options)) {
                         $options = is_array($field->options)
                             ? $field->options
                             : json_decode($field->options, true);
@@ -561,14 +494,14 @@ class FormResponseController extends Controller
             }
 
             // Agregar reglas de validación personalizadas si existen
-            if (!empty($field->validation_rules)) {
+            if (! empty($field->validation_rules)) {
                 $customRules = is_array($field->validation_rules) ? $field->validation_rules : json_decode($field->validation_rules, true);
                 if (is_array($customRules)) {
                     $rules = array_merge($rules, $customRules);
                 }
             }
 
-            if (!empty($rules)) {
+            if (! empty($rules)) {
                 $validationRules["values.{$field->field_code}"] = implode('|', $rules);
 
                 // Agregar mensajes personalizados para este campo
@@ -593,7 +526,7 @@ class FormResponseController extends Controller
     /**
      * Get validation rules for a specific form.
      *
-     * @param int $formId
+     * @param  int  $formId
      * @return \Illuminate\Http\JsonResponse
      */
     public function getValidationRules($formId)
@@ -640,7 +573,7 @@ class FormResponseController extends Controller
 
                     case 'select':
                     case 'radio':
-                        if (!empty($field->options)) {
+                        if (! empty($field->options)) {
                             $options = is_array($field->options) ? $field->options : json_decode($field->options, true);
                             if (is_array($options)) {
                                 $rules[] = 'in:' . implode(',', array_column($options, 'value'));
@@ -651,7 +584,7 @@ class FormResponseController extends Controller
                     case 'checkbox':
                     case 'multiselect':
                         $rules[] = 'array';
-                        if (!empty($field->options)) {
+                        if (! empty($field->options)) {
                             $options = is_array($field->options) ? $field->options : json_decode($field->options, true);
                             if (is_array($options)) {
                                 $rules[] = 'in:' . implode(',', array_column($options, 'value')) . '*';
@@ -667,7 +600,7 @@ class FormResponseController extends Controller
                 }
 
                 // Agregar reglas de validación personalizadas si existen
-                if (!empty($field->validation_rules)) {
+                if (! empty($field->validation_rules)) {
                     $customRules = is_array($field->validation_rules) ? $field->validation_rules : json_decode($field->validation_rules, true);
                     if (is_array($customRules)) {
                         $rules = array_merge($rules, $customRules);
@@ -679,7 +612,7 @@ class FormResponseController extends Controller
                     'label' => $field->label,
                     'type' => $field->type,
                     'required' => $field->required,
-                    'options' => $field->options
+                    'options' => $field->options,
                 ];
             }
 
@@ -692,9 +625,9 @@ class FormResponseController extends Controller
                         'name' => $form->name,
                         'code' => $form->code,
                         'description' => $form->description,
-                        'version' => $form->version
+                        'version' => $form->version,
                     ],
-                    'validation_rules' => $validationRules
+                    'validation_rules' => $validationRules,
                 ],
             ], 200);
         } catch (\Exception $e) {

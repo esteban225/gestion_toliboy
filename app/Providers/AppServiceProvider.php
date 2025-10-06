@@ -11,8 +11,10 @@ use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
 use App\Modules\DataUser\Infrastructure\Repositories\EloquentDataUserRepository;
 use App\Modules\Forms\Domain\Repository\FormFieldRepositoryI;
 use App\Modules\Forms\Domain\Repository\FormRepositoryI;
+use App\Modules\Forms\Domain\Repository\FormResponseRepositoryI;
 use App\Modules\Forms\Infrastructure\Repositories\FormFieldRepositoryE;
 use App\Modules\Forms\Infrastructure\Repositories\FormRepositoryE;
+use App\Modules\Forms\Infrastructure\Repositories\FormResponseRepositoryE;
 use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositoryI;
 use App\Modules\InventoryMovements\Infrastructure\Repositories\InvMoveRepositoryE;
 use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
@@ -102,6 +104,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             FormFieldRepositoryI::class,
             FormFieldRepositoryE::class
+        );
+
+        $this->app->bind(
+            FormResponseRepositoryI::class,
+            FormResponseRepositoryE::class
         );
         // Servicios específicos por módulo
         $this->app->bind(RawMaterialReportService::class);
