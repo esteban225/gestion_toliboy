@@ -12,7 +12,7 @@ use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
  * utilizando el repositorio de roles.
  *
  * Métodos:
- * - getRoleById(string $id): ?RoleEntity
+ * - getRoleById(int $id): ?RoleEntity
  *   Obtiene un rol por su identificador.
  *
  * - getAllRoles(): array
@@ -24,14 +24,14 @@ use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
  * - updateRole(array $data): bool
  *   Actualiza un rol existente con los datos proporcionados.
  *
- * - deleteRole(string $id): bool
+ * - deleteRole(int $id): bool
  *   Elimina un rol por su identificador.
  */
 class RoleService
 {
     public function __construct(private RoleRepositoryInterface $roles) {}
 
-    public function getRoleById(string $id): ?RoleEntity
+    public function getRoleById(int $id): ?RoleEntity
     {
         return $this->roles->findById($id);
     }
@@ -51,7 +51,7 @@ class RoleService
         return $this->roles->update($data);
     }
 
-    public function deleteRole(string $id): bool
+    public function deleteRole(int $id): bool
     {
         return $this->roles->delete($id);
     }

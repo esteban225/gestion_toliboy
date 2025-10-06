@@ -38,7 +38,7 @@ class EloquentUsersRepository implements UsersRepositoryInterface
             $query->where($key, $value);
         }
 
-        return $query->get()->map(fn ($user) => $this->mapToEntity($user))->all();
+        return $query->get()->map(fn ($user) => UserEntity::fromArray($user->toArray()))->all();
     }
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
@@ -47,30 +47,26 @@ class EloquentUsersRepository implements UsersRepositoryInterface
 
         // Aplicar filtros si existen
         foreach ($filters as $key => $value) {
-            $query->where($key, $value);
+            $query->where($key, 'like', '%'.$value.'%');
         }
 
-        $paginator = $query->paginate($perPage);
-
-        $paginator->getCollection()->transform(fn ($user) => $this->mapToEntity($user));
-
-        return $paginator;
+        return $query->paginate($perPage);
     }
 
     /**
      * Busca un usuario por su identificador.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @return UserEntity|null Entidad de usuario o null si no existe
      */
-    public function find(string $id): ?UserEntity
+    public function find(int $id): ?UserEntity
     {
         $user = User::find($id);
         if (! $user) {
             return null;
         }
 
-        return $this->mapToEntity($user);
+        return UserEntity::fromArray($user);
     }
 
     /**
@@ -84,7 +80,7 @@ class EloquentUsersRepository implements UsersRepositoryInterface
         $data->setPassword(Hash::make($data->getPassword()));
         $user = User::create($data->toArray());
 
-        return $this->mapToEntity($user);
+        return UserEntity::fromArray($user);
     }
 
     /**
@@ -106,10 +102,10 @@ class EloquentUsersRepository implements UsersRepositoryInterface
     /**
      * Elimina un usuario por su identificador.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @return bool True si la eliminación fue exitosa, false en caso contrario
      */
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         $user = User::find($id);
         if ($user) {
@@ -117,21 +113,5 @@ class EloquentUsersRepository implements UsersRepositoryInterface
         }
 
         return false;
-    }
-
-    private function mapToEntity(User $user): UserEntity
-    {
-        return new UserEntity(
-            $user->id,
-            $user->name,
-            $user->email,
-            $user->password,
-            $user->role_id,
-            $user->position,
-            $user->is_active,
-            $user->last_login,
-            $user->created_at,
-            $user->updated_at
-        );
     }
 }

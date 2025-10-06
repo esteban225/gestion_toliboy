@@ -1,7 +1,6 @@
-<?php 
+<?php
 
 namespace App\Modules\Forms\Http\Requests;
-
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,9 +11,9 @@ class FormResponseStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-                'form_id' => 'required|exists:forms,id',
-                'batch_id' => 'nullable|exists:batches,id',
-                'values' => 'required|array',
+            'form_id' => 'required|exists:forms,id',
+            'batch_id' => 'nullable|exists:batches,id',
+            'values' => 'required|array',
         ];
     }
 

@@ -7,13 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
- * UpdateRequest gestiona la validación de datos para la actualización de productos.
- *
- * Principio SOLID aplicado:
- * - SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validación y autorización
- *   de la solicitud de actualización, manteniendo su responsabilidad clara y única.
- *
- * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
+ * ProductUpdateRequest gestiona la validación de datos para la actualización de productos.
  */
 class ProductUpdateRequest extends FormRequest
 {

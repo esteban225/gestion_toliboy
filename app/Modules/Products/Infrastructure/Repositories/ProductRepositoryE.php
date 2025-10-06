@@ -20,7 +20,7 @@ class ProductRepositoryE implements ProductRepositoryI
         return $query->paginate($perPage);
     }
 
-    public function find(string $id): ?ProductEntity
+    public function find(int $id): ?ProductEntity
     {
         $product = Product::find($id);
 
@@ -52,7 +52,7 @@ class ProductRepositoryE implements ProductRepositoryI
 
     }
 
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         $product = Product::find($id);
 

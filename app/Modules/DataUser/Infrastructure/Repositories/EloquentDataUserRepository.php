@@ -34,7 +34,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
 
         // Aplicar filtros si existen
         foreach ($filters as $key => $value) {
-            $query->where($key, $value);
+            $query->where($key, 'LIKE', "%$value%");
         }
 
         $dataUsers = $query->get();

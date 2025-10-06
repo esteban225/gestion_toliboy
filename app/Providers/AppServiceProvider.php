@@ -45,6 +45,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+
+        Scramble::ignoreDefaultRoutes();
+
         // 👇 Aquí registras tu binding
         $this->app->bind(
             UserRepositoryInterface::class,

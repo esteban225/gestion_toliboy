@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Modules\Roles\Http\Requests;
+namespace App\Modules\WorkLogs\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
- * Rol registration request.
- *
- * Gestiona la validación de datos para el registro de roles.
- * Proporciona reglas de validación y manejo de errores personalizados.
+ * WorkLogUpdateRequest gestiona la validación de datos para el filtro de horas de trabajo.
  */
-class RegisterRequest extends FormRequest
+class WorkLogFilterRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -22,9 +19,14 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:roles,name', // El nombre del rol debe ser único
-
-            'description' => 'required|string|max:255', // La descripción es obligatoria
+            'user_id' => 'sometimes|required|integer|exists:users,id',
+            'date' => 'sometimes|nullable|date',
+            'start_time' => 'sometimes|nullable|date_format:H:i',
+            'end_time' => 'sometimes|nullable|date_format:H:i|after:start_time',
+            'batch_id' => 'sometimes|nullable|integer|exists:batches,id',
+            'task_description' => 'sometimes|nullable|string|max:1000',
+            'per_page' => 'sometimes|nullable|integer|min:1|max:100',
+            'page' => 'sometimes|nullable|integer|min:1',
         ];
     }
 
@@ -44,11 +46,6 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.unique' => 'Este rol ya está registrado.',
-            'name.required' => 'El nombre es obligatorio.',
-            'name.string' => 'El nombre debe ser un texto.',
-            'description.required' => 'La descripción es obligatoria.',
-            'description.string' => 'La descripción debe ser un texto.',
         ];
     }
 }

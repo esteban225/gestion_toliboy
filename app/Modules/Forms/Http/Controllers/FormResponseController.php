@@ -8,6 +8,7 @@ use App\Modules\Forms\Application\UseCases\ManageFormResponseUseCase;
 use App\Modules\Forms\Application\UseCases\SubmitFormResponseUseCase;
 use App\Modules\Forms\Http\Requests\FormResponseFilterRequest;
 use App\Modules\Forms\Http\Requests\FormResponseStoreRequest;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -16,9 +17,9 @@ use Illuminate\Validation\ValidationException;
  * Controlador para la gestión de respuestas de formularios.
  * Permite listar, crear, mostrar, actualizar y eliminar respuestas de formularios.
  */
+#[Group(name: 'Módulo de Formularios: Gestión de respuestas', weight: 11)]
 class FormResponseController extends Controller
 {
-
     public function __construct(
         private ManageFormResponseUseCase $useCase,
         private SubmitFormResponseUseCase $submitFormResponseUseCase
@@ -26,10 +27,16 @@ class FormResponseController extends Controller
         $this->useCase = $useCase;
         $this->submitFormResponseUseCase = $submitFormResponseUseCase;
     }
+
     /**
-     * Muestra una lista de todas las respuestas de formularios con filtros y paginación.
+     * Listar todas las respuestas de formularios.
      *
-     * @param  \App\Modules\Forms\Http\Requests\FormResponseFilterRequest  $request  Datos de la solicitud HTTP.
+     * Muestra una lista de todas las respuestas de formularios con filtros y paginación.
+     * Este endpoint permite obtener todas las respuestas de formularios del sistema de manera paginada.
+     * Soporta filtrado por diferentes campos y permite personalizar la cantidad de resultados por página.
+     * La respuesta incluye metadatos de paginación y la información detallada de cada respuesta.
+     *
+     * @param  \App\Modules\Forms\Http\Requests\FormResponseFilterRequest  $request  Datos de la solicitud HTTP que incluyen filtros y parámetros de paginación.
      * @return \Illuminate\Http\JsonResponse Respuesta JSON con todas las respuestas o mensaje de error.
      */
     public function index(FormResponseFilterRequest $request)
@@ -41,6 +48,7 @@ class FormResponseController extends Controller
             if (! $paginator) {
                 return response()->json(['message' => 'No se encontraron respuestas de formularios'], 404);
             }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Respuestas de formularios recuperadas con éxito',
@@ -72,8 +80,13 @@ class FormResponseController extends Controller
     /**
      * Almacena una nueva respuesta de formulario en la base de datos.
      *
-     * @param  App\Modules\Forms\Http\Requests\FormResponseStoreRequest  $request  Datos de la solicitud HTTP.
-     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
+     * Este endpoint permite crear una nueva respuesta para un formulario específico.
+     * Valida que el formulario esté activo antes de procesar la respuesta.
+     * Procesa y almacena todos los valores de los campos del formulario, incluyendo archivos adjuntos si los hay.
+     * Realiza validaciones específicas según el tipo de campo y las reglas definidas en el formulario.
+     *
+     * @param  App\Modules\Forms\Http\Requests\FormResponseStoreRequest  $request  Datos de la solicitud HTTP que contienen los valores de los campos del formulario.
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación y los datos de la respuesta creada.
      */
     public function store(FormResponseStoreRequest $request)
     {
@@ -88,6 +101,7 @@ class FormResponseController extends Controller
                     'message' => 'El formulario no está activo',
                 ], 400);
             }
+
             return response()->json(
                 [
                     'status' => $form['status'],
@@ -95,7 +109,7 @@ class FormResponseController extends Controller
                     'data' => $form['data'],
                 ]
             );
- 
+
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
@@ -114,8 +128,17 @@ class FormResponseController extends Controller
     /**
      * Muestra la información de una respuesta de formulario específica.
      *
-     * @param  string  $id  Identificador de la respuesta.
-     * @return \Illuminate\Http\JsonResponse Respuesta JSON con los datos o mensaje de error.
+     * Este endpoint recupera los detalles completos de una respuesta de formulario incluyendo:
+     *
+     * - Información del usuario que completó el formulario
+     * - Detalles del formulario (nombre y código)
+     * - Valores de todos los campos respondidos
+     * - Información del lote asociado si existe
+     *
+     * La respuesta incluye todas las relaciones necesarias para mostrar la información completa.
+     *
+     * @param  string  $id  Identificador único de la respuesta de formulario.
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con los datos detallados o mensaje de error si no se encuentra.
      */
     public function show(string $id)
     {
@@ -160,9 +183,18 @@ class FormResponseController extends Controller
     /**
      * Actualiza la información de una respuesta de formulario específica en la base de datos.
      *
-     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP.
-     * @param  string  $id  Identificador de la respuesta.
-     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
+     * Este endpoint permite modificar una respuesta existente con las siguientes características:
+     *
+     * - Solo permite actualizar respuestas en estado 'pending' o 'in_progress'
+     * - Puede actualizar el lote asociado a la respuesta
+     * - Permite modificar los valores de los campos existentes
+     * - Maneja la actualización de archivos adjuntos, eliminando los anteriores si es necesario
+     * - Actualiza el estado de la respuesta y la fecha de envío si se marca como completada
+     * - Realiza todas las operaciones dentro de una transacción para garantizar la integridad
+     *
+     * @param  \Illuminate\Http\Request  $request  Datos de la solicitud HTTP con los nuevos valores y estado.
+     * @param  string  $id  Identificador único de la respuesta a actualizar.
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación y los datos actualizados.
      */
     public function update(Request $request, string $id)
     {
@@ -226,7 +258,7 @@ class FormResponseController extends Controller
                     // Si es un archivo, lo procesamos
                     if ($field->type === 'file' && $request->hasFile("values.{$fieldCode}")) {
                         $file = $request->file("values.{$fieldCode}");
-                        $path = $file->store('form_responses/' . $formResponse->id, 'public');
+                        $path = $file->store('form_responses/'.$formResponse->id, 'public');
 
                         // Si ya existe un valor para este campo, eliminar el archivo anterior y actualizar
                         if ($responseValue) {
@@ -300,8 +332,18 @@ class FormResponseController extends Controller
     /**
      * Elimina una respuesta de formulario específica de la base de datos.
      *
-     * @param  string  $id  Identificador de la respuesta.
-     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la operación.
+     * Este endpoint permite eliminar permanentemente una respuesta de formulario del sistema.
+     *
+     * La operación es irreversible y elimina:
+     *
+     * - La respuesta principal del formulario
+     * - Todos los valores asociados a los campos
+     * - Los archivos adjuntos almacenados (si existen)
+     *
+     * Verifica la existencia de la respuesta antes de intentar eliminarla.
+     *
+     * @param  string  $id  Identificador único de la respuesta a eliminar.
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON confirmando la eliminación o mensaje de error.
      */
     public function destroy(string $id)
     {
@@ -330,10 +372,21 @@ class FormResponseController extends Controller
     }
 
     /**
-     * Review a submitted form response.
+     * Revisar una respuesta de formulario enviada.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * Este endpoint permite a los revisores aprobar o rechazar una respuesta de formulario.
+     * Solo se pueden revisar respuestas que estén en estado 'completed'.
+     *
+     * El proceso de revisión incluye:
+     *
+     * - Actualización del estado a 'approved' o 'rejected'
+     * - Registro del usuario que realizó la revisión
+     * - Timestamp de la revisión
+     * - Almacenamiento de notas o comentarios de la revisión
+     *
+     * @param  Request  $request  Datos de la revisión incluyendo estado y notas
+     * @param  int  $id  Identificador único de la respuesta a revisar
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con el resultado de la revisión
      */
     public function review(Request $request, $id)
     {
@@ -381,7 +434,7 @@ class FormResponseController extends Controller
     }
 
     /**
-     * Validate form values based on form fields rules.
+     * Validar valores de formulario según las reglas de campos de formulario.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -447,7 +500,7 @@ class FormResponseController extends Controller
                                     : $item;
                             }, $options);
 
-                            $rules[] = 'in:' . implode(',', $allowed);
+                            $rules[] = 'in:'.implode(',', $allowed);
                         }
                     }
                     break;
@@ -476,10 +529,10 @@ class FormResponseController extends Controller
 
                             // Agregamos regla para cada elemento del array (campo.*)
                             // Nota: debes conocer el nombre del campo (por ejemplo $field->name)
-                            $fieldName = 'values.' . $field->name; // ajusta si tu estructura difiere
+                            $fieldName = 'values.'.$field->name; // ajusta si tu estructura difiere
 
                             $validationRules[$fieldName] = ['array'];
-                            $validationRules[$fieldName . '.*'] = ['in:' . implode(',', $allowed)];
+                            $validationRules[$fieldName.'.*'] = ['in:'.implode(',', $allowed)];
                         }
                     }
                     break;
@@ -524,10 +577,22 @@ class FormResponseController extends Controller
     }
 
     /**
-     * Get validation rules for a specific form.
+     * Obtener reglas de validación para un formulario específico.
      *
-     * @param  int  $formId
-     * @return \Illuminate\Http\JsonResponse
+     * Este endpoint recupera todas las reglas de validación para un formulario específico.
+     *
+     * Proporciona información detallada sobre:
+     *
+     * - Reglas de validación para cada campo
+     * - Tipos de campos y sus restricciones
+     * - Opciones disponibles para campos select/radio/checkbox
+     * - Requisitos de archivos (tipos y tamaños permitidos)
+     * - Validaciones personalizadas definidas
+     *
+     * Útil para validación del lado del cliente antes de enviar respuestas.
+     *
+     * @param  int  $formId  Identificador único del formulario
+     * @return \Illuminate\Http\JsonResponse Respuesta JSON con todas las reglas de validación y metadata del formulario
      */
     public function getValidationRules($formId)
     {
@@ -576,7 +641,7 @@ class FormResponseController extends Controller
                         if (! empty($field->options)) {
                             $options = is_array($field->options) ? $field->options : json_decode($field->options, true);
                             if (is_array($options)) {
-                                $rules[] = 'in:' . implode(',', array_column($options, 'value'));
+                                $rules[] = 'in:'.implode(',', array_column($options, 'value'));
                             }
                         }
                         break;
@@ -587,7 +652,7 @@ class FormResponseController extends Controller
                         if (! empty($field->options)) {
                             $options = is_array($field->options) ? $field->options : json_decode($field->options, true);
                             if (is_array($options)) {
-                                $rules[] = 'in:' . implode(',', array_column($options, 'value')) . '*';
+                                $rules[] = 'in:'.implode(',', array_column($options, 'value')).'*';
                             }
                         }
                         break;

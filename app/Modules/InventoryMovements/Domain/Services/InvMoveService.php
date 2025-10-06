@@ -41,7 +41,7 @@ class InvMoveService
         return $this->repositoy->list($filters, $perpage);
     }
 
-    public function find(string $id): ?InvMoveEntity
+    public function find(int $id): ?InvMoveEntity
     {
         return $this->repositoy->find($id);
     }

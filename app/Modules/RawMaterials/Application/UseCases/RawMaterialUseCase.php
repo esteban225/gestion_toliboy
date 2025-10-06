@@ -20,7 +20,7 @@ class RawMaterialUseCase
         return $this->service->list($filters, $perPage);
     }
 
-    public function find(string $id): ?RawMaterialEntity
+    public function find(int $id): ?RawMaterialEntity
     {
         return $this->service->find($id);
     }
@@ -35,7 +35,7 @@ class RawMaterialUseCase
         return $this->service->update($entity);
     }
 
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         return $this->service->delete($id);
     }

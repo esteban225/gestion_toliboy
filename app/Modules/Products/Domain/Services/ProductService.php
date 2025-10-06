@@ -20,7 +20,7 @@ class ProductService
         return $this->repository->all($filters, $perPage);
     }
 
-    public function find(string $id): ?ProductEntity
+    public function find(int $id): ?ProductEntity
     {
         return $this->repository->find($id);
     }
@@ -35,7 +35,7 @@ class ProductService
         return $this->repository->update($data);
     }
 
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         return $this->repository->delete($id);
     }

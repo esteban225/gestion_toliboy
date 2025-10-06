@@ -10,7 +10,7 @@ use App\Modules\Roles\Domain\Entities\RoleEntity;
  * Define los métodos para la gestión de roles en el repositorio.
  *
  * Métodos:
- * - findById(string $id): ?RoleEntity
+ * - findById(int $id): ?RoleEntity
  *      Busca y retorna una entidad de rol por su identificador único.
  *      Retorna null si no se encuentra el rol.
  *
@@ -24,13 +24,13 @@ use App\Modules\Roles\Domain\Entities\RoleEntity;
  *      Actualiza los datos de un rol existente.
  *      Retorna true si la actualización fue exitosa, false en caso contrario.
  *
- * - delete(string $id): bool
+ * - delete(int $id): bool
  *      Elimina el rol identificado por el ID proporcionado.
  *      Retorna true si la eliminación fue exitosa, false en caso contrario.
  */
 interface RoleRepositoryInterface
 {
-    public function findById(string $id): ?RoleEntity;
+    public function findById(int $id): ?RoleEntity;
 
     public function findAll(): array;
 
@@ -38,5 +38,5 @@ interface RoleRepositoryInterface
 
     public function update(array $role): bool;
 
-    public function delete(string $id): bool;
+    public function delete(int $id): bool;
 }

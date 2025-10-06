@@ -4,21 +4,30 @@ namespace App\Modules\DataUser\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\DataUser\Application\UseCases\ManageDataUserUseCase;
+use App\Modules\DataUser\Http\Requests\DataUserFilterRequest;
 use App\Modules\DataUser\Http\Requests\DataUserRegisterRequest as RegisterRequest;
 use App\Modules\DataUser\Http\Requests\DataUserUpDateRequest as UpDateRequest;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
  * Class DataUserController
  *
- * Controlador REST responsable de gestionar las operaciones CRUD de datos adicionales de usuarios.
- * Toda la lógica de negocio se delega al caso de uso {@see ManageDataUserUseCase}.
+ * Controlador REST responsable de gestionar las operaciones CRUD de datos
+ * adicionales asociados a usuarios.
+ *
+ * Breve descripción:
+ * Este controlador expone endpoints para listar, ver, crear, actualizar y
+ * eliminar datos adicionales de usuarios. Toda la lógica de dominio se
+ * delega al caso de uso {@see ManageDataUserUseCase} para mantener la
+ * separación de responsabilidades.
  *
  * Principios SOLID aplicados:
- * - SRP (Single Responsibility Principle): El controlador únicamente coordina peticiones y respuestas HTTP.
- * - DIP (Dependency Inversion Principle): Depende de la abstracción del caso de uso, no de implementaciones concretas.
+ * - SRP: Coordina exclusivamente la interacción HTTP.
+ * - DIP: Depende de la abstracción del caso de uso.
  */
+#[Group(name: 'Modulo de Usuarios: datos de usuario', weight: 3)]
 class DataUserController extends Controller
 {
     /**
@@ -37,29 +46,33 @@ class DataUserController extends Controller
     }
 
     /**
-     * Listar todos los datos de usuario con posibilidad de filtros.
+     * Listar datos con filtros.
      *
-     * @param  Request  $request  Objeto HTTP con filtros opcionales.
-     * @return JsonResponse Respuesta JSON con el listado de datos de usuario.
+     * Obtiene un listado paginado de datos adicionales de usuario aplicando
+     * filtros opcionales incluidos en la request. Retorna meta información de
+     * paginación en la respuesta.
+     *
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
+     *
+     * @param  DataUserFilterRequest  $request  Request validada con filtros
+     * @return JsonResponse Respuesta HTTP con datos y metadatos de paginación
      */
-    public function index(Request $request): JsonResponse
+    public function index(DataUserFilterRequest $request): JsonResponse
     {
         try {
-            $filters = $request->only(['user_id', 'type', 'created_at']); // Ejemplo de filtros
-            $perPage = (int) $request->get('per_page', 15); // Paginación, por defecto 15 por página
-            $dataUsers = $this->useCase->paginate($filters, $perPage);
+            $filters = $request->except(['page', 'per_page']);
+            $perpage = $request->input('per_page', 15);
+            $dataUsers = $this->useCase->paginate($filters, $perpage);
 
             if ($dataUsers->isEmpty()) {
                 return response()->json([
                     'status' => true,
                     'message' => 'No se encontraron datos de usuario',
-                    'data' => [],
-                    'meta' => [
-                        'total' => 0,
-                        'per_page' => $perPage,
-                        'current_page' => 1,
-                        'last_page' => 0,
-                    ],
                 ], 404);
             }
 
@@ -84,12 +97,14 @@ class DataUserController extends Controller
     }
 
     /**
-     * Consultar datos de usuario por su identificador único.
+     * Consultar por su identificador único.
      *
-     * @param  string  $id  Identificador único de los datos de usuario.
-     * @return JsonResponse Respuesta JSON con los datos del usuario.
+     * Recupera los datos adicionales por su ID. Si no existe, retorna 404.
+     *
+     * @param  int  $id  Identificador único de los datos de usuario
+     * @return JsonResponse Respuesta HTTP con la entidad de datos o 404
      */
-    public function show(string $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         try {
             $dataUser = $this->useCase->get($id);
@@ -117,10 +132,13 @@ class DataUserController extends Controller
     }
 
     /**
-     * Crear nuevos datos de usuario.
+     * Crear datos adicionales de usuario.
      *
-     * @param  RegisterRequest  $request  Objeto HTTP con los datos validados.
-     * @return JsonResponse Respuesta JSON con los datos creados.
+     * Recibe una request validada por {@see RegisterRequest} y delega la
+     * creación al caso de uso. Retorna 201 con la entidad creada.
+     *
+     * @param  RegisterRequest  $request  Request validada con los datos
+     * @return JsonResponse 201 con la entidad creada o 500 en error
      */
     public function store(RegisterRequest $request): JsonResponse
     {
@@ -143,12 +161,16 @@ class DataUserController extends Controller
     }
 
     /**
-     * Actualizar datos de usuario existentes.
+     * Actualizar datos adicionales de usuario.
      *
-     * @param  UpDateRequest  $request  Objeto HTTP con los datos validados (debe incluir el id).
-     * @return JsonResponse Respuesta JSON confirmando la actualización.
+     * Valida la request y solicita al caso de uso la actualización del registro
+     * identificado por $id. Retorna 404 si no existe.
+     *
+     * @param  UpDateRequest  $request  Request validada con los datos
+     * @param  int  $id  Identificador único del registro a actualizar
+     * @return JsonResponse 200 en éxito, 404 si no existe, 500 en error
      */
-    public function update(UpDateRequest $request, string $id): JsonResponse
+    public function update(UpDateRequest $request, int $id): JsonResponse
     {
         try {
             $data = $request->validated();
@@ -175,12 +197,19 @@ class DataUserController extends Controller
     }
 
     /**
-     * Eliminar datos de usuario por su identificador único.
+     * Eliminar datos.
      *
-     * @param  string  $id  Identificador único de los datos de usuario.
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
+     *
+     * @param  int  $id  Identificador único de los datos de usuario.
      * @return JsonResponse Respuesta JSON confirmando la eliminación.
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
         try {
             $deleted = $this->useCase->delete($id);

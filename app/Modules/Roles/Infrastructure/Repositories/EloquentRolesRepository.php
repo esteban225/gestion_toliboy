@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
  * Implementa la interfaz RoleRepositoryInterface para realizar operaciones CRUD sobre la tabla 'roles'.
  *
  * Métodos:
- * - findById(string $id): ?RoleEntity
+ * - findById(int $id): ?RoleEntity
  *   Busca un rol por su identificador. Retorna la entidad RoleEntity o null si no existe.
  *
  * - findAll(): array
@@ -24,14 +24,14 @@ use Illuminate\Support\Facades\DB;
  * - update(array $role): bool
  *   Actualiza los datos de un rol existente. Retorna true si la actualización fue exitosa.
  *
- * - delete(string $id): bool
+ * - delete(int $id): bool
  *   Elimina un rol por su identificador. Retorna true si la eliminación fue exitosa.
  *
  * Utiliza el Query Builder de Laravel para interactuar con la base de datos.
  */
 class EloquentRolesRepository implements RoleRepositoryInterface
 {
-    public function findById(string $id): ?RoleEntity
+    public function findById(int $id): ?RoleEntity
     {
         $role = DB::table('roles')->where('id', $id)->first();
         if (! $role) {
@@ -81,7 +81,7 @@ class EloquentRolesRepository implements RoleRepositoryInterface
         ]) > 0;
     }
 
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         return DB::table('roles')->where('id', $id)->delete() > 0;
     }

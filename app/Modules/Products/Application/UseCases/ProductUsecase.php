@@ -20,7 +20,7 @@ class ProductUseCase
         return $this->service->list($filters, $perPage);
     }
 
-    public function find(string $id)
+    public function find(int $id)
     {
         return $this->service->find($id);
     }
@@ -37,7 +37,7 @@ class ProductUseCase
         return $this->service->update($entity);
     }
 
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         return $this->service->delete($id);
     }

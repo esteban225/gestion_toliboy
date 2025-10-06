@@ -2,13 +2,13 @@
 
 namespace App\Modules\Forms\Application\UseCases;
 
+use App\Models\Form;
+use App\Modules\Forms\Domain\Entities\FormResponseEntity;
 use App\Modules\Forms\Domain\Repository\FormResponseRepositoryI;
 use App\Modules\Forms\Domain\Services\FormFieldValidatorService;
-use App\Modules\Forms\Domain\Entities\FormResponseEntity;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Form;
 use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class SubmitFormResponseUseCase
 {
@@ -20,8 +20,8 @@ class SubmitFormResponseUseCase
     /**
      * Ejecuta el proceso de envío de respuesta de formulario
      *
-     * @param array $data Datos validados del formulario
-     * @param int $userId ID del usuario autenticado
+     * @param  array  $data  Datos validados del formulario
+     * @param  int  $userId  ID del usuario autenticado
      * @return array Resultado con status, mensaje y datos
      */
     public function execute(array $data): array
@@ -53,6 +53,7 @@ class SubmitFormResponseUseCase
                 );
                 $response = $this->repository->createWithValues($entity, $data['values']);
                 DB::commit();
+
                 return [
                     'status' => true,
                     'message' => 'Respuesta de formulario enviada exitosamente',
@@ -60,6 +61,7 @@ class SubmitFormResponseUseCase
                 ];
             } catch (Exception $e) {
                 DB::rollBack();
+
                 return [
                     'status' => false,
                     'message' => 'Error al enviar la respuesta del formulario',

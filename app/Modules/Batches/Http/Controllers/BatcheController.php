@@ -7,6 +7,7 @@ use App\Modules\Batches\Application\UseCases\BatcheUseCase;
 use App\Modules\Batches\Http\Requests\BatchRegisterRequest;
 use App\Modules\Batches\Http\Requests\BatchUpdateRequest;
 use App\Modules\Batches\Http\Requests\FilterBatchRequest;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -17,6 +18,7 @@ use Illuminate\Http\JsonResponse;
  * Controlador responsable de listar, mostrar, crear, actualizar y eliminar lotes.
  * Las respuestas están formateadas para Scramble/OpenAPI.
  */
+#[Group(name: 'Modulo de Productos: Lotes', weight: 7)]
 class BatcheController extends Controller
 {
     private BatcheUseCase $useCase;
@@ -30,6 +32,15 @@ class BatcheController extends Controller
      * Listar lotes
      *
      * Obtiene una lista de lotes con filtros opcionales.
+     * Soporta paginación y varios criterios de filtrado.
+     * Filtros soportados: code, product_id, status, per_page, page.
+     *
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
      */
     public function index(FilterBatchRequest $request): JsonResponse
     {
@@ -64,6 +75,13 @@ class BatcheController extends Controller
      * Mostrar lote
      *
      * Obtiene los detalles de un lote por su ID.
+     *
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
      */
     public function show(int $id): JsonResponse
     {
@@ -88,6 +106,13 @@ class BatcheController extends Controller
      * Crear lote
      *
      * Registra un nuevo lote en el sistema.
+     *
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
      */
     public function store(BatchRegisterRequest $request): JsonResponse
     {
@@ -112,8 +137,15 @@ class BatcheController extends Controller
      * Actualizar lote
      *
      * Actualiza los datos de un lote existente.
+     *
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
      */
-    public function update(BatchUpdateRequest $request, string $id): JsonResponse
+    public function update(BatchUpdateRequest $request, int $id): JsonResponse
     {
         try {
             $data = array_merge(['id' => $id], $request->all());
@@ -133,8 +165,15 @@ class BatcheController extends Controller
      * Eliminar lote
      *
      * Elimina un lote por su ID.
+     *
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
         try {
             $deleted = $this->useCase->delete($id);

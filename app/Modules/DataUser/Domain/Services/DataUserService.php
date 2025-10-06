@@ -42,10 +42,10 @@ class DataUserService
     /**
      * Obtener datos de usuario por su identificador.
      *
-     * @param  string  $id  Identificador único de los datos de usuario
+     * @param  int  $id  Identificador único de los datos de usuario
      * @return DataUserEntity|null Entidad de datos de usuario o null si no existe
      */
-    public function getDataUser(string $id)
+    public function getDataUser(int $id)
     {
         $data = $this->data_user_repository->find($id);
 
@@ -77,10 +77,10 @@ class DataUserService
     /**
      * Eliminar datos de usuario por su identificador.
      *
-     * @param  string  $id  Identificador único de los datos de usuario
+     * @param  int  $id  Identificador único de los datos de usuario
      * @return bool True si la eliminación fue exitosa, false en caso contrario
      */
-    public function deleteDataUser(string $id): bool
+    public function deleteDataUser(int $id): bool
     {
         return $this->data_user_repository->delete($id);
     }

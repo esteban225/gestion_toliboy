@@ -8,6 +8,7 @@ use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
 use App\Modules\InventoryMovements\Http\Requests\FilterInvMovementRequest;
 use App\Modules\InventoryMovements\Http\Requests\RegisterInvMovementRequest;
 use App\Modules\InventoryMovements\Http\Requests\UpdateInvMovementRequest;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -16,6 +17,7 @@ use Illuminate\Http\JsonResponse;
  * Controlador HTTP para la gestión de movimientos de inventario.
  * Implementa operaciones CRUD usando el caso de uso InvMoveUseCase.
  */
+#[Group(name: ' Módulo de Inventario: movimientos de inventario', weight: 8)]
 class InvMoveController extends Controller
 {
     private InvMoveUseCase $useCase;
@@ -32,6 +34,13 @@ class InvMoveController extends Controller
 
     /**
      * Listar todos los movimientos de inventario
+     *
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
      *
      * @param  FilterInvMovementRequest  $request  Filtros opcionales enviados en la petición
      * @return JsonResponse Lista de movimientos de inventario
@@ -57,7 +66,7 @@ class InvMoveController extends Controller
                     'per_page' => $paginator->perPage(),
                     'total' => $paginator->total(),
                 ],
-            ]);
+            ], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al recuperar los movimientos de inventario', 'error' => $e->getMessage()], 500);
         }
@@ -66,10 +75,17 @@ class InvMoveController extends Controller
     /**
      * Mostrar un movimiento de inventario específico por ID
      *
-     * @param  string  $id  Identificador del movimiento de inventario
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
+     *
+     * @param  int  $id  Identificador del movimiento de inventario
      * @return JsonResponse Datos del movimiento de inventario o error 404 si no existe
      */
-    public function show(string $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         try {
             $invMove = $this->useCase->find($id);
@@ -89,6 +105,13 @@ class InvMoveController extends Controller
 
     /**
      * Registrar un nuevo movimiento de inventario
+     *
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
      *
      * @param  RegisterInvMovementRequest  $request  Datos del nuevo movimiento de inventario validados
      * @return JsonResponse Datos del movimiento de inventario creado o error 400 si falla
@@ -123,13 +146,20 @@ class InvMoveController extends Controller
     /**
      * Actualizar un movimiento de inventario existente
      *
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
+     *
      * @param  UpdateInvMovementRequest  $request  Datos actualizados del movimiento de inventario validados
-     * @param  string  $id  Identificador del movimiento de inventario a actualizar
+     * @param  int  $id  Identificador del movimiento de inventario a actualizar
      * @return JsonResponse Datos del movimiento de inventario actualizado o error 400/404 si falla
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function update(UpdateInvMovementRequest $request, string $id): JsonResponse
+    public function update(UpdateInvMovementRequest $request, int $id): JsonResponse
     {
         try {
             $data = InvMoveEntity::fromArray($request->validated());
@@ -155,10 +185,17 @@ class InvMoveController extends Controller
     /**
      * Eliminar un movimiento de inventario por ID
      *
-     * @param  string  $id  Identificador del movimiento de inventario a eliminar
+     * Esta acción responde bajo estos roles:
+     *
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
+     *
+     * @param  int  $id  Identificador del movimiento de inventario a eliminar
      * @return JsonResponse Mensaje de éxito o error 404 si no existe
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(int $id): JsonResponse
     {
         try {
             $deleted = $this->useCase->delete($id);

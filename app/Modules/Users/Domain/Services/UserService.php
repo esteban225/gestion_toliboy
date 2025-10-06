@@ -6,7 +6,6 @@ use App\Modules\Users\Domain\Entities\UserEntity;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Servicio de dominio para gestión de usuarios.
@@ -41,10 +40,10 @@ class UserService
     /**
      * Obtener un usuario por su identificador.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @return UserEntity|null Entidad de usuario o null si no existe
      */
-    public function getUser(string $id): ?UserEntity
+    public function getUser(int $id): ?UserEntity
     {
         return $this->users_repository->find($id);
     }
@@ -71,7 +70,6 @@ class UserService
      */
     public function updateUser(UserEntity $data): bool
     {
-        Log::debug('Service.update.input', $data->toArray());
         if ($data->getPassword()) {
             $data->setPassword(Hash::make($data->getPassword()));
         }
@@ -82,10 +80,10 @@ class UserService
     /**
      * Eliminar un usuario por su identificador.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @return bool True si la eliminación fue exitosa, false en caso contrario
      */
-    public function deleteUser(string $id): bool
+    public function deleteUser(int $id): bool
     {
         return $this->users_repository->delete($id);
     }

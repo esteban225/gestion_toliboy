@@ -39,7 +39,7 @@ class WorkLogRepositoryE implements WorkLogRepositoryI
     {
         $query = WorkLog::query();
         foreach ($filters as $key => $value) {
-            $query->where($key, $value);
+            $query->where($key, 'LIKE', "%$value%");
         }
 
         return $query->paginate($perPage);

@@ -19,7 +19,7 @@ class BatcheUseCase
         return $this->service->list($filters, $perPage);
     }
 
-    public function find(string $id)
+    public function find(int $id)
     {
         return $this->service->find($id);
     }

@@ -21,7 +21,7 @@ class RawMaterialRepositoryE implements RawMaterialRepositoryI
         $query = RawMaterial::query();
         // Aplicar filtros si existen
         foreach ($filters as $key => $value) {
-            $query->where($key, $value);
+            $query->where($key, 'LIKE', "%$value%");
         }
 
         return $query->paginate($perPage);
@@ -31,10 +31,10 @@ class RawMaterialRepositoryE implements RawMaterialRepositoryI
     /**
      * Busca un usuario por su identificador.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @return RawMaterialEntity|null Entidad de usuario o null si no existe
      */
-    public function find(string $id): ?RawMaterialEntity
+    public function find(int $id): ?RawMaterialEntity
     {
         $RawMaterial = RawMaterial::find($id);
 
@@ -73,10 +73,10 @@ class RawMaterialRepositoryE implements RawMaterialRepositoryI
     /**
      * Elimina un usuario por su identificador.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @return bool True si la eliminación fue exitosa, false en caso contrario
      */
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         $RawMaterial = RawMaterial::find($id);
         if ($RawMaterial) {

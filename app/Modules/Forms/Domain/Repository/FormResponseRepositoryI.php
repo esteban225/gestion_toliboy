@@ -57,8 +57,6 @@ interface FormResponseRepositoryI
     /**
      * Crea una nueva respuesta y sus valores asociados
      *
-     * @param FormResponseEntity $entity
-     * @param array $values
      * @return mixed
      */
     public function createWithValues(FormResponseEntity $entity, array $values);

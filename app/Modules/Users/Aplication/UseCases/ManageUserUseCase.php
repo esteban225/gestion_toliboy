@@ -44,10 +44,10 @@ class ManageUserUseCase
     /**
      * Obtener usuario por ID.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @return mixed
      */
-    public function get(string $id)
+    public function get(int $id)
     {
 
         return $this->userService->getUser($id);
@@ -68,10 +68,10 @@ class ManageUserUseCase
     /**
      * Actualizar usuario.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @param  UserEntity  $data  Datos actualizados del usuario
      */
-    public function update(string $id, UserEntity $data): bool
+    public function update(int $id, UserEntity $data): bool
     {
         $data->setId($id);
 
@@ -81,9 +81,9 @@ class ManageUserUseCase
     /**
      * Eliminar usuario.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      */
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         return $this->userService->deleteUser($id);
     }

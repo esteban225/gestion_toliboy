@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Modules\Roles\Http\Requests;
+namespace App\Modules\Users\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
- * Rol registration request.
- *
- * Gestiona la validación de datos para el registro de roles.
- * Proporciona reglas de validación y manejo de errores personalizados.
+ * Parametros que gestiona la validación de datos para el filtrado de usuarios.
  */
-class RegisterRequest extends FormRequest
+class UserFilterRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -22,9 +19,10 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:roles,name', // El nombre del rol debe ser único
-
-            'description' => 'required|string|max:255', // La descripción es obligatoria
+            'name' => 'sometimes|string|max:255', // Modificado a 'sometimes' para filtros opcionales
+            'is_active' => 'sometimes|boolean', // Modificado a 'sometimes' para filtros opcionales
+            'per_page' => 'sometimes|integer|min:1|max:100', // Paginación, por defecto 15 por página
+            'page' => 'sometimes|integer|min:1', // Página actual, por defecto 1
         ];
     }
 
@@ -44,11 +42,6 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.unique' => 'Este rol ya está registrado.',
-            'name.required' => 'El nombre es obligatorio.',
-            'name.string' => 'El nombre debe ser un texto.',
-            'description.required' => 'La descripción es obligatoria.',
-            'description.string' => 'La descripción debe ser un texto.',
         ];
     }
 }

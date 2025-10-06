@@ -3,11 +3,11 @@
 use App\Modules\InventoryMovements\Http\Controllers\InvMoveController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+Route::prefix('inventory-movements')->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
 
-    Route::get('/inventory-movements', [InvMoveController::class, 'index']);
-    Route::get('/inventory-movements/{id}', [InvMoveController::class, 'show']);
-    Route::post('/inventory-movements', [InvMoveController::class, 'store']);
-    Route::put('/inventory-movements/{id}', [InvMoveController::class, 'update']);
-    Route::delete('/inventory-movements/{id}', [InvMoveController::class, 'destroy']);
+    Route::get('/', [InvMoveController::class, 'index']);
+    Route::get('/{id}', [InvMoveController::class, 'show']);
+    Route::post('/', [InvMoveController::class, 'store']);
+    Route::put('/{id}', [InvMoveController::class, 'update']);
+    Route::delete('/{id}', [InvMoveController::class, 'destroy']);
 });

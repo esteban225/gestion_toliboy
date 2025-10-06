@@ -40,10 +40,10 @@ interface UsersRepositoryInterface
     /**
      * Busca un usuario por su identificador.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @return UserEntity|null Entidad de usuario o null si no existe
      */
-    public function find(string $id): ?UserEntity;
+    public function find(int $id): ?UserEntity;
 
     /**
      * Crea un nuevo usuario.
@@ -64,8 +64,8 @@ interface UsersRepositoryInterface
     /**
      * Elimina un usuario por su identificador.
      *
-     * @param  string  $id  Identificador único del usuario
+     * @param  int  $id  Identificador único del usuario
      * @return bool True si la eliminación fue exitosa, false en caso contrario
      */
-    public function delete(string $id): bool;
+    public function delete(int $id): bool;
 }

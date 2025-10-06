@@ -8,6 +8,7 @@ use App\Modules\Products\Domain\Entities\ProductEntity;
 use App\Modules\Products\Http\Requests\ProductFilterRequest;
 use App\Modules\Products\Http\Requests\ProductRegisterRequest;
 use App\Modules\Products\Http\Requests\ProductUpdateRequest;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 
@@ -16,6 +17,7 @@ use InvalidArgumentException;
  *
  * @description Endpoints para la gestión de productos.
  */
+#[Group(name: 'Modulo de Inventario: Productos', weight: 6)]
 class ProductController extends Controller
 {
     private ProductUseCase $useCase;
@@ -32,6 +34,14 @@ class ProductController extends Controller
      * Maneja la validación de los parámetros de filtrado para listar productos.
      * Esto es opcional si se quiere filtrar productos por ciertos criterios.
      * Si no se proporcionan parámetros, se listan todos los productos con paginación.
+     *
+     * Filtros soportados: name, category, is_active, per_page, page.
+     *
+     * Roles permitidos:
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
      */
     public function index(ProductFilterRequest $request): JsonResponse
     {
@@ -64,6 +74,14 @@ class ProductController extends Controller
      * Mostrar un producto
      *
      * Obtiene los detalles de un producto específico por su ID.
+     *
+     * Roles permitidos:
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
+     *
+     * @param  int  $id  ID del producto a consultar
      */
     public function show(int $id): JsonResponse
     {
@@ -93,6 +111,12 @@ class ProductController extends Controller
      * Crear un producto
      *
      * Registra un nuevo producto en el sistema.
+     *
+     * Roles permitidos:
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
      */
     public function store(ProductRegisterRequest $request): JsonResponse
     {
@@ -125,6 +149,14 @@ class ProductController extends Controller
      * Actualizar un producto
      *
      * Modifica los datos de un producto existente.
+     *
+     * Roles permitidos:
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
+     *
+     * @param  int  $id  ID del producto a actualizar
      */
     public function update(ProductUpdateRequest $request, int $id): JsonResponse
     {
@@ -155,6 +187,14 @@ class ProductController extends Controller
      * Eliminar un producto
      *
      * Elimina un producto del sistema por su ID.
+     *
+     * Roles permitidos:
+     * - DEV = Desarrollador
+     * - GG = Gerente General
+     * - INGPL = Ingeniero de Planta
+     * - INGPR = Ingeniero de Producción
+     *
+     * @param  int  $id  ID del producto a eliminar
      */
     public function destroy(int $id): JsonResponse
     {

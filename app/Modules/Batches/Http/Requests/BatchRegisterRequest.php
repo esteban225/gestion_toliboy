@@ -8,12 +8,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
  * RegisterRequest gestiona la validación de datos para el registro de lotes.
- *
- * Principio SOLID aplicado:
- * - SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validación y autorización
- *   de la solicitud de registro, manteniendo su responsabilidad clara y única.
- *
- * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
  */
 class BatchRegisterRequest extends FormRequest
 {

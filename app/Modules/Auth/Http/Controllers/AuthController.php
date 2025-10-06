@@ -11,14 +11,14 @@ use App\Modules\Auth\Application\UseCases\RegisterUser;
 use App\Modules\Auth\Domain\Entities\UserEntity;
 use App\Modules\Auth\Http\Requests\LoginRequest;
 use App\Modules\Auth\Http\Requests\RegisterRequest;
+use Dedoc\Scramble\Attributes\Group;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
 /**
- * @group Autenticación
- *
  * Endpoints para registro, login, obtención de usuario autenticado y gestión de tokens.
  */
+#[Group(name: 'Autenticación', weight: 0)]
 class AuthController extends Controller
 {
     protected RegisterUser $registerUser;
@@ -49,6 +49,20 @@ class AuthController extends Controller
      * Iniciar sesión
      *
      * Inicia sesión con email y contraseña, devuelve un token JWT.
+     * Este endpoint es el único que no requiere autenticación.
+     * Importante: Asegúrate de usar HTTPS para proteger las credenciales.
+     * El resto de endpoints requieren el token JWT en el header Authorization.
+     * Tabla de roles:
+     * - DEV: Desarrollador
+     * - GG: Gerente General
+     * - INGPL: Ingeniero de Planta
+     * - INGPR: Ingeniero de Producción
+     * - TRZ: Trazabilidad
+     * - OP: Operador
+     * Las rutas protegidas requieren uno de estos roles de la API
+     * se especificará el rol que necesita cada endpoint.
+     * También es necesario enviar el token en el header Authorization para acceder a los demás endpoints.
+     * Formato: Authorization: Bearer {token}
      *
      *  @unauthenticated
      */
@@ -85,6 +99,13 @@ class AuthController extends Controller
      * Registrar usuario
      *
      * Registra un nuevo usuario en el sistema.
+     * Este endpoint requiere autenticación JWT y de un usuario con rol:
+     *  - DEV
+     *  - GG
+     *  - INGPL
+     *  - INGPR
+     * El token JWT debe enviarse en el header Authorization.
+     * Formato: Authorization: Bearer {token}
      */
     public function register(RegisterRequest $request)
     {
@@ -110,6 +131,9 @@ class AuthController extends Controller
      * Obtener usuario autenticado
      *
      * Devuelve la información del usuario autenticado mediante el token JWT.
+     * Este endpoint requiere autenticación JWT.
+     * El token JWT debe enviarse en el header Authorization.
+     * Formato: Authorization: Bearer {token}
      */
     public function me()
     {
@@ -141,6 +165,9 @@ class AuthController extends Controller
      * Refrescar token
      *
      * Devuelve un nuevo token JWT a partir de uno válido.
+     * Este endpoint requiere autenticación JWT.
+     * El token JWT debe enviarse en el header Authorization.
+     * Formato: Authorization: Bearer {token}
      */
     public function refresh()
     {
@@ -168,6 +195,9 @@ class AuthController extends Controller
      * Cerrar sesión
      *
      * Invalida el token actual y cierra la sesión del usuario.
+     * Este endpoint requiere autenticación JWT.
+     * El token JWT debe enviarse en el header Authorization.
+     * Formato: Authorization: Bearer {token}
      */
     public function logout()
     {

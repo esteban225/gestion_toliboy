@@ -8,12 +8,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
  * RegisterRequest gestiona la validación de datos para el registro de usuarios.
- *
- * Principio SOLID aplicado:
- * - SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validación y autorización
- *   de la solicitud de registro, manteniendo su responsabilidad clara y única.
- *
- * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
+ * Aplica reglas estrictas para asegurar la integridad y unicidad de los datos.
  */
 class DataUserRegisterRequest extends FormRequest
 {
@@ -25,15 +20,14 @@ class DataUserRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id|unique:personal_data,user_id',
-            'num_phone' => 'nullable|string|max:20',
-            'num_phone_alt' => 'nullable|string|max:20',
-            // 'personal_data' is likely a typo, it should be 'personal_data'
-            'num_identification' => 'required|string|max:50|unique:personal_data,num_identification',
-            'identification_type' => 'required|string|max:45',
-            'address' => 'nullable|string|max:45',
-            'emergency_contact' => 'required|string|max:100',
-            'emergency_phone' => 'required|string|max:25',
+            'user_id' => 'required|exists:users,id|unique:personal_data,user_id', // Asegura que el user_id existe en la tabla users y es único en personal_data
+            'num_phone' => 'required|string|max:20', // Teléfono principal, obligatorio
+            'num_phone_alt' => 'nullable|string|max:20', // Teléfono alternativo, opcional
+            'num_identification' => 'required|string|max:50|unique:personal_data,num_identification', // Identificación única y obligatoria
+            'identification_type' => 'required|string|max:45', // Tipo de identificación, obligatorio
+            'address' => 'nullable|string|max:45', // Dirección, opcional
+            'emergency_contact' => 'required|string|max:100', // Contacto de emergencia, obligatorio
+            'emergency_phone' => 'required|string|max:25', // Teléfono de emergencia, obligatorio
         ];
     }
 

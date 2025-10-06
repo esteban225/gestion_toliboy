@@ -14,7 +14,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
  * el ORM Eloquent para acceder a la base de datos.
  */
 class FormResponseRepositoryE implements FormResponseRepositoryI
-
 {
     /**
      * Obtiene un listado paginado de respuestas de formulario aplicando filtros opcionales.
@@ -98,12 +97,9 @@ class FormResponseRepositoryE implements FormResponseRepositoryI
         return $model->delete();
     }
 
-
     /**
      * Crea una nueva respuesta y sus valores asociados
      *
-     * @param FormResponseEntity $entity
-     * @param array $values
      * @return mixed
      */
     public function createWithValues(FormResponseEntity $entity, array $values)
@@ -114,14 +110,17 @@ class FormResponseRepositoryE implements FormResponseRepositoryI
         // Guardar los valores de los campos
         foreach ($values as $fieldCode => $value) {
             $field = \App\Models\FormField::where('field_code', $fieldCode)->first();
-            if (! $field) continue;
+            if (! $field) {
+                continue;
+            }
             $formResponse->form_response_values()->create([
                 'field_id' => $field->id,
                 'value' => is_array($value) ? json_encode($value) : $value,
             ]);
         }
+
         // Retornar la respuesta con relaciones cargadas
-        // return $formResponse->load(['user:id,name', 'form:id,name,code', 'form_response_values.form_field']);
-        return FormResponseEntity::fromModel($formResponse);
+        return $formResponse->load(['user:id,name', 'form:id,name,code', 'form_response_values.form_field']);
+        // return FormResponseEntity::fromModel($formResponse);
     }
 }

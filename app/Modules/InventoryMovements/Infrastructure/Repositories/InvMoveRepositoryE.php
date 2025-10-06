@@ -16,7 +16,7 @@ class InvMoveRepositoryE implements InvMoveRepositoryI
         $query = InventoryMovement::query();
 
         foreach ($filters as $key => $value) {
-            $query->where($key, $value);
+            $query->where($key, 'LIKE', "%$value%");
         }
 
         return $query->paginate($perpage);

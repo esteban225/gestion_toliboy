@@ -9,11 +9,14 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 /**
  * RegisterRequest gestiona la validación de datos para el registro de usuarios.
  *
- * Principio SOLID aplicado:
- * - SRP (Single Responsibility Principle): Esta clase se encarga exclusivamente de la validación y autorización
- *   de la solicitud de registro, manteniendo su responsabilidad clara y única.
- *
- * No implementa otros principios SOLID directamente, pero su diseño facilita la extensión y el mantenimiento.
+ * Asegura que los campos requeridos estén presentes y sean válidos.
+ * Devuelve errores de validación en formato JSON si la validación falla.
+ * Reglas de validación:
+ * - name: requerido, string, máximo 255 caracteres.
+ * - email: requerido, string, formato email, máximo 255 caracteres, único en la tabla users.
+ * - password: requerido, string, mínimo 8 caracteres.
+ * - role_id: requerido, numérico, debe existir en la tabla roles.
+ * - position: requerido, string, máximo 255 caracteres.
  */
 class RegisterRequest extends FormRequest
 {

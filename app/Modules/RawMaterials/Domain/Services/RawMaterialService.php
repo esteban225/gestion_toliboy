@@ -20,7 +20,7 @@ class RawMaterialService
         return $this->repository->all($filters, $perPage);
     }
 
-    public function find(string $id): ?RawMaterialEntity
+    public function find(int $id): ?RawMaterialEntity
     {
         return $this->repository->find($id);
     }
@@ -35,7 +35,7 @@ class RawMaterialService
         return $this->repository->update($entity);
     }
 
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         return $this->repository->delete($id);
     }

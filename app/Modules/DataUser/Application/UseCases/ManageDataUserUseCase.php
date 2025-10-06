@@ -45,10 +45,10 @@ class ManageDataUserUseCase
     /**
      * Obtener datos de usuario por ID.
      *
-     * @param  string  $id  Identificador único de los datos de usuario
+     * @param  int  $id  Identificador único de los datos de usuario
      * @return mixed
      */
-    public function get(string $id)
+    public function get(int $id)
     {
         $entity = $this->dataUserService->getDataUser($id);
 
@@ -71,9 +71,10 @@ class ManageDataUserUseCase
     /**
      * Actualizar datos de usuario.
      *
+     * @param  int  $id  Identificador único de los datos de usuario
      * @param  array  $data  Datos actualizados (debe incluir el id)
      */
-    public function update(string $id, array $data): bool
+    public function update(int $id, array $data): bool
     {
         return $this->dataUserService->updateDataUser(array_merge($data, ['id' => $id]));
     }
@@ -81,9 +82,9 @@ class ManageDataUserUseCase
     /**
      * Eliminar datos de usuario por ID.
      *
-     * @param  string  $id  Identificador único de los datos de usuario
+     * @param  int  $id  Identificador único de los datos de usuario
      */
-    public function delete(string $id): bool
+    public function delete(int $id): bool
     {
         return $this->dataUserService->deleteDataUser($id);
     }
