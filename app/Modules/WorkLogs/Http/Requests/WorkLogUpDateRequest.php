@@ -9,7 +9,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 /**
  * WorkLogUpdateRequest gestiona la validación de datos para la actualización de horas de trabajo.
  */
-class WorkLogUpdateRequest extends FormRequest
+class WorkLogUpDateRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
