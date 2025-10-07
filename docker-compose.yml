@@ -10,7 +10,7 @@ services:
     volumes:
       - ./:/var/www
     expose:
-      - "9000" # Solo expone internamente el puerto para Nginx
+      - "9000" 
     depends_on:
       - db
     environment:
