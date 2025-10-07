@@ -20,6 +20,10 @@ RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 # Instala Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
+# Instalación de Node.js y npm
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+RUN apt-get install -y nodejs
+
 # Establece el directorio de trabajo
 WORKDIR /var/www
 
@@ -28,6 +32,9 @@ COPY . /var/www
 
 # Da permisos a la carpeta de almacenamiento
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
+# Instalar dependencias y compilar assets después de copiar el código fuente
+RUN npm install && npm run build
 
 # Expone el puerto 9000
 EXPOSE 9000
