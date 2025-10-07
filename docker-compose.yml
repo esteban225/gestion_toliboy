@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   app:
     build:
@@ -10,15 +9,18 @@ services:
     working_dir: /var/www
     volumes:
       - ./:/var/www
-    ports:
-      - "9000:9000"
+    expose:
+      - "9000" # Solo expone internamente el puerto para Nginx
     depends_on:
       - db
     environment:
+      - DB_CONNECTION=mysql
       - DB_HOST=db
+      - DB_PORT=3306
       - DB_DATABASE=toliboy
       - DB_USERNAME=toliboy
       - DB_PASSWORD=toliboy
+
   nginx:
     image: nginx:1.25
     container_name: gestion_toliboy_nginx
@@ -30,6 +32,7 @@ services:
       - ./:/var/www
     depends_on:
       - app
+
   db:
     image: mysql:8.0
     container_name: gestion_toliboy_db
@@ -44,5 +47,6 @@ services:
     volumes:
       - dbdata:/var/lib/mysql
       - ./my.cnf:/etc/mysql/conf.d/my.cnf
+
 volumes:
   dbdata:

@@ -14,7 +14,7 @@ Route::prefix('docs/api')->group(function () {
 
 Route::get('/', function () {
     return view('auth.login-docs');
-})->name('login');
+});
 
 Route::get('/docs', function () {
     return view('docs.index'); // contiene el botón y un iframe a /docs/api
@@ -39,14 +39,14 @@ Route::post('/login', function (Request $request) {
     }
 
     return back()->withErrors(['email' => 'Credenciales inválidas.']);
-});
+})->name('login');
 
 /**
  * Cerrar sesión
  */
 Route::post('/logout', function () {
     Auth::logout();
-    return redirect('/login');
+    return redirect('/');
 })->name('logout');
 
 // Rutas para la documentación automática de la API con Scramble

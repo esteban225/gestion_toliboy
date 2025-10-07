@@ -222,24 +222,25 @@ return [
      * Personalización de la interfaz de la documentación (UI).
      */
     'ui' => [
-        'title' => 'Toliboy API Docs',
-        'theme' => 'dark',
-        'hide_try_it' => false,
-        'hide_schemas' => false,
-        'logo' => '/resources/img/carita.svg', // cambia por la ruta real de tu logo
-        'try_it_credentials_policy' => 'include',
-        'layout' => 'responsive', // opciones: sidebar | responsive | stacked
+        'title' => 'Toliboy API Docs', // Título que se muestra en la interfaz de la documentación.
+        'theme' => 'dark', // Tema visual de la interfaz; en este caso, modo oscuro.
+        'hide_try_it' => false, // Si es true, oculta el botón "Probar" en la documentación.
+        'hide_schemas' => false, // Si es true, oculta la sección de esquemas de la API.
+        'logo' => '/resources/img/carita.svg', // Ruta al logo personalizado que se muestra en la UI.
+        'try_it_credentials_policy' => 'include', // Política de envío de credenciales (cookies, auth) en las pruebas de endpoints.
+        'layout' => 'responsive', // Tipo de diseño de la interfaz: 'sidebar', 'responsive' o 'stacked'.
     ],
 
     /*
      * Servidores configurados para pruebas desde la doc.
      */
     'servers' => [
-        'Local' => 'http://127.0.0.1:8000/api',
+        'Producción' => 'https://api.toliboy.com/api',
         'Staging' => 'https://staging.toliboy.com/api',
-        'Producción' => 'https://toliboy.com/api',
+        'AWS' => 'http://3.145.21.59/api',
+        'Local' => 'http://127.0.0.1:8000/api',
         'docker' => 'http://localhost/api', // si usas docker y quieres probar desde otro contenedor
-        'AWS' => 'http://18.188.114.143/api',
+        
     ],
 
     /*
