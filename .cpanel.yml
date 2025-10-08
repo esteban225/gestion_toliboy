@@ -1,0 +1,26 @@
+deployment:
+  tasks:
+    # 1️⃣ Define la ruta donde se desplegará tu app
+    - export DEPLOYPATH=/home/ftoliboy/backend
+
+    # 2️⃣ Limpia archivos antiguos (opcional, con cuidado)
+    - /bin/rm -rf $DEPLOYPATH/*
+
+    # 3️⃣ Copia los archivos del repositorio al directorio de despliegue
+    - /bin/cp -R * $DEPLOYPATH
+
+    # 4️⃣ Entra a la carpeta del proyecto desplegado
+    - cd $DEPLOYPATH
+
+    # 5️⃣ Instala dependencias PHP sin las de desarrollo
+    - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader
+
+    # 6️⃣ Ejecuta migraciones de base de datos (asegúrate que .env esté bien configurado)
+    - /usr/local/bin/php artisan migrate 
+    - /usr/local/bin/php artisan db:seed
+
+    # 7️⃣ Limpia y optimiza caches de Laravel
+    - /usr/local/bin/php artisan config:cache
+    - /usr/local/bin/php artisan route:cache
+    - /usr/local/bin/php artisan view:cache
+    - /usr/local/bin/php artisan optimize
