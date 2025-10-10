@@ -66,7 +66,7 @@ class EloquentUsersRepository implements UsersRepositoryInterface
             return null;
         }
 
-        return UserEntity::fromArray($user);
+        return UserEntity::fromArray($user->toArray());
     }
 
     /**

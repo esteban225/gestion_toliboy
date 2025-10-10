@@ -1,7 +1,7 @@
 deployment:
   tasks:
     # 1️⃣ Define la ruta donde se desplegará tu app
-    - export DEPLOYPATH=/home/ftoliboy/backend
+    - export DEPLOYPATH=/home/ftoliboy/public_html/api.toliboy.com
 
     # 2️⃣ Limpia archivos antiguos (opcional, con cuidado)
     - /bin/rm -rf $DEPLOYPATH/*

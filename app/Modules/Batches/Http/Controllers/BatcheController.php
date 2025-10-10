@@ -18,7 +18,7 @@ use Illuminate\Http\JsonResponse;
  * Controlador responsable de listar, mostrar, crear, actualizar y eliminar lotes.
  * Las respuestas están formateadas para Scramble/OpenAPI.
  */
-#[Group(name: 'Modulo de Productos: Lotes', weight: 7)]
+#[Group(name: 'Modulo de Inventario: Lotes', weight: 7)]
 class BatcheController extends Controller
 {
     private BatcheUseCase $useCase;

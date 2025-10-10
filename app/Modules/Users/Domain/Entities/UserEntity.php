@@ -19,7 +19,7 @@ class UserEntity
 
     private string $email;
 
-    private string $password;
+    private ?string $password;
 
     private ?string $role_id;
 
@@ -33,7 +33,7 @@ class UserEntity
         ?int $id,
         string $name,
         string $email,
-        string $password,
+        ?string $password,
         ?string $role_id,
         ?string $position,
         ?bool $is_active,
@@ -66,7 +66,7 @@ class UserEntity
         return $this->email;
     }
 
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -108,7 +108,7 @@ class UserEntity
         $this->email = $email;
     }
 
-    public function setPassword(string $password): void
+    public function setPassword(?string $password): void
     {
         $this->password = $password;
     }
@@ -145,7 +145,7 @@ class UserEntity
             id: $data['id'] ?? null,
             name: $data['name'],
             email: $data['email'],
-            password: $data['password'],
+            password: $data['password'] ?? null,
             role_id: $data['role_id'] ?? null,
             position: $data['position'] ?? null,
             is_active: $data['is_active'] ?? true,
