@@ -45,7 +45,7 @@ services:
       MYSQL_PASSWORD: toliboy
       MYSQL_ROOT_PASSWORD: rootpassword
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
       - ./my.cnf:/etc/mysql/conf.d/my.cnf
