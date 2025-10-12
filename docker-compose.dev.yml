@@ -3,41 +3,43 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: gestion_toliboy_app
-    container_name: gestion_toliboy_app
+    image: gestion_toliboy_app_dev
+    container_name: gestion_toliboy_app_dev
     restart: unless-stopped
     working_dir: /var/www
     volumes:
-      - ./storage:/var/www/storage
-      - ./bootstrap/cache:/var/www/bootstrap/cache
+      - ./:/var/www
     expose:
       - "9000"
     depends_on:
       - db
     environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost
       - DB_CONNECTION=mysql
       - DB_HOST=db
       - DB_PORT=3306
       - DB_DATABASE=toliboy
       - DB_USERNAME=toliboy
       - DB_PASSWORD=toliboy
-    user: www-data
+    user: "${UID:-1000}:${GID:-1000}"
 
   nginx:
     image: nginx:1.25
-    container_name: gestion_toliboy_nginx
+    container_name: gestion_toliboy_nginx_dev
     restart: unless-stopped
     ports:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./public:/var/www/public
+      - ./:/var/www
     depends_on:
       - app
 
   db:
     image: mysql:8.0
-    container_name: gestion_toliboy_db
+    container_name: gestion_toliboy_db_dev
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: toliboy
@@ -47,8 +49,8 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - dbdata:/var/lib/mysql
+      - dbdata_dev:/var/lib/mysql
       - ./my.cnf:/etc/mysql/conf.d/my.cnf
 
 volumes:
-  dbdata:
+  dbdata_dev:

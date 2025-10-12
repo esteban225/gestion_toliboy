@@ -16,7 +16,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #000000;
+            background: #f4f8fb;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -33,7 +33,7 @@
             right: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,0,0,0.03) 1px, transparent 1px);
+            background: radial-gradient(circle, rgba(59,130,246,0.04) 1px, transparent 1px);
             background-size: 50px 50px;
             animation: moveGrid 20s linear infinite;
         }
@@ -46,7 +46,7 @@
             transform: translate(-50%, -50%);
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(255,0,0,0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(59,130,246,0.13) 0%, transparent 70%);
             animation: pulse 4s ease-in-out infinite;
         }
 
@@ -61,16 +61,16 @@
         }
 
         .login-container {
-            background: rgba(15, 15, 15, 0.95);
+            background: rgba(230, 242, 255, 0.97);
             backdrop-filter: blur(10px);
             padding: 3rem;
             border-radius: 20px;
-            border: 2px solid #ff0000;
+            border: 2px solid #3b82f6;
             box-shadow: 
-                0 0 20px rgba(255, 0, 0, 0.5),
-                0 0 40px rgba(255, 0, 0, 0.3),
-                0 0 60px rgba(255, 0, 0, 0.2),
-                inset 0 0 20px rgba(255, 0, 0, 0.05);
+                0 0 20px rgba(59, 130, 246, 0.18),
+                0 0 40px rgba(59, 130, 246, 0.10),
+                0 0 60px rgba(59, 130, 246, 0.07),
+                inset 0 0 20px rgba(59, 130, 246, 0.04);
             width: 100%;
             max-width: 420px;
             position: relative;
@@ -92,17 +92,17 @@
         @keyframes neonGlow {
             0%, 100% {
                 box-shadow: 
-                    0 0 20px rgba(255, 0, 0, 0.5),
-                    0 0 40px rgba(255, 0, 0, 0.3),
-                    0 0 60px rgba(255, 0, 0, 0.2),
-                    inset 0 0 20px rgba(255, 0, 0, 0.05);
+                    0 0 20px rgba(59, 130, 246, 0.18),
+                    0 0 40px rgba(59, 130, 246, 0.10),
+                    0 0 60px rgba(59, 130, 246, 0.07),
+                    inset 0 0 20px rgba(59, 130, 246, 0.04);
             }
             50% {
                 box-shadow: 
-                    0 0 30px rgba(255, 0, 0, 0.7),
-                    0 0 60px rgba(255, 0, 0, 0.5),
-                    0 0 90px rgba(255, 0, 0, 0.3),
-                    inset 0 0 30px rgba(255, 0, 0, 0.1);
+                    0 0 30px rgba(59, 130, 246, 0.25),
+                    0 0 60px rgba(59, 130, 246, 0.13),
+                    0 0 90px rgba(59, 130, 246, 0.09),
+                    inset 0 0 30px rgba(59, 130, 246, 0.07);
             }
         }
 
@@ -114,28 +114,28 @@
         .logo-icon {
             width: 70px;
             height: 70px;
-            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
             border-radius: 16px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 1rem;
             box-shadow: 
-                0 0 20px rgba(255, 0, 0, 0.6),
-                0 0 40px rgba(255, 0, 0, 0.4);
+                0 0 20px rgba(59, 130, 246, 0.18),
+                0 0 40px rgba(59, 130, 246, 0.10);
             animation: logoGlow 2s ease-in-out infinite;
         }
 
         @keyframes logoGlow {
             0%, 100% {
                 box-shadow: 
-                    0 0 20px rgba(255, 0, 0, 0.6),
-                    0 0 40px rgba(255, 0, 0, 0.4);
+                    0 0 20px rgba(59, 130, 246, 0.18),
+                    0 0 40px rgba(59, 130, 246, 0.10);
             }
             50% {
                 box-shadow: 
-                    0 0 30px rgba(255, 0, 0, 0.8),
-                    0 0 60px rgba(255, 0, 0, 0.6);
+                    0 0 30px rgba(59, 130, 246, 0.25),
+                    0 0 60px rgba(59, 130, 246, 0.13);
             }
         }
 
@@ -143,22 +143,22 @@
             width: 40px;
             height: 40px;
             fill: white;
-            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+            filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.18));
         }
 
         .logo-section h1 {
             font-size: 1.75rem;
             font-weight: 700;
-            color: #ffffff;
+            color: #2563eb;
             margin-bottom: 0.5rem;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.18);
         }
 
         .logo-section p {
             font-size: 0.95rem;
-            color: #ff6666;
+            color: #60a5fa;
             font-weight: 400;
-            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+            text-shadow: 0 0 5px rgba(59, 130, 246, 0.10);
         }
 
         .form-group {
@@ -171,9 +171,9 @@
             margin-bottom: 0.5rem;
             font-size: 0.875rem;
             font-weight: 500;
-            color: #ff6666;
+            color: #2563eb;
             transition: color 0.2s;
-            text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+            text-shadow: 0 0 5px rgba(59, 130, 246, 0.10);
         }
 
         .input-wrapper {
@@ -185,36 +185,36 @@
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #ff3333;
+            color: #3b82f6;
             transition: all 0.2s;
-            filter: drop-shadow(0 0 3px rgba(255, 0, 0, 0.5));
+            filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.10));
         }
 
         .form-group input {
             width: 100%;
             padding: 0.875rem 1rem 0.875rem 3rem;
             font-size: 0.95rem;
-            border: 2px solid #ff0000;
+            border: 2px solid #3b82f6;
             border-radius: 12px;
-            background: rgba(20, 20, 20, 0.8);
-            color: #ffffff;
+            background: rgba(230, 242, 255, 0.7);
+            color: #2563eb;
             transition: all 0.2s ease;
             font-family: 'Inter', sans-serif;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #ff0000;
-            background: rgba(30, 30, 30, 0.9);
+            border-color: #2563eb;
+            background: rgba(230, 242, 255, 0.95);
             box-shadow: 
-                0 0 10px rgba(255, 0, 0, 0.5),
-                0 0 20px rgba(255, 0, 0, 0.3),
-                inset 0 0 10px rgba(255, 0, 0, 0.1);
+                0 0 10px rgba(59, 130, 246, 0.10),
+                0 0 20px rgba(59, 130, 246, 0.07),
+                inset 0 0 10px rgba(59, 130, 246, 0.04);
         }
 
         .form-group input:focus ~ .input-icon {
-            color: #ff0000;
-            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.8));
+            color: #2563eb;
+            filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.18));
         }
 
         .form-group input::placeholder {
@@ -227,17 +227,17 @@
             font-size: 1rem;
             font-weight: 600;
             color: #ffffff;
-            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-            border: 2px solid #ff0000;
+            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+            border: 2px solid #3b82f6;
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 
-                0 0 20px rgba(255, 0, 0, 0.6),
-                0 0 40px rgba(255, 0, 0, 0.3);
+                0 0 20px rgba(59, 130, 246, 0.18),
+                0 0 40px rgba(59, 130, 246, 0.10);
             position: relative;
             overflow: hidden;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
 
         .btn-submit::before {
@@ -258,9 +258,9 @@
         .btn-submit:hover {
             transform: translateY(-2px);
             box-shadow: 
-                0 0 30px rgba(255, 0, 0, 0.8),
-                0 0 60px rgba(255, 0, 0, 0.5);
-            background: linear-gradient(135deg, #ff1a1a 0%, #e60000 100%);
+                0 0 30px rgba(59, 130, 246, 0.25),
+                0 0 60px rgba(59, 130, 246, 0.13);
+            background: linear-gradient(135deg, #93c5fd 0%, #2563eb 100%);
         }
 
         .btn-submit:active {
@@ -273,15 +273,15 @@
             gap: 0.5rem;
             margin-top: 1rem;
             padding: 0.875rem;
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid #ff0000;
+            background: rgba(59, 130, 246, 0.07);
+            border: 1px solid #3b82f6;
             border-radius: 10px;
-            color: #ff6666;
+            color: #2563eb;
             font-size: 0.875rem;
             animation: shake 0.4s ease;
             box-shadow: 
-                0 0 10px rgba(255, 0, 0, 0.3),
-                inset 0 0 10px rgba(255, 0, 0, 0.1);
+                0 0 10px rgba(59, 130, 246, 0.10),
+                inset 0 0 10px rgba(59, 130, 246, 0.04);
         }
 
         @keyframes shake {
@@ -294,8 +294,8 @@
             text-align: center;
             margin-top: 1.5rem;
             font-size: 0.8rem;
-            color: #666666;
-            text-shadow: 0 0 3px rgba(255, 0, 0, 0.3);
+            color: #2563eb;
+            text-shadow: 0 0 3px rgba(59, 130, 246, 0.10);
         }
 
         .divider {
@@ -405,7 +405,7 @@
         </form>
 
         <div class="footer-text">
-            © 2024 Gestión Toliboy. Todos los derechos reservados.
+            © 2025 Gestión Toliboy. Todos los derechos reservados.
         </div>
     </div>
 </body>

@@ -30,8 +30,9 @@ WORKDIR /var/www
 # Copia el código fuente
 COPY . /var/www
 
-# Da permisos a la carpeta de almacenamiento
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
 
 # Instalar dependencias y compilar assets después de copiar el código fuente
 RUN npm install && npm run build

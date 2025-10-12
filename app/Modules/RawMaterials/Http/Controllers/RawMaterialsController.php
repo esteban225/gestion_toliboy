@@ -117,6 +117,18 @@ class RawMaterialsController extends Controller
      * - GG = Gerente General
      * - INGPL = Ingeniero de Planta
      * - INGPR = Ingeniero de Producción
+     * 
+     * El cuerpo de la petición debe ser un JSON con la siguiente estructura:
+     * {
+     *   - "nombre": "cadena",
+     *   - "código": "cadena",
+     *   - "descripción": "cadena",
+     *   - "unidad_de_medida": "cadena",
+     *   - "existencias": 0,
+     *   - "existencias_mínimas": 0,
+     *   - "está_activo": verdadero,
+     *   - "creado_por": 0
+     * }
      *
      * @param  RegisterRequest  $request  Datos validados para la creación
      * @return JsonResponse Datos de la materia prima creada

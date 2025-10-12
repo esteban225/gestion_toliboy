@@ -58,7 +58,7 @@ class BatcheController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Lotes recuperados con éxito',
-                'data' => $data,
+                'data' => $data['data'],
                 'meta' => [
                     'current_page' => $paginator->currentPage(),
                     'last_page' => $paginator->lastPage(),

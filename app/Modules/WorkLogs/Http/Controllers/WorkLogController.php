@@ -9,10 +9,12 @@ use App\Modules\WorkLogs\Application\UseCases\RegisterWorkLogUseCase;
 use App\Modules\WorkLogs\Application\UseCases\WorkLogUseCase;
 use App\Modules\WorkLogs\Domain\Entities\WorkLogEntity;
 use App\Modules\WorkLogs\Http\Requests\WorkLogFilterRequest;
+use App\Modules\WorkLogs\Http\Requests\WorkLogRegister;
 use App\Modules\WorkLogs\Http\Requests\WorkLogRegisterRequest;
 use App\Modules\WorkLogs\Http\Requests\WorkLogUpDateRequest;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * @group WorkLogs
@@ -297,10 +299,21 @@ class WorkLogController extends Controller
      * - INGPL = Ingeniero de Planta
      * - INGPR = Ingeniero de Producción
      */
-    public function registerWorkLog(int $id): JsonResponse
+    public function registerWorkLog(Request $request, int $id): JsonResponse
     {
+        $batchId = $request->query('batch_id'); // ejemplo: ?batch_id=1
+        $taskDescription = $request->query('task_description'); // ejemplo: ?task_description=Desarrollo
+        $notes = $request->query('notes'); // ejemplo: ?notes=Revisar
+
+        // Si quieres validar los parámetros manualmente:
+        $validated = $request->validate([
+            'batch_id' => 'sometimes|integer|exists:batches,id',
+            'task_description' => 'sometimes|string|max:255',
+            'notes' => 'sometimes|string|max:500',
+        ]);
         try {
-            $workLog = $this->registerWorkLogUseCase->execute($id);
+            // Ejecuta el caso de uso para registrar la hora de entrada o salida
+            $workLog = $this->registerWorkLogUseCase->execute($validated, $id);
             if (! $workLog) {
                 return response()->json(['message' => 'No se encontró el usuario para registrar la hora de trabajo'], 404);
             }

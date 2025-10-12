@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8">
     <title>{{ $title ?? 'Reporte de formulario' }}</title>
@@ -11,177 +12,205 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'DejaVu Sans', Tahoma, sans-serif;
+            font-family: 'DejaVu Sans', 'Arial', sans-serif;
             font-size: 11px;
-            color: #2c3e50;
+            color: #1a202c;
             line-height: 1.6;
             background: #ffffff;
             padding: 20px;
         }
 
+        .container {
+            max-width: 100%;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+        }
+
         header {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 3px solid #3498db;
+            background: #1e40af;
+            padding: 24px 28px;
+            color: #ffffff;
+            border-bottom: 4px solid #1e3a8a;
         }
 
         h2 {
-            font-size: 22px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
         }
 
         .meta {
-            font-size: 10px;
-            color: #7f8c8d;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 12px;
+            color: #e0e7ff;
+            font-weight: 500;
+            margin-top: 4px;
         }
 
         .meta::before {
-            content: "📅";
-            font-size: 12px;
+            content: "📅 ";
+            font-size: 13px;
+        }
+
+        .table-wrapper {
+            padding: 24px 28px 28px;
         }
 
         table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-radius: 8px;
-            overflow: hidden;
+            border-collapse: collapse;
+            border: 1px solid #cbd5e1;
         }
 
         thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f1f5f9;
         }
 
         thead th {
-            background: transparent;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 11px;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 12px 10px;
+            padding: 14px 14px;
             text-align: left;
-            border: none;
+            border-bottom: 2px solid #94a3b8;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        thead th:last-child {
+            border-right: none;
         }
 
         tbody tr {
-            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8fafc;
         }
 
         tbody tr:nth-child(odd) {
             background: #ffffff;
         }
 
-        tbody tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-
-        tbody tr:hover {
-            background: #e8f4f8;
-        }
-
         td {
-            padding: 10px;
-            border: none;
-            border-bottom: 1px solid #e9ecef;
+            padding: 12px 14px;
+            color: #475569;
+            font-size: 10px;
             vertical-align: top;
-            color: #495057;
+            border-right: 1px solid #f1f5f9;
         }
 
-        tbody tr:last-child td {
-            border-bottom: none;
+        td:last-child {
+            border-right: none;
         }
 
         td:first-child,
         th:first-child {
-            padding-left: 16px;
+            padding-left: 20px;
         }
 
         td:last-child,
         th:last-child {
-            padding-right: 16px;
+            padding-right: 20px;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            color: #95a5a6;
-            font-style: italic;
-            background: #f8f9fa;
+            padding: 48px 24px;
+            color: #94a3b8;
+            background: #f8fafc;
         }
 
         .empty-state::before {
             content: "📋";
             display: block;
-            font-size: 32px;
+            font-size: 36px;
             margin-bottom: 12px;
         }
 
-        @media print {
-            body {
-                padding: 10px;
-            }
+        .empty-state-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+            font-style: italic;
+        }
 
-            table {
-                box-shadow: none;
-            }
+        /* Mejor legibilidad en PDF */
+        @page {
+            margin: 15mm;
+        }
+
+        /* Evitar cortes de página en filas */
+        tbody tr {
+            page-break-inside: avoid;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+
+        tfoot {
+            display: table-footer-group;
         }
     </style>
 </head>
-<body>
-    <header>
-        <h2>{{ $title ?? 'Reporte de formulario' }}</h2>
-        <div class="meta">
-            Generado: {{ $generated_at ?? now() }}
-        </div>
-    </header>
 
-    <table>
-        <thead>
-            <tr>
-                @foreach($headings as $head)
-                    <th>{{ $head }}</th>
-                @endforeach
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($rows as $row)
-                <tr>
-                    @foreach($row as $cell)
-                        @php
-                            $display = $cell;
-                            if (is_string($cell)) {
-                                $decoded = json_decode($cell, true);
-                                if (json_last_error() === JSON_ERROR_NONE) {
-                                    if (is_array($decoded)) {
-                                        $display = implode(', ', array_map(fn($v) => (string)$v, $decoded));
-                                    } else {
-                                        $display = (string)$decoded;
+<body>
+    <div class="container">
+        <header>
+            <h2>{{ $title ?? 'Reporte de formulario' }}</h2>
+            <div class="meta">Generado: {{ $generated_at ?? now() }}</div>
+        </header>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        @foreach ($headings as $head)
+                            <th>{{ $head }}</th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($rows as $row)
+                        <tr>
+                            @foreach ($row as $cell)
+                                @php
+                                    $display = $cell;
+                                    if (is_string($cell)) {
+                                        $decoded = json_decode($cell, true);
+                                        if (json_last_error() === JSON_ERROR_NONE) {
+                                            if (is_array($decoded)) {
+                                                $display = implode(', ', array_map(fn($v) => (string) $v, $decoded));
+                                            } else {
+                                                $display = (string) $decoded;
+                                            }
+                                        }
                                     }
-                                }
-                            }
-                            if (is_string($display) && strlen($display) > 10000) {
-                                $display = substr($display, 0, 10000) . '...';
-                            }
-                        @endphp
-                        <td>{{ $display }}</td>
-                    @endforeach
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="{{ max(1, count($headings)) }}" class="empty-state">
-                        No hay datos disponibles
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+                                    if (is_string($display) && strlen($display) > 10000) {
+                                        $display = substr($display, 0, 10000) . '...';
+                                    }
+                                @endphp
+                                <td>{{ $display }}</td>
+                            @endforeach
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="{{ max(1, count($headings)) }}" class="empty-state">
+                                <div class="empty-state-text">No hay datos disponibles</div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
+
 </html>

@@ -22,7 +22,7 @@ class RawMaterialRegisterRequest extends FormRequest
             'name' => 'required|string|max:255|unique:raw_materials,name,except,id',
             'code' => 'required|string|max:100|unique:raw_materials,code,except,id',
             'description' => 'nullable|string',
-            'unit_of_measure' => 'required|string|max:50',
+            'unit_of_measure' => 'required|string|in:kg,g,lb,m,cm,mm,unidad,litro,ml|max:50',
             'stock' => 'required|numeric|min:0',
             'min_stock' => 'nullable|numeric|min:0',
             'is_active' => 'required|boolean',

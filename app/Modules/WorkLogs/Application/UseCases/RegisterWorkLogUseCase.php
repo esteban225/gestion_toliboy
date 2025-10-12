@@ -34,8 +34,8 @@ class RegisterWorkLogUseCase
      * @param  int  $userId  ID del usuario.
      * @return WorkLogEntity Entidad del registro de trabajo creado o actualizado.
      */
-    public function execute(int $userId): WorkLogEntity
+    public function execute(array $request, int $userId): WorkLogEntity
     {
-        return $this->workLogService->registerWorkLog($userId);
+        return $this->workLogService->registerWorkLog($userId, $request);
     }
 }

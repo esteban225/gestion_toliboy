@@ -118,7 +118,7 @@ class WorkLogService
      * @param  int  $id  ID del usuario.
      * @return WorkLogEntity La entidad del registro de trabajo creado o actualizado.
      */
-    public function registerWorkLog(int $id): WorkLogEntity
+    public function registerWorkLog(int $id, array $request): WorkLogEntity
     {
         // Busca si ya existe un registro para el usuario en la fecha actual
         $workLog = $this->workLogRepository->findByUserAndDate($id, date('Y-m-d'));
@@ -127,6 +127,10 @@ class WorkLogService
         Log::info("Buscando registro de trabajo para el usuario {$id} en la fecha ".date('Y-m-d').($workLog ? 'Encontrado' : 'No encontrado'));
 
         $currentTime = date('H:i');
+
+        $request['batch_id'] = $request['batch_id'] ?? null;
+        $request['task_description'] = $request['task_description'] ?? null;
+        $request['notes'] = $request['notes'] ?? null;
 
         // Si no existe registro, crea uno nuevo con la hora de entrada
         if (! $workLog) {
@@ -138,9 +142,9 @@ class WorkLogService
                 end_time: null,
                 total_hours: null,
                 overtime_hours: null,
-                batch_id: null,
-                task_description: null,
-                notes: null
+                batch_id: $request['batch_id'],
+                task_description: $request['task_description'],
+                notes: $request['notes']
             );
 
             return $this->workLogRepository->create($workLogDTO);

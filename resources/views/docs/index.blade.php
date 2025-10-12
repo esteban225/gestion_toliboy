@@ -17,7 +17,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #000000;
+            background: #f4f8fb;
             overflow: hidden;
         }
 
@@ -27,12 +27,12 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem 2rem;
-            background: rgba(15, 15, 15, 0.95);
+            background: rgba(230, 242, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 2px solid #ff0000;
+            border-bottom: 2px solid #3b82f6;
             box-shadow:
-                0 4px 20px rgba(255, 0, 0, 0.3),
-                0 0 40px rgba(255, 0, 0, 0.1);
+                0 4px 20px rgba(59, 130, 246, 0.15),
+                0 0 40px rgba(59, 130, 246, 0.07);
             z-index: 1000;
         }
 
@@ -51,30 +51,27 @@
         .logo-icon {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow:
-                0 0 15px rgba(255, 0, 0, 0.6),
-                0 0 30px rgba(255, 0, 0, 0.3);
+                0 0 15px rgba(59, 130, 246, 0.4),
+                0 0 30px rgba(59, 130, 246, 0.15);
             animation: logoGlow 2s ease-in-out infinite;
         }
 
         @keyframes logoGlow {
-
-            0%,
-            100% {
+            0%, 100% {
                 box-shadow:
-                    0 0 15px rgba(255, 0, 0, 0.6),
-                    0 0 30px rgba(255, 0, 0, 0.3);
+                    0 0 15px rgba(59, 130, 246, 0.4),
+                    0 0 30px rgba(59, 130, 246, 0.15);
             }
-
             50% {
                 box-shadow:
-                    0 0 25px rgba(255, 0, 0, 0.8),
-                    0 0 50px rgba(255, 0, 0, 0.5);
+                    0 0 25px rgba(59, 130, 246, 0.6),
+                    0 0 50px rgba(59, 130, 246, 0.3);
             }
         }
 
@@ -82,22 +79,22 @@
             width: 24px;
             height: 24px;
             fill: white;
-            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8));
+            filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.5));
         }
 
         .logo-text h1 {
             font-size: 1.25rem;
             font-weight: 700;
-            color: #ffffff;
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            color: #2563eb;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
             line-height: 1;
             margin-bottom: 2px;
         }
 
         .logo-text p {
             font-size: 0.75rem;
-            color: #ff6666;
-            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+            color: #60a5fa;
+            text-shadow: 0 0 5px rgba(59, 130, 246, 0.2);
             line-height: 1;
         }
 
@@ -106,8 +103,8 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.5rem 1rem;
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid rgba(255, 0, 0, 0.3);
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.18);
             border-radius: 8px;
             margin-left: 2rem;
         }
@@ -115,9 +112,9 @@
         .status-dot {
             width: 8px;
             height: 8px;
-            background: #00ff00;
+            background: #3b82f6;
             border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
             animation: statusPulse 2s ease-in-out infinite;
         }
 
@@ -137,8 +134,8 @@
 
         .status-text {
             font-size: 0.875rem;
-            color: #00ff00;
-            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+            color: #2563eb;
+            text-shadow: 0 0 5px rgba(59, 130, 246, 0.2);
         }
 
         .header-right {
@@ -152,20 +149,20 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.5rem 1rem;
-            background: rgba(255, 0, 0, 0.05);
-            border: 1px solid rgba(255, 0, 0, 0.2);
+            background: rgba(59, 130, 246, 0.04);
+            border: 1px solid rgba(59, 130, 246, 0.12);
             border-radius: 8px;
         }
 
         .user-avatar {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
         }
 
         .user-avatar svg {
@@ -176,7 +173,7 @@
 
         .user-name {
             font-size: 0.875rem;
-            color: #ffffff;
+            color: #2563eb;
             font-weight: 500;
         }
 
@@ -188,9 +185,9 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
             color: white;
-            border: 2px solid #ff0000;
+            border: 2px solid #3b82f6;
             padding: 0.625rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
@@ -199,16 +196,16 @@
             font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
             box-shadow:
-                0 0 15px rgba(255, 0, 0, 0.5),
-                0 0 30px rgba(255, 0, 0, 0.2);
+                0 0 15px rgba(59, 130, 246, 0.2),
+                0 0 30px rgba(59, 130, 246, 0.1);
         }
 
         .btn-logout:hover {
             transform: translateY(-2px);
             box-shadow:
-                0 0 25px rgba(255, 0, 0, 0.7),
-                0 0 50px rgba(255, 0, 0, 0.4);
-            background: linear-gradient(135deg, #ff1a1a 0%, #e60000 100%);
+                0 0 25px rgba(59, 130, 246, 0.3),
+                0 0 50px rgba(59, 130, 246, 0.15);
+            background: linear-gradient(135deg, #93c5fd 0%, #2563eb 100%);
         }
 
         .btn-logout:active {
@@ -224,7 +221,7 @@
         .main-container {
             position: relative;
             height: calc(100vh - 72px);
-            background: #000000;
+            background: #f4f8fb;
         }
 
         .iframe-wrapper {
@@ -234,20 +231,20 @@
             overflow: hidden;
         }
 
-        .iframe-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg,
-                    transparent 0%,
-                    #ff0000 50%,
-                    transparent 100%);
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-            animation: scanLine 3s linear infinite;
-        }
+    .iframe-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg,
+            transparent 0%,
+            #3b82f6 50%,
+            transparent 100%);
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        animation: scanLine 3s linear infinite;
+    }
 
         @keyframes scanLine {
             0% {
@@ -272,7 +269,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: #000000;
+            background: #e3eefd;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -290,11 +287,11 @@
         .loader {
             width: 60px;
             height: 60px;
-            border: 3px solid rgba(255, 0, 0, 0.1);
-            border-top: 3px solid #ff0000;
+            border: 3px solid rgba(59, 130, 246, 0.08);
+            border-top: 3px solid #3b82f6;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
         }
 
         @keyframes spin {
@@ -309,10 +306,10 @@
 
         .loading-text {
             margin-top: 1.5rem;
-            color: #ff6666;
+            color: #2563eb;
             font-size: 1rem;
             font-weight: 500;
-            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+            text-shadow: 0 0 5px rgba(59, 130, 246, 0.1);
         }
 
         /* Responsive */
