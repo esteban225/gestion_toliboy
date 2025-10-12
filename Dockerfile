@@ -35,7 +35,7 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
 
 
 # Instalar dependencias y compilar assets después de copiar el código fuente
-RUN npm install && npm run build
+RUN npm install && npm run build && composer install --no-interaction --optimize-autoloader --no-dev
 
 # Expone el puerto 9000
 EXPOSE 9000
