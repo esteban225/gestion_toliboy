@@ -237,7 +237,7 @@ return [
     'servers' => [
         'Producción' => 'https://api.toliboy.com/api',
         'Staging' => 'https://staging.toliboy.com/api',
-        'AWS' => 'http://3.82.17.57/api',
+        'AWS' => 'http://3.85.24.170/api',
         'Local' => 'http://127.0.0.1:8000/api',
         'docker' => 'http://localhost/api', // si usas docker y quieres probar desde otro contenedor    
     ],
