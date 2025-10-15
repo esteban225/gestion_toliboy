@@ -20,7 +20,6 @@ class NotificationService
         $this->notificationRepository = $notificationRepository;
     }
 
-
     public function createNotification(NotificationEntity $notification, array $extra = []): NotificationEntity
     {
         // Si no trae scope, por defecto individual
@@ -71,12 +70,12 @@ class NotificationService
                 $userIds = Role::whereIn('name', $rolesInput)
                     ->with(['users:id,role_id'])
                     ->get()
-                    ->flatMap(fn($role) => $role->users->pluck('id'))
+                    ->flatMap(fn ($role) => $role->users->pluck('id'))
                     ->unique()
                     ->values();
 
                 if ($userIds->isEmpty()) {
-                    throw new \RuntimeException('No se encontraron usuarios para los roles: ' . implode(', ', $rolesInput));
+                    throw new \RuntimeException('No se encontraron usuarios para los roles: '.implode(', ', $rolesInput));
                 }
 
                 $notificationModel = Notification::find($createdNotification->getId());
@@ -88,7 +87,7 @@ class NotificationService
                 break;
 
             default:
-                throw new \InvalidArgumentException('Scope inválido: ' . $notification->getScope());
+                throw new \InvalidArgumentException('Scope inválido: '.$notification->getScope());
         }
         $messaje = [
             'id' => $createdNotification->getId(),
@@ -106,6 +105,7 @@ class NotificationService
 
         return $createdNotification;
     }
+
     public function getNotificationById(int $id): ?NotificationEntity
     {
         return $this->notificationRepository->findById($id);
@@ -187,13 +187,13 @@ class NotificationService
         $userIds = Role::whereIn('name', $roles)
             ->with(['users:id,role_id'])
             ->get()
-            ->flatMap(fn($role) => $role->users->pluck('id'))
+            ->flatMap(fn ($role) => $role->users->pluck('id'))
             ->unique()
             ->values()
             ->all();
 
         if (empty($userIds)) {
-            throw new \RuntimeException('No se encontraron usuarios para los roles: ' . implode(', ', $roles));
+            throw new \RuntimeException('No se encontraron usuarios para los roles: '.implode(', ', $roles));
         }
 
         $payload['user_ids'] = $userIds;

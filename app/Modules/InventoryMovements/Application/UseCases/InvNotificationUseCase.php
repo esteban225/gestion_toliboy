@@ -32,7 +32,7 @@ class InvNotificationUseCase
     /**
      * Ejecuta la creación de la notificación grupal para movimientos de inventario.
      *
-     * @param array $data Datos relevantes para la notificación (debe incluir 'movement_id')
+     * @param  array  $data  Datos relevantes para la notificación (debe incluir 'movement_id')
      * @return void
      */
     public function execute(array $data)

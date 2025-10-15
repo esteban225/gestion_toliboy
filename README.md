@@ -106,12 +106,12 @@ El sistema implementa un robusto patrón de eventos para notificaciones automát
 - **TRZ**: Trazabilidad (informes, lectura de formularios, auditoría)
 - **OP**: Operarios (diligenciamiento de formularios, registro de horas)
 
-## � Sistema de Notificaciones Automáticas
+## 🔔 Sistema de Notificaciones Automáticas y Real-Time Broadcasting
 
 ### Arquitectura de Eventos y Listeners
-El sistema implementa un patrón de **Events/Listeners** robusto para notificaciones automáticas en tiempo real:
+El sistema implementa un patrón de **Events/Listeners** robusto para notificaciones automáticas en tiempo real con **Pusher Broadcasting**:
 
-#### Eventos Disponibles
+#### Eventos de Dominio Disponibles
 ```php
 // Evento: Ausencia de usuario detectada
 UserAbsenceDetected::class => [
@@ -127,14 +127,162 @@ UserOvertimeDetected::class => [
 InventoryLowStock::class => [
     SendLowStockNotification::class
 ]
+
+// Evento: Notificación creada (para Broadcasting)
+NotificationCreated::class => []  // Se emite automáticamente a través de Pusher
 ```
 
+#### Tipos de Notificaciones Soportadas
+
+**Por Scope (Alcance)**:
+- **individual**: Notificación para un usuario específico
+- **group**: Notificación para todos los usuarios con ciertos roles
+- **global**: Notificación visible para todos los usuarios
+
+**Por Tipo**:
+- **info**: Información general del sistema
+- **warning**: Alertas de advertencia (stock bajo, ausencias)
+- **error**: Errores críticos del sistema
+- **success**: Confirmaciones de acciones exitosas
+
 #### Servicios de Notificación
-- **NotificationService**: Servicio principal para crear y gestionar notificaciones
-- **WorkLogAbsenceService**: Detecta ausencias y horas extra de usuarios
-- **CheckLowStockJob**: Job de cola para verificar stock bajo
+
+**NotificationService** (Servicio Principal)
+```php
+// Crear notificación individual
+$this->notificationService->createNotification($notification, [
+    'user_id' => 123
+]);
+
+// Crear notificación grupal por roles
+$this->notificationService->createNotification($notification, [
+    'role' => 'DEV',      // string
+    // o
+    'roles' => ['DEV', 'INGPL']  // array
+]);
+
+// Crear notificación global
+$this->notificationService->createNotification($notification, []);
+
+// Métodos auxiliares
+$this->notificationService->notifyGroupByRoles(['DEV', 'INGPL'], $payload);
+$this->notificationService->markAsRead($notificationId, $userId);
+$this->notificationService->getUserNotifications($userId, 15);
+$this->notificationService->getUnreadNotifications($userId);
+```
+
+**WorkLogAbsenceService**: Detecta ausencias y horas extra de usuarios
+
+**CheckLowStockJob**: Job de cola para verificar stock bajo
+
+#### Configuración de Pusher para Broadcasting
+
+**1. Variables de Entorno (.env)**
+```bash
+BROADCAST_DRIVER=pusher
+PUSHER_APP_ID=tu_app_id
+PUSHER_APP_KEY=tu_app_key
+PUSHER_APP_SECRET=tu_app_secret
+PUSHER_APP_CLUSTER=us2  # Reemplazar con tu cluster (mt1, eu, us2, etc)
+```
+
+**2. Configuración de Broadcasting (config/broadcasting.php)**
+```php
+'pusher' => [
+    'driver' => 'pusher',
+    'key' => env('PUSHER_APP_KEY'),
+    'secret' => env('PUSHER_APP_SECRET'),
+    'app_id' => env('PUSHER_APP_ID'),
+    'options' => [
+        'cluster' => env('PUSHER_APP_CLUSTER'),
+        'useTLS' => true,
+    ],
+],
+```
+
+**3. Definición de Canales (routes/channels.php)**
+```php
+// Canal global (público)
+Broadcast::channel('notifications.global', fn() => true);
+
+// Canales privados por usuario
+Broadcast::channel('notifications.{userId}', function ($user, $userId) {
+    return (int) $user->id === (int) $userId;
+});
+```
+
+**4. Evento de Broadcasting (app/Events/NotificationCreated.php)**
+```php
+class NotificationCreated implements ShouldBroadcast
+{
+    public function broadcastOn()
+    {
+        // Si no hay usuarios, emite al canal global
+        if (empty($this->userIds)) {
+            return ['notifications.global'];
+        }
+        // Si hay usuarios, emite a sus canales privados
+        return array_map(
+            fn($userId) => new PrivateChannel('notifications.'.$userId),
+            $this->userIds
+        );
+    }
+    
+    public function broadcastWith()
+    {
+        // Payload de datos enviado al frontend
+        return [
+            'id' => $this->notification->getId(),
+            'title' => $this->notification->getTitle(),
+            'message' => $this->notification->getMessage(),
+            'type' => $this->notification->getType(),
+            'scope' => $this->notification->getScope(),
+            'related_table' => $this->notification->getRelatedTable(),
+            'related_id' => $this->notification->getRelatedId(),
+            'user_id' => $this->userIds,
+        ];
+    }
+    
+    public function broadcastAs()
+    {
+        return 'notification.created';  // Nombre del evento para frontend
+    }
+}
+```
+
+#### Frontend JavaScript para Escuchar Notificaciones
+
+**Instalación de Pusher JS**
+```html
+<script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+```
+
+**Ejemplo de Cliente Listener**
+```javascript
+// Configurar Pusher
+const pusher = new Pusher("APP_KEY", {
+    cluster: "us2",
+    forceTLS: true
+});
+
+// Escuchar canal global
+const channel = pusher.subscribe("notifications.global");
+
+// Evento cuando se recibe notificación
+channel.bind("notification.created", function(data) {
+    console.log("📢 Nueva notificación:", data);
+    // Mostrar en UI, toastr, sweetalert, etc
+    showNotification(data.title, data.message);
+});
+
+// Manejo de errores de suscripción
+channel.bind('pusher:subscription_error', function(status) {
+    console.error("Error al suscribirse:", status);
+});
+```
 
 #### Automatización con Scheduler
+
 Las verificaciones se ejecutan automáticamente mediante el scheduler de Laravel:
 
 ```php
@@ -143,34 +291,113 @@ Schedule::command('worklogs:notify-absences')->dailyAt('08:00');
 Schedule::command('worklogs:send-business-day')->weekdays('monday')->at('09:00');
 ```
 
-#### Comandos Artisan
+#### Comandos Artisan para Notificaciones
 - **`worklogs:notify-absences`**: Verifica ausencias diarias de usuarios
 - **`worklogs:send-business-day`**: Procesa notificaciones de días laborales
 
-#### Flujo de Notificaciones
+#### Flujo Completo de Notificaciones
 
 ```mermaid
 graph TD
-    A[Scheduler Diario 08:00] --> B[Comando: worklogs:notify-absences]
-    B --> C[WorkLogAbsenceService]
-    C --> D{¿Usuario sin WorkLog?}
-    D -->|Sí| E[Disparar UserAbsenceDetected]
-    D -->|No| F[Verificar Horas Extra]
-    E --> G[SendAbsenceNotification Listener]
-    F --> H{¿Horas > 24?}
-    H -->|Sí| I[Disparar UserOvertimeDetected]
-    I --> J[SendUserOvertimeNotifications Listener]
-    G --> K[NotificationService]
-    J --> K
-    K --> L[Crear Notificación en DB]
-    L --> M[Notificación Visible para Usuarios]
+    A[Evento Dispara] --> B{Tipo de Scope?}
+    B -->|individual| C[Asociar a Usuario Específico]
+    B -->|group| D[Resolver Usuarios por Roles]
+    B -->|global| E[Emitir a Todos]
+    
+    C --> F[Crear en BD]
+    D --> F
+    E --> F
+    
+    F --> G[Disparar NotificationCreated Event]
+    G --> H[Pusher Broadcasting]
+    
+    H --> I{¿Canal Global?}
+    I -->|Sí| J[Emitir a notifications.global]
+    I -->|No| K[Emitir a notifications.{userId}]
+    
+    J --> L[Frontend Recibe en Canal Global]
+    K --> M[Frontend Recibe en Canal Privado]
+    
+    L --> N[Mostrar en UI de Usuario]
+    M --> N
 ```
 
-### Tipos de Notificaciones
-- **info**: Información general del sistema
-- **warning**: Alertas de advertencia (stock bajo, ausencias)
-- **error**: Errores críticos del sistema
-- **success**: Confirmaciones de acciones exitosas
+#### Ejemplo Práctico: Crear Notificación de Movimiento de Inventario
+
+**Backend (Laravel)**
+```php
+// En InvNotificationUseCase.php
+public function execute(array $data)
+{
+    $extra = ['role' => 'DEV'];  // Notificar a usuarios con rol DEV
+    
+    $notification = NotificationEntity::fromArray([
+        null,
+        'title' => 'Añadieron un movimiento de inventario',
+        'message' => 'Se registró un nuevo movimiento',
+        'type' => 'info',
+        'scope' => 'group',
+        'is_read' => false,
+        'related_table' => 'inventory_movements',
+        'related_id' => $data['movement_id'] ?? null,
+    ]);
+    
+    // Esto crea la notificación y la emite a través de Pusher
+    $this->notificationService->createNotification($notification, $extra);
+}
+```
+
+**Frontend (JavaScript)**
+```javascript
+// El HTML ya la recibe en tiempo real
+channel.bind("notification.created", function(data) {
+    if (data.related_table === 'inventory_movements') {
+        console.log("📦 Nuevo movimiento de inventario:", data);
+        // Mostrar alerta, actualizar UI, etc
+    }
+});
+```
+
+#### Depuración de Notificaciones
+
+**Verificar Cola de Trabajos Fallidos**
+```bash
+# Ver trabajos en la cola de fallidos
+php artisan queue:failed
+
+# Ver detalles de un trabajo fallido
+php artisan queue:failed:show UUID_DEL_TRABAJO
+
+# Limpiar cola de fallidos
+php artisan queue:flush
+```
+
+**Ejecutar Worker de Colas**
+```bash
+# Modo manual (con reintentos)
+php artisan queue:work
+
+# Modo modo síncrono (para testing, sin colas)
+# En .env: QUEUE_CONNECTION=sync
+```
+
+**Emit Manual desde Tinker**
+```bash
+php artisan tinker
+```
+```php
+$notification = new \\App\\Modules\\Notifications\\Domain\\Entities\\NotificationEntity(
+    null, 'Test', 'Mensaje de prueba', 'info', 'global', false, null, null, null, now()->addDays(2)
+);
+event(new \\App\\Events\\NotificationCreated($notification, []));
+```
+
+**Verificar Caché y Configuración**
+```bash
+php artisan config:clear
+php artisan cache:clear
+php artisan optimize:clear
+```
 
 
 ## 📋 Requisitos del Sistema

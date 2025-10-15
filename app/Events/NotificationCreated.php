@@ -2,10 +2,8 @@
 
 namespace App\Events;
 
-use App\Modules\Notifications\Domain\Entities\NotificationEntity;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -31,13 +29,14 @@ class NotificationCreated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $notification;
+
     public $userIds;
 
     /**
      * Crea una nueva instancia del evento.
      *
-     * @param  $notification Entidad de notificación creada
-     * @param array $userIds IDs de usuarios destinatarios (vacío para global)
+     * @param  $notification  Entidad de notificación creada
+     * @param  array  $userIds  IDs de usuarios destinatarios (vacío para global)
      */
     public function __construct($notification, array $userIds = [])
     {
@@ -56,7 +55,7 @@ class NotificationCreated implements ShouldBroadcast
             return ['notifications.global'];
         }
 
-        return array_map(fn($userId) => new Channel('notifications.' . $userId), $this->userIds);
+        return array_map(fn ($userId) => new Channel('notifications.'.$userId), $this->userIds);
     }
 
     /**
@@ -93,7 +92,6 @@ class NotificationCreated implements ShouldBroadcast
             'user_id' => $this->userIds,
         ];
     }
-
 
     /**
      * Define el nombre del evento broadcast para el frontend.
