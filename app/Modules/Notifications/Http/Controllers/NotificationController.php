@@ -29,20 +29,7 @@ class NotificationController extends Controller
     {
         $data = $request->validated();
 
-        $notification = new NotificationEntity(
-            null,
-            $data['title'],
-            $data['message'],
-            $data['type'],
-            $data['scope'] ?? 'individual',
-            false,
-            $data['user_id'] ?? null,
-            $data['related_table'] ?? null,
-            $data['related_id'] ?? null,
-            isset($data['expires_at']) ? Carbon::parse($data['expires_at']) : null
-        );
-
-        $createdNotification = $this->notificationUseCase->createNotification($notification, $data);
+        $createdNotification = $this->notificationUseCase->createNotification($data);
 
         return response()->json(new NotificationResource($createdNotification), 201);
     }
@@ -80,7 +67,6 @@ class NotificationController extends Controller
             $data['message'] ?? $notification->getMessage(),
             $data['type'] ?? $notification->getType(),
             $data['scope'] ?? $notification->getScope(),
-            $data['is_read'] ?? $notification->isRead(),
             $data['related_table'] ?? $notification->getRelatedTable(),
             $data['related_id'] ?? $notification->getRelatedId(),
             $data['user_id'] ?? $notification->getUserId(),

@@ -30,7 +30,7 @@ class SetDbSessionUser
                 $sessionId = (string) Str::uuid();
 
                 // Llamamos al procedimiento almacenado con 4 parámetros
-                DB::statement('CALL ftoliboy_toliboy_data.set_current_user(?, ?, ?, ?)', [
+                DB::statement('CALL toliboy.set_current_user(?, ?, ?, ?)', [
                     $sessionId,
                     $userId,
                     $ip,

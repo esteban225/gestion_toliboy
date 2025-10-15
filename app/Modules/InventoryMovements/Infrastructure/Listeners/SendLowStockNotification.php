@@ -4,7 +4,7 @@ namespace App\Modules\InventoryMovements\Infrastructure\Listeners;
 
 use App\Models\Product;
 use App\Models\RawMaterial;
-use App\Modules\InventoryMovements\Application\Events\InventoryLowStock; // Corregido 'Application' con mayúscula
+use App\Modules\InventoryMovements\Infrastructure\Events\InventoryLowStock;
 use App\Modules\Notifications\Domain\Services\NotificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;

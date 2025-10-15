@@ -15,9 +15,6 @@ use App\Modules\Notifications\Infrastructure\Repositories\NotificationRepository
 use App\Modules\RawMaterials\Domain\Repositories\RawMaterialRepositoryI;
 use App\Modules\RawMaterials\Domain\Services\RawMaterialReportService;
 use App\Modules\RawMaterials\Infrastructure\Repositories\RawMaterialRepositoryE;
-use App\Modules\Reports\Application\UseCases\GenerateReportUseCase;
-use App\Modules\Reports\Domain\Services\ReportAggregatorService;
-use App\Modules\Reports\Domain\Services\ReportExportService;
 use App\Modules\Roles\Domain\Repositories\RoleRepositoryInterface;
 use App\Modules\Roles\Infrastructure\Repositories\EloquentRolesRepository;
 use App\Modules\Users\Domain\Repositories\UsersRepositoryInterface;
@@ -56,10 +53,6 @@ class ModuleServiceProvider extends ServiceProvider
         // Notifications
         $this->app->bind(NotificationRepositoryI::class, NotificationRepositoryE::class);
 
-        // Reports
-        $this->app->bind(ReportExportService::class);
-        $this->app->bind(ReportAggregatorService::class);
-        $this->app->bind(GenerateReportUseCase::class);
     }
 
     public function boot(): void

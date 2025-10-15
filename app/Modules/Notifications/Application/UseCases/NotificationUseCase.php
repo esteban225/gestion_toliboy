@@ -17,9 +17,11 @@ class NotificationUseCase
         $this->notificationService = $notificationService;
     }
 
-    public function createNotification(NotificationEntity $notification, array $data): NotificationEntity
+    public function createNotification(array $data): NotificationEntity
     {
-        return $this->notificationService->createNotification($notification, $data);
+        $notification = NotificationEntity::fromArray($data);
+
+        return $this->notificationService->createNotification($notification);
     }
 
     public function getNotificationById(int $id): ?NotificationEntity

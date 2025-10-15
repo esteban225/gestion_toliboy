@@ -17,8 +17,6 @@ class NotificationEntity
 
     private ?string $scope;
 
-    private bool $is_read;
-
     private ?string $related_table;
 
     private ?int $related_id;
@@ -33,7 +31,6 @@ class NotificationEntity
         string $message,
         ?string $type = null,
         ?string $scope = null,
-        bool $is_read = false,
         ?string $related_table = null,
         ?int $related_id = null,
         ?string $user_id = null,
@@ -44,7 +41,6 @@ class NotificationEntity
         $this->message = $message;
         $this->type = $type;
         $this->scope = $scope;
-        $this->is_read = $is_read;
         $this->related_table = $related_table;
         $this->related_id = $related_id;
         $this->user_id = $user_id;
@@ -90,11 +86,6 @@ class NotificationEntity
         return $this->scope;
     }
 
-    public function isRead(): bool
-    {
-        return $this->is_read;
-    }
-
     public function getRelatedTable(): ?string
     {
         return $this->related_table;
@@ -115,20 +106,9 @@ class NotificationEntity
         return $this->expires_at;
     }
 
-    // Mutators / domain behaviour
-    public function markAsRead(): void
-    {
-        $this->is_read = true;
-    }
-
     public function setScope(?string $scope): void
     {
         $this->scope = $scope;
-    }
-
-    public function setIsRead(bool $v): void
-    {
-        $this->is_read = $v;
     }
 
     /**
@@ -159,7 +139,6 @@ class NotificationEntity
             'message' => $this->message,
             'type' => $this->type,
             'scope' => $this->scope,
-            'is_read' => $this->is_read,
             'related_table' => $this->related_table,
             'related_id' => $this->related_id,
             'user_id' => $this->user_id,
@@ -175,7 +154,6 @@ class NotificationEntity
             $data['message'],
             $data['type'] ?? null,
             $data['scope'] ?? null,
-            $data['is_read'] ?? false,
             $data['related_table'] ?? null, // ahora va en la posición correcta
             $data['related_id'] ?? null,    // posición correcta
             $data['user_id'] ?? null,       // posición correcta

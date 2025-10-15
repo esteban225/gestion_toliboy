@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\RawMaterial;
-use App\Modules\InventoryMovements\Application\Events\InventoryLowStock;
+use App\Modules\InventoryMovements\Infrastructure\Events\InventoryLowStock as EventsInventoryLowStock;
 use Illuminate\Support\Facades\DB;
 
 class RawMaterialObserver
@@ -45,7 +45,7 @@ class RawMaterialObserver
             }
 
             $dispatch = function () use ($rawMaterial, $stock, $threshold) {
-                event(new InventoryLowStock($rawMaterial->id, $stock, $threshold));
+                event(new EventsInventoryLowStock($rawMaterial->id, $stock, $threshold));
             };
 
             if (DB::transactionLevel() > 0) {

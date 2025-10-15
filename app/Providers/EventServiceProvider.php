@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Modules\InventoryMovements\Application\Events\InventoryLowStock;
+use App\Modules\InventoryMovements\Infrastructure\Events\InventoryLowStock;
 use App\Modules\InventoryMovements\Infrastructure\Listeners\SendLowStockNotification;
 use App\Modules\WorkLogs\Application\Listeners\SendAbsenceNotification;
 use App\Modules\WorkLogs\Domain\Events\UserAbsenceDetected;

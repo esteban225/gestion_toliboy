@@ -226,7 +226,7 @@ return [
         'theme' => 'dark', // Tema visual de la interfaz; en este caso, modo oscuro.
         'hide_try_it' => false, // Si es true, oculta el botón "Probar" en la documentación.
         'hide_schemas' => false, // Si es true, oculta la sección de esquemas de la API.
-        'logo' => '/resources/img/carita.svg', // Ruta al logo personalizado que se muestra en la UI.
+        'logo' => '/carita.svg', // Ruta al logo personalizado que se muestra en la UI.
         'try_it_credentials_policy' => 'include', // Política de envío de credenciales (cookies, auth) en las pruebas de endpoints.
         'layout' => 'responsive', // Tipo de diseño de la interfaz: 'sidebar', 'responsive' o 'stacked'.
     ],
@@ -239,7 +239,7 @@ return [
         'Staging' => 'https://staging.toliboy.com/api',
         'AWS' => 'http://3.85.24.170/api',
         'Local' => 'http://127.0.0.1:8000/api',
-        'docker' => 'http://localhost/api', // si usas docker y quieres probar desde otro contenedor    
+        'docker' => 'http://localhost/api', // si usas docker y quieres probar desde otro contenedor
     ],
 
     /*

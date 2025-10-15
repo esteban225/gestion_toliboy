@@ -2,6 +2,7 @@
 
 namespace App\Modules\InventoryMovements\Domain\Services;
 
+use App\Modules\InventoryMovements\Application\UseCases\InvNotificationUseCase;
 use App\Modules\InventoryMovements\Domain\Entities\InvMoveEntity;
 use App\Modules\InventoryMovements\Domain\Repositories\InvMoveRepositoryI;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -31,9 +32,12 @@ class InvMoveService
 {
     private InvMoveRepositoryI $repositoy;
 
-    public function __construct(InvMoveRepositoryI $repositoy)
+    private InvNotificationUseCase $notificationService;
+
+    public function __construct(InvMoveRepositoryI $repositoy, InvNotificationUseCase $notificationService)
     {
         $this->repositoy = $repositoy;
+        $this->notificationService = $notificationService;
     }
 
     public function list(array $filters = [], int $perpage = 15): LengthAwarePaginator
@@ -48,6 +52,7 @@ class InvMoveService
 
     public function create(InvMoveEntity $entity): ?InvMoveEntity
     {
+        $this->notificationService->execute($entity->toArray());
 
         return $this->repositoy->create($entity);
     }

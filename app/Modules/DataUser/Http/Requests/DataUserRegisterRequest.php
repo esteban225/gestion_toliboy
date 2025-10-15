@@ -20,14 +20,14 @@ class DataUserRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id|unique:personal_data,user_id', 
-            'num_phone' => 'required|string|max:20', 
-            'num_phone_alt' => 'nullable|string|max:20', 
-            'num_identification' => 'required|string|max:50|unique:personal_data,num_identification', 
-            'identification_type' => 'required|string|max:45', 
-            'address' => 'nullable|string|max:45', 
-            'emergency_contact' => 'required|string|max:100', 
-            'emergency_phone' => 'required|string|max:25', 
+            'user_id' => 'required|exists:users,id|unique:personal_data,user_id',
+            'num_phone' => 'required|string|max:20',
+            'num_phone_alt' => 'nullable|string|max:20',
+            'num_identification' => 'required|string|max:50|unique:personal_data,num_identification',
+            'identification_type' => 'required|string|max:45',
+            'address' => 'nullable|string|max:45',
+            'emergency_contact' => 'required|string|max:100',
+            'emergency_phone' => 'required|string|max:25',
         ];
     }
 

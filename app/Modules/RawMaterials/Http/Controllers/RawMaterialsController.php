@@ -117,7 +117,7 @@ class RawMaterialsController extends Controller
      * - GG = Gerente General
      * - INGPL = Ingeniero de Planta
      * - INGPR = Ingeniero de Producción
-     * 
+     *
      * El cuerpo de la petición debe ser un JSON con la siguiente estructura:
      * {
      *   - "nombre": "cadena",

@@ -11,7 +11,6 @@ Route::prefix('docs/api')->group(function () {
     Scramble::registerJsonSpecificationRoute('api.json');
 });
 
-
 Route::get('/', function () {
     return view('auth.login-docs');
 });
@@ -35,6 +34,7 @@ Route::post('/login', function (Request $request) {
         }
 
         Auth::logout();
+
         return back()->withErrors(['email' => 'No tienes permisos para acceder.']);
     }
 
@@ -46,6 +46,7 @@ Route::post('/login', function (Request $request) {
  */
 Route::post('/logout', function () {
     Auth::logout();
+
     return redirect('/');
 })->name('logout');
 

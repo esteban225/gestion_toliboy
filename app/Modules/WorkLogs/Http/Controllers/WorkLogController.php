@@ -9,7 +9,6 @@ use App\Modules\WorkLogs\Application\UseCases\RegisterWorkLogUseCase;
 use App\Modules\WorkLogs\Application\UseCases\WorkLogUseCase;
 use App\Modules\WorkLogs\Domain\Entities\WorkLogEntity;
 use App\Modules\WorkLogs\Http\Requests\WorkLogFilterRequest;
-use App\Modules\WorkLogs\Http\Requests\WorkLogRegister;
 use App\Modules\WorkLogs\Http\Requests\WorkLogRegisterRequest;
 use App\Modules\WorkLogs\Http\Requests\WorkLogUpDateRequest;
 use Dedoc\Scramble\Attributes\Group;

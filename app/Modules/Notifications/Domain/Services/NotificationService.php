@@ -2,6 +2,7 @@
 
 namespace App\Modules\Notifications\Domain\Services;
 
+use App\Events\NotificationCreated;
 use App\Models\Notification;
 use App\Models\Role; // agregado para consultas directas
 use App\Modules\Notifications\Domain\Entities\NotificationEntity;
@@ -19,6 +20,7 @@ class NotificationService
         $this->notificationRepository = $notificationRepository;
     }
 
+
     public function createNotification(NotificationEntity $notification, array $extra = []): NotificationEntity
     {
         // Si no trae scope, por defecto individual
@@ -34,6 +36,9 @@ class NotificationService
         // Crear notificación en BD
         $createdNotification = $this->notificationRepository->create($notification);
 
+        // Recolector de IDs de usuarios a notificar (para evento)
+        $userIds = collect();
+
         // Lógica según scope
         switch ($notification->getScope()) {
             case 'individual':
@@ -43,6 +48,8 @@ class NotificationService
 
                 $notificationModel = Notification::find($createdNotification->getId());
                 $notificationModel->users()->attach($extra['user_id']);
+
+                $userIds = collect([$extra['user_id']]);
                 break;
 
             case 'group':
@@ -64,16 +71,12 @@ class NotificationService
                 $userIds = Role::whereIn('name', $rolesInput)
                     ->with(['users:id,role_id'])
                     ->get()
-                    ->flatMap(function ($role) {
-                        return $role->users->pluck('id');
-                    })
+                    ->flatMap(fn($role) => $role->users->pluck('id'))
                     ->unique()
                     ->values();
 
                 if ($userIds->isEmpty()) {
-                    // No hay usuarios en esos roles: puedes decidir lanzar excepción o simplemente no asociar
-                    // Lanzamos excepción para que el flujo avise
-                    throw new \RuntimeException('No se encontraron usuarios para los roles: '.implode(', ', $rolesInput));
+                    throw new \RuntimeException('No se encontraron usuarios para los roles: ' . implode(', ', $rolesInput));
                 }
 
                 $notificationModel = Notification::find($createdNotification->getId());
@@ -81,16 +84,28 @@ class NotificationService
                 break;
 
             case 'global':
-                // Global no requiere usuarios, todos la verán
+                // Global no requiere usuarios específicos
                 break;
 
             default:
-                throw new \InvalidArgumentException('Scope inválido: '.$notification->getScope());
+                throw new \InvalidArgumentException('Scope inválido: ' . $notification->getScope());
         }
+        $messaje = [
+            'id' => $createdNotification->getId(),
+            'title' => $createdNotification->getTitle(),
+            'message' => $createdNotification->getMessage(),
+            'type' => $createdNotification->getType() ?? null,
+            'scope' => $createdNotification->getScope() ?? null,
+            // 'is_read' => $createdNotification->getIsRead() ?? false, --- IGNORE ---
+            'related_table' => $createdNotification->getRelatedTable() ?? null,
+            'related_id' => $createdNotification->getRelatedId() ?? null,
+            'user_id' => $userIds->toArray(),
+        ];
+
+        event(new NotificationCreated($createdNotification, $userIds->toArray()));
 
         return $createdNotification;
     }
-
     public function getNotificationById(int $id): ?NotificationEntity
     {
         return $this->notificationRepository->findById($id);
@@ -172,13 +187,13 @@ class NotificationService
         $userIds = Role::whereIn('name', $roles)
             ->with(['users:id,role_id'])
             ->get()
-            ->flatMap(fn ($role) => $role->users->pluck('id'))
+            ->flatMap(fn($role) => $role->users->pluck('id'))
             ->unique()
             ->values()
             ->all();
 
         if (empty($userIds)) {
-            throw new \RuntimeException('No se encontraron usuarios para los roles: '.implode(', ', $roles));
+            throw new \RuntimeException('No se encontraron usuarios para los roles: ' . implode(', ', $roles));
         }
 
         $payload['user_ids'] = $userIds;
