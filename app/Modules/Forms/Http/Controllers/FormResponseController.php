@@ -10,6 +10,7 @@ use App\Modules\Forms\Http\Requests\FormResponseFilterRequest;
 use App\Modules\Forms\Http\Requests\FormResponseStoreRequest;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -91,7 +92,7 @@ class FormResponseController extends Controller
     public function store(FormResponseStoreRequest $request)
     {
         try {
-
+            Log::info('Almacenando nueva respuesta de formulario', ['data' => $request->all()]);
             $form = $this->submitFormResponseUseCase->execute($request->validated());
 
             // Verificamos que el formulario esté activo
@@ -116,13 +117,7 @@ class FormResponseController extends Controller
                 'message' => 'Error de validación',
                 'errors' => $e->errors(),
             ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Ocurrió un error al procesar la solicitud.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } 
     }
 
     /**

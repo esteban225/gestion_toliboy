@@ -32,12 +32,12 @@ class InvMoveService
 {
     private InvMoveRepositoryI $repositoy;
 
-    private InvNotificationUseCase $notificationService;
+    private InvNotificationUseCase $notificationUseCase;
 
-    public function __construct(InvMoveRepositoryI $repositoy, InvNotificationUseCase $notificationService)
+    public function __construct(InvMoveRepositoryI $repositoy, InvNotificationUseCase $notificationUseCase)
     {
         $this->repositoy = $repositoy;
-        $this->notificationService = $notificationService;
+        $this->notificationUseCase = $notificationUseCase;
     }
 
     public function list(array $filters = [], int $perpage = 15): LengthAwarePaginator
@@ -52,7 +52,7 @@ class InvMoveService
 
     public function create(InvMoveEntity $entity): ?InvMoveEntity
     {
-        $this->notificationService->execute($entity->toArray());
+        $this->notificationUseCase->execute($entity->toArray());
 
         return $this->repositoy->create($entity);
     }

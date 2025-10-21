@@ -100,9 +100,7 @@ class NotificationService
             'related_id' => $createdNotification->getRelatedId() ?? null,
             'user_id' => $userIds->toArray(),
         ];
-
         event(new NotificationCreated($createdNotification, $userIds->toArray()));
-
         return $createdNotification;
     }
 

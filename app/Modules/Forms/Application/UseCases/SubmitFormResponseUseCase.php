@@ -6,16 +6,22 @@ use App\Models\Form;
 use App\Modules\Forms\Domain\Entities\FormResponseEntity;
 use App\Modules\Forms\Domain\Repository\FormResponseRepositoryI;
 use App\Modules\Forms\Domain\Services\FormFieldValidatorService;
+use App\Modules\Forms\Infrastructure\Services\FormNotifyService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log as FacadesLog;
+use Illuminate\Validation\ValidationException;
 
 class SubmitFormResponseUseCase
 {
     public function __construct(
         private FormResponseRepositoryI $repository,
-        private FormFieldValidatorService $validator
-    ) {}
+        private FormFieldValidatorService $validator,
+        private FormNotifyService $notificationService
+    ) {
+        $this->notificationService = $notificationService;
+    }
 
     /**
      * Ejecuta el proceso de envío de respuesta de formulario
@@ -52,6 +58,10 @@ class SubmitFormResponseUseCase
                     null
                 );
                 $response = $this->repository->createWithValues($entity, $data['values']);
+                // Enviar notificación si el formulario está completado
+                    $this->notificationService->execute($form['name']);
+                
+                    FacadesLog::info('Respuesta de formulario creada exitosamente', ['response_id' => $response->id]);
                 DB::commit();
 
                 return [
@@ -67,13 +77,21 @@ class SubmitFormResponseUseCase
                     'message' => 'Error al enviar la respuesta del formulario',
                     'data' => $e->getMessage(),
                 ];
+            } catch (ValidationException $ve) {
+                DB::rollBack();
+                return [
+                    'status' => false,
+                    'message' => 'Error de validación en los datos del formulario',
+                    'data' => $ve->errors(),
+                ];
             }
-        } catch (Exception $e) {
+        } catch (ValidationException $ve) {
             return [
                 'status' => false,
-                'message' => 'Ocurrió un error al procesar la solicitud.',
-                'data' => $e->getMessage(),
+                'message' => 'Error de validación en los datos del formulario',
+                'data' => $ve->errors(),
             ];
         }
     }
+
 }
