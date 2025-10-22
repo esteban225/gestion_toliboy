@@ -13,6 +13,7 @@ use App\Modules\Auth\Http\Requests\LoginRequest;
 use App\Modules\Auth\Http\Requests\RegisterRequest;
 use Dedoc\Scramble\Attributes\Group;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -71,6 +72,7 @@ class AuthController extends Controller
         try {
             $data = $request->validated();
             $token = $this->loginUser->handle($data['email'], $data['password']);
+            $user = Auth::user();
             if (! $token) {
                 Log::error('"AuthController": Error during login', ['email' => $data['email']]);
 
@@ -84,6 +86,10 @@ class AuthController extends Controller
                     'token' => $token,
                     'token_type' => 'bearer',
                     'expires_in' => config('jwt.ttl') * 60,
+                    'user' => array_merge(
+                        $user->only(['id', 'name', 'email', 'position', 'is_active', 'last_login']),
+                        ['role' => $user->role->name]
+                    ),
                 ], 200);
             }
         } catch (Exception $e) {
