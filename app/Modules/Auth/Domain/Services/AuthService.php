@@ -43,7 +43,7 @@ class AuthService
         return $userEntity;
     }
 
-    public function login(string $email, string $password): ?string
+    public function login(string $email, string $password): ?array
     {
         $userModel = $this->userRepository->findModelByEmail($email);
 
@@ -51,9 +51,17 @@ class AuthService
             return null;
         }
 
+        // Actualizamos fecha de último acceso
         $this->userRepository->updateLastLogin($userModel->id, now());
+
+        // Generamos token
         $token = JWTAuth::fromUser($userModel);
 
-        return $token;
+        // Retornamos token + usuario
+        return [
+            'token' => $token,
+            'user' => $userModel->load('role'), // carga la relación role
+        ];
     }
+
 }

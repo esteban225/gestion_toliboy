@@ -71,35 +71,37 @@ class AuthController extends Controller
     {
         try {
             $data = $request->validated();
-            $token = $this->loginUser->handle($data['email'], $data['password']);
-            $user = Auth::user();
-            if (! $token) {
+
+            $result = $this->loginUser->handle($data['email'], $data['password']);
+
+            if (! $result) {
                 Log::error('"AuthController": Error during login', ['email' => $data['email']]);
-
-                return response()->json(['error' => 'Credenciales Invalidas o Usuario Inactivo'], 401);
-            } else {
-                Log::info('"AuthController": User logged in', ['email' => $data['email']]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Ingreso exitoso',
-                    'token' => $token,
-                    'token_type' => 'bearer',
-                    'expires_in' => config('jwt.ttl') * 60,
-                    'user' => array_merge(
-                        $user->only(['id', 'name', 'email', 'position', 'is_active', 'last_login']),
-                        ['role' => $user->role->name]
-                    ),
-                ], 200);
+                return response()->json(['error' => 'Credenciales inválidas o usuario inactivo'], 401);
             }
-        } catch (Exception $e) {
-            Log::error('"AuthController": Error during login', ['error' => $e->getMessage()]);
+
+            $token = $result['token'];
+            $user = $result['user'];
+
+            Log::info('"AuthController": User logged in', ['email' => $data['email']]);
 
             return response()->json([
-                'error' => 'Credenciales Invalidas o Usuario Inactivo',
-            ], 401);
+                'success' => true,
+                'message' => 'Ingreso exitoso',
+                'token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => config('jwt.ttl') * 60,
+                'user' => array_merge(
+                    $user->only(['id', 'name', 'email', 'position', 'is_active', 'last_login']),
+                    ['role' => $user->role->name]
+                ),
+            ], 200);
+
+        } catch (Exception $e) {
+            Log::error('"AuthController": Error during login', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Error interno en autenticación'], 500);
         }
     }
+
 
     /**
      * Registrar usuario
