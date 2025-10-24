@@ -171,11 +171,20 @@ class UsersController extends Controller
         try {
             $data = $request->validated();
             $user = UserEntity::fromArray($data);
-            $this->useCase->create($user);
+            $userCreated = $this->useCase->create($user);
+
+            // Convertimos la entidad a array
+            $userArray = $userCreated ? $userCreated->toArray() : [];
+
+            // Si hay contraseña, la ocultamos
+            if (isset($userArray['password'])) {
+                $userArray['password'] = str_repeat('*', 8); // Máscara de 8 asteriscos
+            }
 
             return response()->json([
                 'status' => true,
                 'message' => 'Usuario creado exitosamente',
+                'data' => $userArray,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -185,6 +194,7 @@ class UsersController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Actualizar un usuario existente.
@@ -196,29 +206,32 @@ class UsersController extends Controller
      * @param  int  $id  Identificador del usuario a actualizar
      * @return JsonResponse 200 en éxito, 404 si no existe, 500 en error
      */
-    public function update(UpDateRequest $request, int $id)
+    public function update(UpDateRequest $request, int $id): JsonResponse
     {
         try {
             $data = $request->validated();
+
             if ($data) {
                 $data = $request->all();
                 Log::debug('UsersController.update.all', $data);
             }
+
             $user = UserEntity::fromArray($data);
-            $updatedDataUser = $this->useCase->update($id, $user);
-            if (! $updatedDataUser) {
+            $updatedUser = $this->useCase->update($id, $user);
+
+            if (! $updatedUser) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Usuario no encontrado para actualizar',
                 ], 404);
             }
-
             return response()->json([
                 'status' => true,
                 'message' => 'Usuario actualizado exitosamente',
+                'data' => $updatedUser,
             ], 200);
-        } catch (\Exception $e) {
 
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => 'Error al actualizar el usuario',
@@ -226,6 +239,7 @@ class UsersController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Eliminar un usuario por ID.

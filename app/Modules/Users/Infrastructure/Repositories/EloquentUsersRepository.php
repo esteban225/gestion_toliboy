@@ -80,7 +80,7 @@ class EloquentUsersRepository implements UsersRepositoryInterface
         $data->setPassword(Hash::make($data->getPassword()));
         $user = User::create($data->toArray());
 
-        return UserEntity::fromArray($user);
+        return UserEntity::fromArray($user->toArray());
     }
 
     /**
