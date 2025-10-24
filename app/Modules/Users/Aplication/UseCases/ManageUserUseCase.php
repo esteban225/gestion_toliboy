@@ -71,11 +71,11 @@ class ManageUserUseCase
      * @param  int  $id  Identificador único del usuario
      * @param  UserEntity  $data  Datos actualizados del usuario
      */
-    public function update(int $id, UserEntity $data): bool
+    public function update(int $id, array $data)
     {
-        $data->setId($id);
-
-        return $this->userService->updateUser($data);
+        $data = ['id' => $id] + $data;
+        $user = UserEntity::fromArray($data);
+        return $this->userService->updateUser($user);
     }
 
     /**

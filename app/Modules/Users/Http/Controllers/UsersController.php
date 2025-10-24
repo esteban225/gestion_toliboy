@@ -211,13 +211,7 @@ class UsersController extends Controller
         try {
             $data = $request->validated();
 
-            if ($data) {
-                $data = $request->all();
-                Log::debug('UsersController.update.all', $data);
-            }
-
-            $user = UserEntity::fromArray($data);
-            $updatedUser = $this->useCase->update($id, $user);
+            $updatedUser = $this->useCase->update($id, $data);
 
             if (! $updatedUser) {
                 return response()->json([
@@ -228,7 +222,7 @@ class UsersController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Usuario actualizado exitosamente',
-                'data' => $updatedUser,
+                'data' => $updatedUser->toArray(),
             ], 200);
 
         } catch (\Exception $e) {

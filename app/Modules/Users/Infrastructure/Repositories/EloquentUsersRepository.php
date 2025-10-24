@@ -89,15 +89,32 @@ class EloquentUsersRepository implements UsersRepositoryInterface
      * @param  UserEntity  $data  Datos actualizados del usuario (debe incluir el id)
      * @return bool True si la actualización fue exitosa, false en caso contrario
      */
-    public function update(UserEntity $data): bool
+    public function update(UserEntity $data): ?UserEntity
     {
         $user = User::find($data->getId());
-        if ($user) {
-            return $user->update($data->toArray());
+
+        if (!$user) {
+            return null; // ❌ antes devolvía false, debe ser null porque el método espera ?UserEntity
         }
 
-        return false;
+        // Filtra los campos nulos
+        $updateData = array_filter($data->toArray(), fn($value) => $value !== null);
+
+        // ⚙️ Si no se envía contraseña, se mantiene la existente
+        if (empty($updateData['password'])) {
+            $updateData['password'] = $user->password;
+        } else {
+            $updateData['password'] = Hash::make($updateData['password']);
+        }
+
+        // Ejecuta la actualización
+        $user->update($updateData);
+
+        // ✅ Retorna la entidad actualizada
+        return UserEntity::fromArray($user->toArray());
     }
+
+
 
     /**
      * Elimina un usuario por su identificador.

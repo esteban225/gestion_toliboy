@@ -226,4 +226,5 @@ class User extends Authenticatable implements JWTSubject
 
         return in_array('*', $permissions) || in_array($permission, $permissions);
     }
+
 }

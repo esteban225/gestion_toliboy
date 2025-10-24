@@ -2,6 +2,7 @@
 
 namespace App\Modules\Users\Domain\Repositories;
 
+use App\Models\User;
 use App\Modules\Users\Domain\Entities\UserEntity;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -57,9 +58,9 @@ interface UsersRepositoryInterface
      * Actualiza un usuario existente.
      *
      * @param  UserEntity  $data  Datos actualizados del usuario (debe incluir el id)
-     * @return bool True si la actualización fue exitosa, false en caso contrario
+     * @return UserEntity |null Entidad actualizada o null si falla
      */
-    public function update(UserEntity $data): bool;
+    public function update(UserEntity $data): ?UserEntity;
 
     /**
      * Elimina un usuario por su identificador.

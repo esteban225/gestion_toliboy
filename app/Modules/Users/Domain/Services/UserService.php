@@ -66,9 +66,9 @@ class UserService
      * Actualizar un usuario existente.
      *
      * @param  UserEntity  $data  Datos actualizados del usuario (debe incluir el id)
-     * @return bool True si la actualización fue exitosa, false en caso contrario
+     * @return UserEntity |null Entidad actualizada o null si falla
      */
-    public function updateUser(UserEntity $data): bool
+    public function updateUser(UserEntity $data): ?UserEntity
     {
         if ($data->getPassword()) {
             $data->setPassword(Hash::make($data->getPassword()));
