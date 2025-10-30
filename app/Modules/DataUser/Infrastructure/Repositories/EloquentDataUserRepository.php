@@ -2,7 +2,7 @@
 
 namespace App\Modules\DataUser\Infrastructure\Repositories;
 
-use App\Models\PersonalDatum as DataUserModel;
+use App\Models\PersonalDatum;
 use App\Modules\DataUser\Domain\Entities\DataUserEntity;
 use App\Modules\DataUser\Domain\Repositories\DataUserRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -30,7 +30,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
      */
     public function all(array $filters = []): array
     {
-        $query = DataUserModel::query();
+        $query = PersonalDatum::query();
 
         // Aplicar filtros si existen
         foreach ($filters as $key => $value) {
@@ -45,17 +45,11 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = DataUserModel::query();
+        $query = PersonalDatum::query();
         foreach ($filters as $key => $value) {
-            $query->where($key, $value);
+            $query->where($key , 'LIKE', "%$value%");
         }
         $paginator = $query->paginate($perPage);
-
-        // Mapear los resultados a entidades
-        $paginator->getCollection()->transform(function ($item) {
-            return $this->mapToEntity($item);
-        });
-
         return $paginator;
     }
 
@@ -67,7 +61,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
      */
     public function find(string $id): ?DataUserEntity
     {
-        $dataUser = DataUserModel::find($id);
+        $dataUser = PersonalDatum::find($id);
         if (! $dataUser) {
             return null;
         }
@@ -83,7 +77,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
      */
     public function create(array $data): ?DataUserEntity
     {
-        $dataUser = DataUserModel::create($data);
+        $dataUser = PersonalDatum::create($data);
         if (! $dataUser) {
             return null;
         }
@@ -103,7 +97,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
             return false; // No se puede actualizar sin ID
         }
 
-        $dataUser = DataUserModel::find($data['id']);
+        $dataUser = PersonalDatum::find($data['id']);
         if (! $dataUser) {
             return false; // No se encontró el registro
         }
@@ -119,7 +113,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
      */
     public function delete(string $id): bool
     {
-        $dataUser = DataUserModel::find($id);
+        $dataUser = PersonalDatum::find($id);
         if ($dataUser) {
             return (bool) $dataUser->delete() > 0;
         }
@@ -127,7 +121,7 @@ class EloquentDataUserRepository implements DataUserRepositoryInterface
         return false;
     }
 
-    protected function mapToEntity(DataUserModel $model): DataUserEntity
+    protected function mapToEntity(PersonalDatum $model): DataUserEntity
     {
         return new DataUserEntity(
             $model->id,

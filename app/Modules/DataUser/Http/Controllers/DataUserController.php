@@ -10,6 +10,7 @@ use App\Modules\DataUser\Http\Requests\DataUserUpDateRequest as UpDateRequest;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class DataUserController
@@ -68,6 +69,7 @@ class DataUserController extends Controller
             $filters = $request->except(['page', 'per_page']);
             $perpage = $request->input('per_page', 15);
             $dataUsers = $this->useCase->paginate($filters, $perpage);
+            Log::info("Controlador datos de usuario", $dataUsers->toArray());
 
             if ($dataUsers->isEmpty()) {
                 return response()->json([

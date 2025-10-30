@@ -45,8 +45,24 @@ class FormResponseController extends Controller
         try {
             $filters = $request->except(['page', 'per_page']);
             $perpage = $request->input('per_page', 15);
-            $paginator = $this->useCase->all($filters, $perpage);
-            if (! $paginator) {
+
+            $query = FormResponse::with([
+                'user:id,name',
+                'form:id,name,code',
+                'form_response_values.form_field',
+                'batch:id,batch_number',
+            ]);
+
+            // Aplicar filtros si los tienes definidos
+            foreach ($filters as $key => $value) {
+                if (!empty($value)) {
+                    $query->where($key, $value);
+                }
+            }
+
+            $paginator = $query->paginate($perpage);
+
+            if ($paginator->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron respuestas de formularios'], 404);
             }
 
@@ -61,6 +77,7 @@ class FormResponseController extends Controller
                     'total' => $paginator->total(),
                 ],
             ], 200);
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
@@ -69,6 +86,7 @@ class FormResponseController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Muestra el formulario para crear una nueva respuesta.
@@ -117,7 +135,7 @@ class FormResponseController extends Controller
                 'message' => 'Error de validación',
                 'errors' => $e->errors(),
             ], 422);
-        } 
+        }
     }
 
     /**
