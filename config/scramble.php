@@ -235,7 +235,7 @@ return [
      * Servidores configurados para pruebas desde la doc.
      */
     'servers' => [
-        'Producción' => 'https://api.toliboy.com/api',
+        'Producción' => 'https://apitoliboy.lat/api',
         'Staging' => 'https://staging.toliboy.com/api',
         'AWS' => 'http://3.85.24.170/api',
         'Local' => 'http://127.0.0.1:8000/api',
