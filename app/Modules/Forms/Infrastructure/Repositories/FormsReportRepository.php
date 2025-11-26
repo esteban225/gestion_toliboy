@@ -77,7 +77,28 @@ class FormsReportRepository
             $row = [];
             foreach ($fields as $field) {
                 // Usamos el mapa para encontrar el valor correspondiente, o dejamos en blanco si no existe
-                $row[] = $map[$resp->id][$field->id] ?? '';
+                $value = $map[$resp->id][$field->id] ?? '';
+                
+                // Garantizar que el valor es un array de valores (no una row que sea string)
+                // Si es un string JSON, decodificarlo
+                if (is_string($value)) {
+                    $decoded = json_decode($value, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        $value = $decoded;
+                    }
+                }
+                
+                // Convertir arrays a string legible para la celda
+                if (is_array($value)) {
+                    $value = implode(', ', array_map(fn($v) => (string) $v, $value));
+                }
+                
+                $row[] = $value;
+            }
+            // CRÍTICO: Asegurar que $row es SIEMPRE un array
+            if (!is_array($row)) {
+                Log::error('Row no es array en fetchFormReport', ['row' => $row, 'type' => gettype($row)]);
+                $row = [];
             }
             $rows[] = $row;
         }

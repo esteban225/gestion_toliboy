@@ -180,6 +180,13 @@
                 <tbody>
                     @forelse($rows as $row)
                         <tr>
+                            @php
+                                // Seguridad: si $row no es array, intentar convertirlo
+                                if (!is_array($row)) {
+                                    $decoded = json_decode($row, true);
+                                    $row = is_array($decoded) ? $decoded : [];
+                                }
+                            @endphp
                             @foreach ($row as $cell)
                                 @php
                                     $display = $cell;
