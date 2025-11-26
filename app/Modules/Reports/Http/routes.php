@@ -5,7 +5,7 @@
 use App\Modules\Reports\Http\Controllers\ReportsController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('reports')->middleware(['api', 'jwt.auth', 'role:GG,INPL,INPR,DEV', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+Route::prefix('reports')->middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
     Route::get('/{reportName}', [ReportsController::class, 'report']);
     Route::get('/{reportName}/export', [ReportsController::class, 'export']);
     Route::post('/export', [ReportsController::class, 'exportReport']);
