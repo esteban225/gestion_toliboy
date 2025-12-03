@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $raw_material_id
  * @property int|null $batch_id
  * @property string $movement_type
+ * @property string $production_line
  * @property float $quantity
  * @property float|null $unit_cost
  * @property string|null $notes
@@ -43,6 +44,7 @@ class InventoryMovement extends Model
         'raw_material_id',
         'batch_id',
         'movement_type',
+        'production_line',
         'quantity',
         'unit_cost',
         'notes',

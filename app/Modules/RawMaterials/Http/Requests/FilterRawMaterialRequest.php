@@ -23,7 +23,7 @@ class FilterRawMaterialRequest extends FormRequest
             'code' => 'sometimes|string|max:100',
             'is_active' => 'sometimes|boolean',
             'created_by' => 'sometimes|integer|exists:users,id',
-            'per_page' => 'sometimes|integer|min:1|max:100', // Elementos por página
+            'per_page' => 'sometimes|integer|min:1|max:500', // Elementos por página
             'page' => 'sometimes|integer|min:1', // Número de página
         ];
     }

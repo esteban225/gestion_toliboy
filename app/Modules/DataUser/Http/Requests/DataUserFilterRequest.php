@@ -27,7 +27,7 @@ class DataUserFilterRequest extends FormRequest
             'address' => 'sometimes|string|max:45', // Dirección, si está en el parametro
             'emergency_contact' => 'sometimes|string|max:100', // Contacto de emergencia, si está en el parametro
             'emergency_phone' => 'sometimes|string|max:25', // Teléfono de emergencia, si está en el parametro
-            'per_page' => 'sometimes|integer|min:1|max:100', // Número de resultados por página para paginación
+            'per_page' => 'sometimes|integer|min:1|max:500', // Número de resultados por página para paginación
             'page' => 'sometimes|integer|min:1', // Número de página para paginación
         ];
     }

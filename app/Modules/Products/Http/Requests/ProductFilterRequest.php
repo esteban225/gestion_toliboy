@@ -37,7 +37,7 @@ class ProductFilterRequest extends FormRequest
             'description' => 'sometimes|string',
             'is_active' => 'sometimes|boolean', // true o false
             'created_by' => 'sometimes|integer|exists:users,id', // Debe existir en la tabla users
-            'per_page' => 'sometimes|integer|min:1|max:100', // Elementos por página
+            'per_page' => 'sometimes|integer|min:1|max:500', // Elementos por página
             'page' => 'sometimes|integer|min:1', // Número de página
         ];
     }

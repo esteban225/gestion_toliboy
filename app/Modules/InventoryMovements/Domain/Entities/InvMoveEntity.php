@@ -15,6 +15,8 @@ class InvMoveEntity
 
     private string $movement_type;
 
+    private string $production_line;
+
     private float $quantity;
 
     private ?float $unit_cost;
@@ -28,6 +30,7 @@ class InvMoveEntity
         int $raw_material_id,
         ?int $batch_id,
         string $movement_type,
+        string $production_line,
         float $quantity,
         ?float $unit_cost,
         ?string $notes,
@@ -37,6 +40,7 @@ class InvMoveEntity
         $this->raw_material_id = $raw_material_id;
         $this->batch_id = $batch_id;
         $this->movement_type = $movement_type;
+        $this->production_line = $production_line;
         $this->quantity = $quantity;
         $this->unit_cost = $unit_cost;
         $this->notes = $notes;
@@ -62,6 +66,11 @@ class InvMoveEntity
     public function getMovementType(): string
     {
         return $this->movement_type;
+    }
+
+    public function getProductionLine(): string
+    {
+        return $this->production_line;
     }
 
     public function getQuantity(): float
@@ -103,6 +112,11 @@ class InvMoveEntity
     public function setMovementType(string $movement_type): void
     {
         $this->movement_type = $movement_type;
+    }
+
+    public function setProductionLine(string $production_line): void
+    {
+        $this->production_line = $production_line;
     }
 
     public function setQuantity(float $quantity): void
@@ -152,6 +166,7 @@ class InvMoveEntity
             $data['raw_material_id'],
             $data['batch_id'] ?? null,
             $data['movement_type'],
+            $data['production_line'],
             (float) $data['quantity'],
             isset($data['unit_cost']) ? (float) $data['unit_cost'] : null,
             $data['notes'] ?? null,
@@ -170,6 +185,7 @@ class InvMoveEntity
             $model->raw_material_id,
             $model->batch_id,
             $model->movement_type,
+            $model->production_line,
             (float) $model->quantity,
             isset($model->unit_cost) ? (float) $model->unit_cost : null,
             $model->notes,

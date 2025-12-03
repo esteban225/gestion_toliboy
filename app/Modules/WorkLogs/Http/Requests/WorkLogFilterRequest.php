@@ -25,7 +25,7 @@ class WorkLogFilterRequest extends FormRequest
             'end_time' => 'sometimes|nullable|date_format:H:i|after:start_time',
             'batch_id' => 'sometimes|nullable|integer|exists:batches,id',
             'task_description' => 'sometimes|nullable|string|max:1000',
-            'per_page' => 'sometimes|nullable|integer|min:1|max:100',
+            'per_page' => 'sometimes|nullable|integer|min:1|max:500',
             'page' => 'sometimes|nullable|integer|min:1',
         ];
     }

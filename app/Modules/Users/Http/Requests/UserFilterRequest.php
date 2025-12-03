@@ -21,7 +21,7 @@ class UserFilterRequest extends FormRequest
         return [
             'name' => 'sometimes|string|max:255', // Modificado a 'sometimes' para filtros opcionales
             'is_active' => 'sometimes|boolean', // Modificado a 'sometimes' para filtros opcionales
-            'per_page' => 'sometimes|integer|min:1|max:100', // Paginación, por defecto 15 por página
+            'per_page' => 'sometimes|integer|min:1|max:500', // Paginación, por defecto 15 por página
             'page' => 'sometimes|integer|min:1', // Página actual, por defecto 1
         ];
     }

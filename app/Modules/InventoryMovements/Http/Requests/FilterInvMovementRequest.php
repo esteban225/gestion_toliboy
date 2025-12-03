@@ -23,9 +23,10 @@ class FilterInvMovementRequest extends FormRequest
             'raw_material_id' => 'sometimes|integer|exists:raw_materials,id', // ID de materia prima existente
             'batch_id' => 'sometimes|integer|exists:batches,id', // ID de lote existente
             'created_by' => 'sometimes|integer|exists:users,id', // ID de usuario existente
+            'production_line' => 'sometimes|string', // Línea de producción
             'created_at' => 'sometimes|date', // Fecha de creación
             'page' => 'sometimes|integer|min:1', // Página para paginación
-            'per_page' => 'sometimes|integer|min:1|max:100', // Ítems por página para paginación
+            'per_page' => 'sometimes|integer|min:1|max:500', // Ítems por página para paginación
         ];
     }
 

@@ -28,6 +28,7 @@ class RegisterInvMovementRequest extends FormRequest
             'raw_material_id' => 'required|integer|exists:raw_materials,id',
             'batch_id' => 'nullable|integer|exists:batches,id',
             'movement_type' => 'required|string|in:in,out,adjustment',
+            'production_line' => 'required|string',
             'quantity' => 'required|numeric|min:0.01',
             'unit_cost' => 'required|numeric|min:0',
             'notes' => 'nullable|string',

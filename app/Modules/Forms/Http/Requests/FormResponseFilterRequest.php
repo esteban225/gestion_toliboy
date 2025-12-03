@@ -16,7 +16,7 @@ class FormResponseFilterRequest extends FormRequest
             'batch_id' => 'sometimes|integer|exists:batches,id',
             'status' => 'sometimes|string|in:pending,in_progress,completed,approved,rejected',
             'page' => 'sometimes|integer|min:1',
-            'per_page' => 'sometimes|integer|min:1|max:100',
+            'per_page' => 'sometimes|integer|min:1|max:500',
         ];
     }
 
