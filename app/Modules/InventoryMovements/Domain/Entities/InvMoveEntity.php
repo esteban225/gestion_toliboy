@@ -15,7 +15,7 @@ class InvMoveEntity
 
     private string $movement_type;
 
-    private string $production_line;
+    private ?string $production_line;
 
     private float $quantity;
 
@@ -30,7 +30,7 @@ class InvMoveEntity
         int $raw_material_id,
         ?int $batch_id,
         string $movement_type,
-        string $production_line,
+        ?string $production_line,
         float $quantity,
         ?float $unit_cost,
         ?string $notes,
@@ -167,7 +167,7 @@ class InvMoveEntity
             $data['raw_material_id'],
             $data['batch_id'] ?? null,
             $data['movement_type'],
-            $data['production_line'],
+            $data['production_line']?? null,
             (float) $data['quantity'],
             isset($data['unit_cost']) ? (float) $data['unit_cost'] : null,
             $data['notes'] ?? null,
