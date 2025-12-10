@@ -149,7 +149,7 @@ class InvMoveEntity
             'raw_material_id' => $this->raw_material_id,
             'batch_id' => $this->batch_id,
             'movement_type' => $this->movement_type,
-            
+            'production_line' => $this->production_line,
             'quantity' => $this->quantity,
             'unit_cost' => $this->unit_cost,
             'notes' => $this->notes,
