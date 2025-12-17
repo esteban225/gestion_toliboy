@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Reporte de formulario' }}</title>
     <style>
         * {
@@ -13,50 +14,54 @@
 
         body {
             font-family: 'DejaVu Sans', 'Arial', sans-serif;
-            font-size: 10px;
+            font-size: 12px; /* Aumentado para A0 */
             color: #1a202c;
-            line-height: 1.4;
-            background: #ffffff;
-            padding: 10px;
+            line-height: 1.5;
+            background: #f8fafc;
+            padding: 0;
         }
 
         .container {
             max-width: 100%;
             background: #ffffff;
-            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         header {
-            background: #1e40af;
-            padding: 16px 20px;
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            padding: 20px 24px;
             color: #ffffff;
-            border-bottom: 3px solid #1e3a8a;
+            border-bottom: 4px solid #1e3a8a;
         }
 
         h2 {
-            font-size: 18px;
+            font-size: 28px; /* Más grande para A0 */
             font-weight: 700;
-            margin-bottom: 4px;
-            letter-spacing: -0.3px;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
             word-break: break-word;
             overflow-wrap: break-word;
         }
 
         .meta {
-            font-size: 9px;
+            font-size: 13px;
             color: #e0e7ff;
             font-weight: 500;
-            margin-top: 3px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .meta::before {
-            content: "📅 ";
-            font-size: 10px;
+            content: "📅";
+            font-size: 14px;
         }
 
         .table-wrapper {
-            padding: 16px 20px 20px;
+            padding: 20px 24px 24px;
             overflow-x: auto;
+            overflow-y: auto;
         }
 
         table {
@@ -64,26 +69,30 @@
             border-collapse: collapse;
             border: 1px solid #cbd5e1;
             table-layout: auto;
+            min-width: 800px;
         }
 
         thead {
-            background: #f1f5f9;
+            background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         thead th {
             color: #1e293b;
             font-weight: 700;
-            font-size: 9px;
+            font-size: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            padding: 10px 8px;
+            letter-spacing: 0.5px;
+            padding: 14px 12px;
             text-align: left;
             border-bottom: 2px solid #94a3b8;
-            border-right: 1px solid #e2e8f0;
+            border-right: 1px solid #cbd5e1;
             word-break: break-word;
             overflow-wrap: break-word;
-            hyphens: auto;
             white-space: normal;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         thead th:last-child {
@@ -92,7 +101,11 @@
 
         tbody tr {
             border-bottom: 1px solid #e2e8f0;
-            page-break-inside: avoid;
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f5f9 !important;
         }
 
         tbody tr:last-child {
@@ -108,16 +121,14 @@
         }
 
         td {
-            padding: 8px 8px;
+            padding: 12px 12px;
             color: #475569;
-            font-size: 9px;
+            font-size: 10px;
             vertical-align: top;
             border-right: 1px solid #f1f5f9;
             word-break: break-word;
             overflow-wrap: break-word;
-            hyphens: auto;
             white-space: normal;
-            max-width: 200px;
         }
 
         td:last-child {
@@ -126,41 +137,50 @@
 
         td:first-child,
         th:first-child {
-            padding-left: 12px;
+            padding-left: 16px;
         }
 
         td:last-child,
         th:last-child {
-            padding-right: 12px;
+            padding-right: 16px;
         }
 
-        /* Clases de ancho adaptativo */
+        /* Sistema de anchos mejorado y más flexible */
         td.narrow {
-            max-width: 80px;
-            min-width: 50px;
+            width: 8%;
+            min-width: 80px;
+            max-width: 120px;
         }
 
         td.medium {
-            max-width: 150px;
-            min-width: 100px;
+            width: 15%;
+            min-width: 150px;
+            max-width: 250px;
         }
 
         td.wide {
-            max-width: 300px;
-            min-width: 150px;
+            width: 25%;
+            min-width: 200px;
+            max-width: 400px;
         }
 
-        /* Manejo de contenido largo */
+        td.auto {
+            width: auto;
+        }
+
+        /* Manejo de contenido largo mejorado */
         .cell-content {
             display: block;
-            line-height: 1.3;
+            line-height: 1.4;
             word-wrap: break-word;
+            max-height: none;
         }
 
         .cell-content.truncated {
-            max-height: 60px;
+            max-height: 80px;
             overflow: hidden;
             position: relative;
+            padding-bottom: 4px;
         }
 
         .cell-content.truncated::after {
@@ -168,13 +188,14 @@
             position: absolute;
             bottom: 0;
             right: 0;
-            background: inherit;
-            padding-left: 10px;
+            background: linear-gradient(to right, transparent, inherit 20%);
+            padding-left: 20px;
+            padding-right: 4px;
         }
 
         .empty-state {
             text-align: center;
-            padding: 30px 20px;
+            padding: 40px 20px;
             color: #94a3b8;
             background: #f8fafc;
         }
@@ -182,37 +203,60 @@
         .empty-state::before {
             content: "📋";
             display: block;
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.7;
         }
 
         .empty-state-text {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 500;
             color: #64748b;
             font-style: italic;
         }
 
-        /* Footer con información del reporte */
+        /* Footer mejorado */
         footer {
-            padding: 12px 20px;
-            font-size: 8px;
+            padding: 16px 24px;
+            font-size: 9px;
             color: #94a3b8;
-            border-top: 1px solid #e2e8f0;
-            text-align: right;
+            border-top: 2px solid #e2e8f0;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        /* Configuración optimizada para PDF */
+        .footer-stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .footer-stat strong {
+            color: #475569;
+            font-weight: 600;
+        }
+
+        /* Configuración optimizada para PDF - Tamaño A0 máximo */
         @page {
-            margin: 10mm;
-            size: A4 landscape;
+            margin: 15mm;
+            size: 1189mm 841mm; /* A0 landscape - 1189mm x 841mm */
         }
 
         @page :first {
-            margin-top: 15mm;
+            margin-top: 20mm;
         }
 
-        /* Evitar cortes de página en filas */
+        /* Evitar cortes de página */
         tbody tr {
             page-break-inside: avoid;
         }
@@ -225,54 +269,158 @@
             display: table-footer-group;
         }
 
-        /* Optimización para tablas muy grandes */
-        @media print {
+        /* Media queries para responsividad en pantalla */
+        @media screen and (max-width: 1400px) {
             body {
-                padding: 5px;
-                font-size: 9px;
-            }
-
-            header {
-                padding: 12px 15px;
+                font-size: 10px;
             }
 
             h2 {
+                font-size: 20px;
+            }
+
+            td, th {
+                padding: 10px 10px;
+                font-size: 9px;
+            }
+        }
+
+        @media screen and (max-width: 1024px) {
+            body {
+                font-size: 9px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            header {
+                padding: 16px 20px;
+            }
+
+            .table-wrapper {
+                padding: 16px 20px;
+            }
+
+            td, th {
+                padding: 8px 8px;
+                font-size: 8px;
+            }
+
+            td.narrow {
+                min-width: 60px;
+            }
+
+            td.medium {
+                min-width: 120px;
+            }
+
+            td.wide {
+                min-width: 160px;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+
+            footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .footer-stats {
+                width: 100%;
+            }
+        }
+
+        /* Optimización para impresión en A0 */
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+                font-size: 14px; /* Fuente más grande para A0 */
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            header {
+                padding: 30px 40px;
+                background: #1e40af;
+            }
+
+            h2 {
+                font-size: 36px; /* Header mucho más grande para A0 */
+            }
+
+            .meta {
                 font-size: 16px;
             }
 
             .table-wrapper {
-                padding: 10px 15px;
+                padding: 30px 40px;
+            }
+
+            table {
+                min-width: 100%;
+            }
+
+            thead th {
+                padding: 18px 16px;
+                font-size: 14px;
             }
 
             td, th {
-                padding: 6px 6px;
-                font-size: 8px;
+                padding: 14px 16px;
+                font-size: 13px;
             }
 
             td:first-child,
             th:first-child {
-                padding-left: 8px;
+                padding-left: 20px;
             }
 
             td:last-child,
             th:last-child {
-                padding-right: 8px;
+                padding-right: 20px;
             }
 
+            tbody tr:hover {
+                background-color: inherit !important;
+            }
+
+            /* Anchos mucho más generosos para A0 */
             td.narrow {
-                max-width: 60px;
+                min-width: 150px;
+                max-width: 250px;
             }
 
             td.medium {
-                max-width: 120px;
+                min-width: 300px;
+                max-width: 500px;
             }
 
             td.wide {
-                max-width: 250px;
+                min-width: 500px;
+                max-width: 800px;
+            }
+
+            footer {
+                padding: 24px 40px;
+                font-size: 12px;
+            }
+
+            .footer-stat strong {
+                font-size: 14px;
             }
         }
 
-        /* Estilos para números y fechas */
+        /* Estilos para diferentes tipos de datos */
         .text-right {
             text-align: right;
         }
@@ -283,6 +431,33 @@
 
         .font-mono {
             font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        /* Indicadores visuales */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-error {
+            background: #fee2e2;
+            color: #991b1b;
         }
     </style>
 </head>
@@ -299,7 +474,7 @@
                 <thead>
                     <tr>
                         @foreach ($headings as $head)
-                            <th>{{ substr($head, 0, 50) }}</th>
+                            <th>{{ substr($head, 0, 60) }}</th>
                         @endforeach
                     </tr>
                 </thead>
@@ -332,19 +507,19 @@
                                     // Convertir a string
                                     $display = (string) $display;
                                     
-                                    // Limitar tamaño
-                                    $maxLength = 5000;
+                                    // Limitar tamaño (aumentado el límite)
+                                    $maxLength = 8000;
                                     $isTruncated = strlen($display) > $maxLength;
                                     if ($isTruncated) {
                                         $display = substr($display, 0, $maxLength) . '...';
                                     }
                                     
-                                    // Determinar clase de ancho según contenido
+                                    // Sistema de clasificación de ancho mejorado
                                     $cellLength = strlen($display);
                                     $cellClass = 'medium';
-                                    if ($cellLength < 30) {
+                                    if ($cellLength < 20) {
                                         $cellClass = 'narrow';
-                                    } elseif ($cellLength > 100) {
+                                    } elseif ($cellLength > 150) {
                                         $cellClass = 'wide';
                                     }
                                 @endphp
@@ -358,7 +533,7 @@
                     @empty
                         <tr>
                             <td colspan="{{ max(1, count($headings)) }}" class="empty-state">
-                                <div class="empty-state-text">No hay datos disponibles</div>
+                                <div class="empty-state-text">No hay datos disponibles para mostrar</div>
                             </td>
                         </tr>
                     @endforelse
@@ -367,7 +542,20 @@
         </div>
 
         <footer>
-            Total de registros: {{ count($rows) }} | Columnas: {{ count($headings) }} | Página generada: {{ now()->format('d/m/Y H:i:s') }}
+            <div class="footer-stats">
+                <div class="footer-stat">
+                    <span>📊 Total de registros:</span>
+                    <strong>{{ count($rows) }}</strong>
+                </div>
+                <div class="footer-stat">
+                    <span>📋 Columnas:</span>
+                    <strong>{{ count($headings) }}</strong>
+                </div>
+            </div>
+            <div class="footer-stat">
+                <span>🕐 Generado:</span>
+                <strong>{{ now()->format('d/m/Y H:i:s') }}</strong>
+            </div>
         </footer>
     </div>
 </body>
