@@ -25,7 +25,7 @@ class BatchRegisterRequest extends FormRequest
             'start_date' => 'required|date',
             'expected_end_date' => 'nullable|date|after_or_equal:start_date',
             'actual_end_date' => 'nullable|date|after_or_equal:start_date',
-            'status' => 'required|bool|max:50',
+            'status' => 'required|max:50',
             'quantity' => 'required|integer|min:1',
             'defect_quantity' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',

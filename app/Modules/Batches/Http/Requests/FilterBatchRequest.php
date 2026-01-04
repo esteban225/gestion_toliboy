@@ -17,7 +17,7 @@ class FilterBatchRequest extends FormRequest
             'name' => 'sometimes|string|max:255', // Nombre del lote
             'code' => 'sometimes|string|max:100', // Código del lote
             'product_id' => 'sometimes|integer|exists:products,id', // ID del producto asociado
-            'status' => 'sometimes|in:active,inactive', // Estado del lote
+            'status' => 'sometimes', // Estado del lote
             'created_at' => 'sometimes|date', // Fecha de creación
         ];
     }

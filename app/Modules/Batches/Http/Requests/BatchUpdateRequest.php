@@ -25,7 +25,7 @@ class BatchUpdateRequest extends FormRequest
             'start_date' => 'date',
             'expected_end_date' => 'nullable|date|after_or_equal:start_date',
             'actual_end_date' => 'nullable|date|after_or_equal:start_date',
-            'status' => 'bool|max:50',
+            'status' => 'max:50',
             'quantity' => 'integer|min:1',
             'defect_quantity' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
