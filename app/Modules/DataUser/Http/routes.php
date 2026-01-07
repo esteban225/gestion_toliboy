@@ -36,7 +36,7 @@ Route::middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::cla
 });
 
 // Rutas con prefijo 'accesData' y protección adicional por roles
-Route::prefix('accesData')->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+Route::prefix('accesData')->middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
     /**
      * DELETE /accesData/dataUsers/{id}
      * Elimina los datos de usuario por su ID.

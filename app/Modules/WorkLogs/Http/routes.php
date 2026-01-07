@@ -27,7 +27,7 @@ Route::middleware(['api', 'jwt.auth'])->group(function () {
 
 // Rutas protegidas para la gestión completa de WorkLogs
 Route::prefix('work-logs')
-    ->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])
+    ->middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])
     ->group(function () {
         /**
          * GET /work-logs

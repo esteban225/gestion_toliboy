@@ -3,7 +3,7 @@
 use App\Modules\InventoryMovements\Http\Controllers\InvMoveController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('inventory-movements')->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+Route::prefix('inventory-movements')->middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
 
     Route::get('/', [InvMoveController::class, 'index']);
     Route::get('/{id}', [InvMoveController::class, 'show']);

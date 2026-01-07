@@ -3,7 +3,7 @@
 use App\Modules\Products\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('products')->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+Route::prefix('products')->middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/{id}', [ProductController::class, 'show']);
     Route::post('/', [ProductController::class, 'store']);

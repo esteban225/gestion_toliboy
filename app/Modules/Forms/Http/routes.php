@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
  * Grupo principal para rutas de gestión de formularios.
  * Middleware: Autenticación JWT + Roles permitidos.
  */
-Route::middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR,TRZ,OP', SetDbSessionUser::class])
+Route::middleware(['api', 'jwt.auth', SetDbSessionUser::class])
     ->prefix('forms')
     ->group(function () {
 

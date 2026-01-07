@@ -11,7 +11,7 @@ use App\Modules\Users\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::prefix('accesData')->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+Route::prefix('accesData')->middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
     /**
      * GET /users
      * Lista todos los usuarios paginados y filtrados.

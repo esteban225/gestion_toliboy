@@ -53,7 +53,7 @@ Route::middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::cla
 });
 
 // Grupo con prefijo 'auth' y protección adicional por roles
-Route::prefix('auth')->middleware(['api', 'jwt.auth', 'role:DEV,GG,INGPL,INGPR', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
+Route::prefix('auth')->middleware(['api', 'jwt.auth', \App\Http\Middleware\SetDbSessionUser::class])->group(function () {
     /**
      * POST /auth/register
      * Registra un nuevo usuario en el sistema.
