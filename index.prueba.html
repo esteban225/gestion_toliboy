@@ -14,71 +14,33 @@
   <h2>🔔 Esperando notificaciones...</h2>
   <div id="messages"></div>
 
-  <script>
-    // 🧩 ID del usuario autenticado
-    const userId = 1; // ⚠️ Cambia este valor por el ID real del usuario logueado
+<script>
+  const userId = 46;
 
-    // ⚙️ Configura Pusher con tu clave y cluster correctos
-    const pusher = new Pusher("3cfb434018939310b096", {
-      cluster: "us2",
-      forceTLS: true,
-      debug: true,
-    });
+  const pusher = new Pusher("3cfb434018939310b096", {
+    cluster: "us2",
+    forceTLS: true,
+    authEndpoint: "/broadcasting/auth",
+    withCredentials: true,
+  });
 
-    // 🔎 Mostrar errores de conexión de Pusher
-    pusher.connection.bind("error", function (err) {
-      let errorDiv = document.getElementById("error");
-      if (!errorDiv) {
-        errorDiv = document.createElement("div");
-        errorDiv.id = "error";
-        document.body.insertBefore(errorDiv, document.getElementById("messages"));
-      }
-      errorDiv.textContent =
-        "❌ Error de conexión Pusher: " +
-        (err.error ? err.error.data.message : JSON.stringify(err));
-      console.error("Pusher error:", err);
-    });
+  const userChannel = pusher.subscribe(`private-notifications.${userId}`);
+  const globalChannel = pusher.subscribe("notifications.global");
 
-    // 📡 Suscribirse al canal individual del usuario
-    const userChannel = pusher.subscribe(`notifications.${userId}`);
+  function mostrar(origen, data) {
+    const p = document.createElement("p");
+    p.textContent = `🔔 [${origen}] ${data.title ?? data.message ?? JSON.stringify(data)}`;
+    document.getElementById("messages").appendChild(p);
+  }
 
-    userChannel.bind("pusher:subscription_succeeded", function () {
-      console.log(`✅ Suscrito correctamente al canal: notifications.${userId}`);
-    });
+  userChannel.bind("NotificationCreated", data =>
+    mostrar(`user ${userId}`, data)
+  );
 
-    userChannel.bind("pusher:subscription_error", function (status) {
-      console.error(`❌ Error al suscribirse al canal: ${status}`);
-    });
+  globalChannel.bind("NotificationCreated", data =>
+    mostrar("global", data)
+  );
+</script>
 
-    // 📡 (Opcional) Suscribirse también al canal global
-    const globalChannel = pusher.subscribe("notifications.global");
-
-    globalChannel.bind("pusher:subscription_succeeded", function () {
-      console.log("✅ Suscrito correctamente al canal: notifications.global");
-    });
-
-    // 📬 Escuchar el evento notification.created (en ambos canales)
-    function mostrarNotificacion(origen, data) {
-      console.log(`📢 Nueva notificación desde ${origen}:`, data);
-      const div = document.getElementById("messages");
-      const message = document.createElement("p");
-      message.textContent = `🔔 [${origen}] ${data.title ?? data.message ?? JSON.stringify(data)}`;
-      div.appendChild(message);
-    }
-
-    userChannel.bind("notification.created", (data) =>
-      mostrarNotificacion(`notifications.${userId}`, data)
-    );
-
-    globalChannel.bind("notification.created", (data) =>
-      mostrarNotificacion("notifications.global", data)
-    );
-
-    // ⚠️ Verifica que el backend tenga:
-    // BROADCAST_DRIVER=pusher
-    // PUSHER_APP_KEY=3cfb434018939310b096
-    // PUSHER_APP_CLUSTER=us2
-    // y que use "new Channel('notifications.' . $userId)" o "notifications.global"
-  </script>
 </body>
 </html>

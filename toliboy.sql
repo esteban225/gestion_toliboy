@@ -231,7 +231,7 @@ CREATE TABLE IF NOT EXISTS `toliboy`.`inventory_movements` (
   `raw_material_id` BIGINT NOT NULL,
   `batch_id` BIGINT NULL, -- si se usó para un lote
   `movement_type` ENUM('in', 'out', 'adjustment') NOT NULL,
-    `production_line` VARCHAR(100) NOT NULL, -- nueva columna para línea de producción
+`production_line` VARCHAR(100) NOT NULL, -- nueva columna para línea de producción
   `quantity` DECIMAL(10,2) NOT NULL,
   `unit_cost` DECIMAL(10,2) NULL DEFAULT 0.00, -- opcional, para costos promedio
   `notes` TEXT NULL DEFAULT NULL,

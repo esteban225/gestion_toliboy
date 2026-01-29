@@ -1,5 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Broadcast;
+
+Broadcast::routes([
+    'middleware' => ['jwt.auth'], // o el middleware exacto que uses
+]);
 /*
 |--------------------------------------------------------------------------
 | Load extra module routes
