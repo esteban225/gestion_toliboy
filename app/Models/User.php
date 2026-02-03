@@ -93,7 +93,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function role()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, 'role_id', 'id');
     }
 
     /**
@@ -226,5 +226,4 @@ class User extends Authenticatable implements JWTSubject
 
         return in_array('*', $permissions) || in_array($permission, $permissions);
     }
-
 }

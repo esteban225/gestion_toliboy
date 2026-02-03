@@ -25,26 +25,25 @@ class NotificationController extends Controller
     /**
      * Crear notificación
      */
-    public function createNotification(RegisterRequest $request): JsonResponse
+    public function createNotification(Request $request)
     {
-        $data = $request->validated();
+        $data = $request->all();
 
-        // Datos de la entidad
-        $entityData = $data;
-        unset($entityData['user_id'], $entityData['roles']);
+        // Construimos la entidad desde el payload del frontend
+        $notification = NotificationEntity::fromArray($data);
 
-        // Datos extra
+        // Extras que el Service necesita
         $extra = [
-            'user_id' => $data['user_id'] ?? null,
-            'roles'   => $data['roles'] ?? null,
+            'user_id' => $request->input('user_id'),
+            'role'    => $request->input('role'),
+            'roles'   => $request->input('roles'),
         ];
 
-        // Llamar al caso de uso con los dos parámetros
-        $createdNotification = $this->notificationUseCase
-            ->createNotification($entityData, $extra);
+        $notification = $this->notificationUseCase->createNotification($notification, $extra);
 
-        return response()->json(new NotificationResource($createdNotification), 201);
+        return response()->json($notification->toArray()); 
     }
+
 
     /**
      * Obtener notificación por ID
@@ -81,7 +80,6 @@ class NotificationController extends Controller
             $data['scope'] ?? $notification->getScope(),
             $data['related_table'] ?? $notification->getRelatedTable(),
             $data['related_id'] ?? $notification->getRelatedId(),
-            $data['user_id'] ?? $notification->getUserId(),
             isset($data['expires_at']) ? Carbon::parse($data['expires_at']) : $notification->getExpiresAt()
         );
 

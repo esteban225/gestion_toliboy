@@ -5,6 +5,7 @@ namespace App\Modules\Notifications\Domain\Services;
 use App\Events\NotificationCreated;
 use App\Models\Notification;
 use App\Models\Role; // agregado para consultas directas
+use App\Models\User;
 use App\Modules\Notifications\Domain\Entities\NotificationEntity;
 use App\Modules\Notifications\Domain\Repositories\NotificationRepositoryI;
 use Carbon\Carbon;
@@ -22,87 +23,59 @@ class NotificationService
 
     public function createNotification(NotificationEntity $notification, array $extra = []): NotificationEntity
     {
-        // Si no trae scope, por defecto individual
-        if ($notification->getScope() === null) {
+        // Scope default
+        if (! $notification->getScope()) {
             $notification->setScope('individual');
         }
 
-        // Si no trae fecha de expiración, asignamos 2 días por defecto
-        if ($notification->getExpiresAt() === null) {
+        // TTL default
+        if (! $notification->getExpiresAt()) {
             $notification->setExpiresAt(Carbon::now()->addDays(2));
         }
 
-        // Crear notificación en BD
-        $createdNotification = $this->notificationRepository->create($notification);
-
-        // Recolector de IDs de usuarios a notificar (para evento)
         $userIds = collect();
 
-        // Lógica según scope
         switch ($notification->getScope()) {
+
             case 'individual':
-                if (! isset($extra['user_id'])) {
-                    throw new \InvalidArgumentException('El campo user_id es obligatorio para notificaciones individuales');
+                if (empty($extra['user_id'])) {
+                    throw new \InvalidArgumentException("user_id requerido para scope individual");
                 }
-
-                $notificationModel = Notification::find($createdNotification->getId());
-                $notificationModel->users()->attach($extra['user_id']);
-
                 $userIds = collect([$extra['user_id']]);
                 break;
 
             case 'group':
-                // Aceptar 'role' (string) o 'roles' (array de strings)
-                $rolesInput = [];
-                if (isset($extra['role'])) {
-                    $rolesInput[] = $extra['role'];
-                }
-                if (isset($extra['roles']) && is_array($extra['roles'])) {
-                    $rolesInput = array_merge($rolesInput, $extra['roles']);
-                }
-                $rolesInput = array_values(array_unique(array_filter($rolesInput)));
+                $roles = [];
 
-                if (empty($rolesInput)) {
-                    throw new \InvalidArgumentException('El campo role o roles es obligatorio para notificaciones grupales');
+                if (!empty($extra['role'])) $roles[] = $extra['role'];
+                if (!empty($extra['roles'])) $roles = array_merge($roles, $extra['roles']);
+
+                if (empty($roles)) {
+                    throw new \InvalidArgumentException("role(s) requerido para scope group");
                 }
 
-                // Obtener todos los IDs de usuarios para los roles dados
-                $userIds = Role::whereIn('name', $rolesInput)
-                    ->with(['users:id,role_id'])
-                    ->get()
-                    ->flatMap(fn ($role) => $role->users->pluck('id'))
+                $userIds = User::whereHas('role', function ($q) use ($roles) {
+                    $q->whereIn('name', $roles);
+                })
+                    ->pluck('id')
                     ->unique()
-                    ->values();
+                    ->values(); // Quita índices raros
+
 
                 if ($userIds->isEmpty()) {
-                    throw new \RuntimeException('No se encontraron usuarios para los roles: '.implode(', ', $rolesInput));
+                    throw new \RuntimeException("No se encontraron usuarios para roles: " . implode(',', $roles));
                 }
-
-                $notificationModel = Notification::find($createdNotification->getId());
-                $notificationModel->users()->attach($userIds, ['is_read' => false]);
                 break;
 
             case 'global':
-                // Global no requiere usuarios específicos
+                // sin userIds
                 break;
-
-            default:
-                throw new \InvalidArgumentException('Scope inválido: '.$notification->getScope());
         }
-        $messaje = [
-            'id' => $createdNotification->getId(),
-            'title' => $createdNotification->getTitle(),
-            'message' => $createdNotification->getMessage(),
-            'type' => $createdNotification->getType() ?? null,
-            'scope' => $createdNotification->getScope() ?? null,
-            // 'is_read' => $createdNotification->getIsRead() ?? false, --- IGNORE ---
-            'related_table' => $createdNotification->getRelatedTable() ?? null,
-            'related_id' => $createdNotification->getRelatedId() ?? null,
-            'user_id' => $userIds->toArray(),
-        ];
-        event(new NotificationCreated($createdNotification, $userIds->toArray()));
-        return $createdNotification;
+
+        // PASO CLAVE: Pasamos $userIds al repo
+        return $this->notificationRepository->create($notification, $userIds->toArray());
     }
+
 
     public function getNotificationById(int $id): ?NotificationEntity
     {
@@ -185,13 +158,13 @@ class NotificationService
         $userIds = Role::whereIn('name', $roles)
             ->with(['users:id,role_id'])
             ->get()
-            ->flatMap(fn ($role) => $role->users->pluck('id'))
+            ->flatMap(fn($role) => $role->users->pluck('id'))
             ->unique()
             ->values()
             ->all();
 
         if (empty($userIds)) {
-            throw new \RuntimeException('No se encontraron usuarios para los roles: '.implode(', ', $roles));
+            throw new \RuntimeException('No se encontraron usuarios para los roles: ' . implode(', ', $roles));
         }
 
         $payload['user_ids'] = $userIds;

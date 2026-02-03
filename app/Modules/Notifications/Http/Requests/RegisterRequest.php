@@ -29,16 +29,9 @@ class RegisterRequest extends FormRequest
             'message' => 'required|string',
             'type' => 'required|string|in:info,warning,error,success',
             'scope' => 'required|string|in:individual,group,global',
-
             'related_table' => 'nullable|string|max:255',
             'related_id' => 'nullable|integer',
             'expires_at' => 'nullable|date_format:Y-m-d H:i:s|after:now',
-
-            // 🔹 Individual -> exige user_id
-            'user_id' => 'required_if:scope,individual|integer|exists:users,id',
-
-            // 🔹 Group -> exige role
-            'role' => 'required_if:scope,group|string|in:DEV,INGPL,INGPR,GG,TRZ,OP',
         ];
     }
 

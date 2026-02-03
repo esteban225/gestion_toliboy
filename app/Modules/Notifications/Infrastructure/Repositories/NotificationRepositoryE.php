@@ -15,9 +15,10 @@ class NotificationRepositoryE implements NotificationRepositoryI
     {
         $notification = Notification::create($entity->toArray());
 
-        // Si es individual o grupal, asociamos usuarios
-        if (! empty($userIds) && ! $notification->isGlobal()) {
-            $pivotData = collect($userIds)->mapWithKeys(fn ($id) => [
+        // Insert pivot (solo si no es global)
+        if (!empty($userIds) && $notification->scope !== 'global') {
+
+            $pivotData = collect($userIds)->mapWithKeys(fn($id) => [
                 $id => ['is_read' => false, 'read_at' => null],
             ])->toArray();
 
@@ -26,6 +27,7 @@ class NotificationRepositoryE implements NotificationRepositoryI
 
         return NotificationEntity::fromArray($notification->toArray());
     }
+
 
     public function findById(int $id): ?NotificationEntity
     {
@@ -94,7 +96,7 @@ class NotificationRepositoryE implements NotificationRepositoryI
             ->unreadForUser($userId)
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn ($notification) => new NotificationEntity(
+            ->map(fn($notification) => new NotificationEntity(
                 $notification->id,
                 $notification->title,
                 $notification->message,
