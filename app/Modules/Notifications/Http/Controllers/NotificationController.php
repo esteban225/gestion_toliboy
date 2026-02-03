@@ -29,7 +29,19 @@ class NotificationController extends Controller
     {
         $data = $request->validated();
 
-        $createdNotification = $this->notificationUseCase->createNotification($data);
+        // Datos de la entidad
+        $entityData = $data;
+        unset($entityData['user_id'], $entityData['roles']);
+
+        // Datos extra
+        $extra = [
+            'user_id' => $data['user_id'] ?? null,
+            'roles'   => $data['roles'] ?? null,
+        ];
+
+        // Llamar al caso de uso con los dos parámetros
+        $createdNotification = $this->notificationUseCase
+            ->createNotification($entityData, $extra);
 
         return response()->json(new NotificationResource($createdNotification), 201);
     }
