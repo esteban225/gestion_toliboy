@@ -16,28 +16,32 @@ class UserSeeder extends Seeder
                 'name' => 'Developer',
                 'email' => 'desarrollo@toliboy.com',
                 'password' => 'DevPassword',
-                'role_id' => DB::table('roles')->where('name', 'DEV')->value('id'),
+                'role' => 'DEV',
             ],
             [
                 'name' => 'Trazabilidad',
                 'email' => 'trazabilidad@toliboy.com',
                 'password' => 'trpassword',
-                'role_id' => DB::table('roles')->where('name', 'TRZ')->value('id'),
+                'role' => 'TRZ',
 
             ],
             [
                 'name' => 'Operador',
                 'email' => 'operador@toliboy.com',
                 'password' => 'opassword',
-                'role_id' => DB::table('roles')->where('name', 'Op')->value('id'),
+                'role' => 'OP',
 
             ],
         ];
 
-        $roleId = DB::table('roles')->where('name', 'DEV')->value('id');
         $schema = DB::getSchemaBuilder();
+        $roles = DB::table('roles')
+            ->whereIn('name', array_unique(array_column($usuarios, 'role')))
+            ->pluck('id', 'name')
+            ->all();
 
         foreach ($usuarios as $u) {
+            $roleId = $roles[$u['role']] ?? null;
 
             // Crear usuario si no existe
             $userId = DB::table('users')->where('email', $u['email'])->value('id');
@@ -52,7 +56,7 @@ class UserSeeder extends Seeder
                 ]);
             }
 
-            // Asignar el rol DEV (usa tu misma lógica dinámica)
+            // Asignar el rol configurado para el usuario
             if ($roleId) {
 
                 if ($schema->hasTable('role_user')) {
