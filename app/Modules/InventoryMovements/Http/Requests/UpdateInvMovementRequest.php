@@ -25,12 +25,12 @@ class UpdateInvMovementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'raw_material_id' => 'sometimes|required|integer|exists:raw_materials,id',
+            'raw_material_id' => 'sometimes|integer|exists:raw_materials,id',
             'batch_id' => 'sometimes|nullable|integer|exists:batches,id',
-            'movement_type' => 'sometimes|required|string|in:in,out,adjustment',
-            'production_line' => 'sometimes|required|string',
-            'quantity' => 'sometimes|required|numeric|min:0.01',
-            'unit_cost' => 'sometimes|required|numeric|min:0',
+            'movement_type' => 'sometimes|string|in:in,out,adjustment',
+            'production_line' => 'sometimes|string',
+            'quantity' => 'sometimes|numeric|min:0.01',
+            'unit_cost' => 'sometimes|numeric|min:0',
             'notes' => 'sometimes|nullable|string',
             'created_by' => 'sometimes|nullable|integer|exists:users,id',
         ];
@@ -63,7 +63,6 @@ class UpdateInvMovementRequest extends FormRequest
             'quantity.required' => 'La cantidad es obligatoria.',
             'quantity.numeric' => 'La cantidad debe ser un valor numérico.',
             'quantity.min' => 'La cantidad debe ser al menos 0.01.',
-            'unit_cost.required' => 'El costo unitario es obligatorio.',
             'unit_cost.numeric' => 'El costo unitario debe ser un valor numérico.',
             'unit_cost.min' => 'El costo unitario no puede ser negativo.',
             'notes.string' => 'Las notas deben ser una cadena de texto.',
