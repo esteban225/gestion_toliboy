@@ -28,7 +28,7 @@ class UpdateInvMovementRequest extends FormRequest
             'raw_material_id' => 'sometimes|integer|exists:raw_materials,id',
             'batch_id' => 'sometimes|nullable|integer|exists:batches,id',
             'movement_type' => 'sometimes|string|in:in,out,adjustment',
-            'production_line' => 'sometimes|string',
+            'production_line' => 'sometimes|nullable|string|max:255',
             'quantity' => 'sometimes|numeric|min:0.01',
             'unit_cost' => 'sometimes|numeric|min:0',
             'notes' => 'sometimes|nullable|string',
