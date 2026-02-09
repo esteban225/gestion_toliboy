@@ -13,19 +13,24 @@ class UserSeeder extends Seeder
     {
         $usuarios = [
             [
-                'name' => 'Developer 1',
+                'name' => 'Developer',
                 'email' => 'desarrollo@toliboy.com',
-                'password' => 'DevPassword'
+                'password' => 'DevPassword',
+                'role_id' => DB::table('roles')->where('name', 'DEV')->value('id'),
             ],
             [
-                'name' => 'Developer 2',
-                'email' => 'admin@toliboy.com',
-                'password' => 'AdminPassword'
+                'name' => 'Trazabilidad',
+                'email' => 'trazabilidad@toliboy.com',
+                'password' => 'trpassword',
+                'role_id' => DB::table('roles')->where('name', 'TRZ')->value('id'),
+
             ],
             [
-                'name' => 'Developer 3',
-                'email' => 'soporte@toliboy.com',
-                'password' => 'SupportPassword'
+                'name' => 'Operador',
+                'email' => 'operador@toliboy.com',
+                'password' => 'opassword',
+                'role_id' => DB::table('roles')->where('name', 'Op')->value('id'),
+
             ],
         ];
 
