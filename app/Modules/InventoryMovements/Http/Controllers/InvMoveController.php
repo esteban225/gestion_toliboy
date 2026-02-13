@@ -123,10 +123,6 @@ class InvMoveController extends Controller
         try {
             $data = InvMoveEntity::fromArray($request->validated());
             $invMove = $this->useCase->create($data);
-            // Si es movimiento de entrada, aumentar stock (por compatibilidad, aunque ya se hace en Service)
-            if ($invMove && $data->isInbound()) {
-                $this->useCase->increaseStock($data->getRawMaterialId(), $data->getQuantity());
-            }
             if ($invMove) {
                 return response()->json([
                     'success' => true,
