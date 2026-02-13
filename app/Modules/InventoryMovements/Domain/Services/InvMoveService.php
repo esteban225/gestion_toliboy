@@ -58,6 +58,10 @@ class InvMoveService
         if ($entity->isInbound()) {
             $this->repositoy->increaseStock($entity->getRawMaterialId(), $entity->getQuantity());
         }
+        // Si es movimiento de salida, reducir stock
+        if ($entity->isOutbound()) {
+            $this->repositoy->reduceStock($entity->getRawMaterialId(), $entity->getQuantity());
+        }
         return $created;
     }
     public function increaseStock(int $itemId, float $qty): void
