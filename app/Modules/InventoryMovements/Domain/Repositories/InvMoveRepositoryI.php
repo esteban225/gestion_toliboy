@@ -33,4 +33,6 @@ interface InvMoveRepositoryI
     public function delete(int $id): bool;
 
     public function reduceStock(int $itemId, float $qty): void;
+
+    public function increaseStock(int $itemId, float $qty): void;
 }

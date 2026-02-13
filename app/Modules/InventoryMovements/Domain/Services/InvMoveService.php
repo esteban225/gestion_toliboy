@@ -53,8 +53,16 @@ class InvMoveService
     public function create(InvMoveEntity $entity): ?InvMoveEntity
     {
         $this->notificationUseCase->execute($entity->toArray());
-
-        return $this->repositoy->create($entity);
+        $created = $this->repositoy->create($entity);
+        // Si es movimiento de entrada, aumentar stock
+        if ($entity->isInbound()) {
+            $this->repositoy->increaseStock($entity->getRawMaterialId(), $entity->getQuantity());
+        }
+        return $created;
+    }
+    public function increaseStock(int $itemId, float $qty): void
+    {
+        $this->repositoy->increaseStock($itemId, $qty);
     }
 
     public function update(InvMoveEntity $entity): bool

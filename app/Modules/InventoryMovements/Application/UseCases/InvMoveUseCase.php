@@ -51,6 +51,11 @@ class InvMoveUseCase
         return $this->service->create($entity);
     }
 
+    public function increaseStock(int $itemId, float $qty)
+    {
+        return $this->service->increaseStock($itemId, $qty);
+    }
+
     public function update(InvMoveEntity $entity): bool
     {
         return $this->service->update($entity);
