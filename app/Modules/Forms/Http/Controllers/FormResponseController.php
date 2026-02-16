@@ -50,7 +50,7 @@ class FormResponseController extends Controller
                 'user:id,name',
                 'form:id,name,code',
                 'form_response_values.form_field',
-                'batch:id,batch_id',
+                'batch:id,name,code',
             ]);
 
             // Aplicar filtros si los tienes definidos
@@ -160,7 +160,7 @@ class FormResponseController extends Controller
                 'user:id,name',
                 'form:id,name,code',
                 'form_response_values.form_field',
-                'batch:id,batch_id',
+                'batch:id,name,code',
             ])->find($id);
 
             if (! $formResponse) {
