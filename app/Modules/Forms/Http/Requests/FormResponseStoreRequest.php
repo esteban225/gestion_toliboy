@@ -13,6 +13,7 @@ class FormResponseStoreRequest extends FormRequest
         return [
             'form_id' => 'required|exists:forms,id',
             'batch_id' => 'nullable|exists:batches,id',
+            'status' => 'required|in:in_progress,approved,rejected',
             'values' => 'required|array',
         ];
     }
@@ -28,6 +29,8 @@ class FormResponseStoreRequest extends FormRequest
             'form_id.required' => 'El ID del formulario es obligatorio.',
             'form_id.exists' => 'El formulario especificado no existe.',
             'batch_id.exists' => 'El lote especificado no existe.',
+            'status.required' => 'El estado de la respuesta es obligatorio.',
+            'status.in' => 'El estado de la respuesta debe ser uno de los siguientes: in_progress, approved, rejected.',
             'values.required' => 'Los valores del formulario son obligatorios.',
             'values.array' => 'Los valores del formulario deben ser un arreglo.',
         ];
