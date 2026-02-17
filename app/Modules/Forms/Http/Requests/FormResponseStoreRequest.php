@@ -13,7 +13,7 @@ class FormResponseStoreRequest extends FormRequest
         return [
             'form_id' => 'required|exists:forms,id',
             'batch_id' => 'nullable|exists:batches,id',
-            'status' => 'required|in:in_progress,approved,rejected',
+            'status' => 'required|in:in_progress,completed,approved,rejected',
             'values' => 'required|array',
         ];
     }
