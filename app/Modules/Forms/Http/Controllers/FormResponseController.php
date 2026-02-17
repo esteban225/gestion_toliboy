@@ -405,7 +405,7 @@ class FormResponseController extends Controller
     {
         try {
             $request->validate([
-                'status' => 'required|in:approved,rejected',
+                'status' => 'required|in:in_progress,approved,rejected,rejected',
                 'review_notes' => 'nullable|string|max:1000',
             ]);
 
