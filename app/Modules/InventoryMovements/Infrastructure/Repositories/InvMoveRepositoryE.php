@@ -19,6 +19,9 @@ class InvMoveRepositoryE implements InvMoveRepositoryI
             $query->where($key, 'LIKE', "%$value%");
         }
 
+        // Ordenar de mayor a menor (por id o la columna que prefieras)
+        $query->orderBy('id', 'DESC');
+
         return $query->paginate($perpage);
     }
 

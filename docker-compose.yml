@@ -22,7 +22,6 @@ services:
       - DB_USERNAME=toliboy
       - DB_PASSWORD=toliboy
     user: www-data
-
   nginx:
       image: nginx:1.25
       container_name: gestion_toliboy_nginx
@@ -36,8 +35,6 @@ services:
           - /etc/letsencrypt:/etc/letsencrypt:ro
       depends_on:
           - app
-
-
   db:
     image: mysql:8.0
     container_name: gestion_toliboy_db
